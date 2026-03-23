@@ -31,8 +31,17 @@ export default function LoginPage() {
       }
       // Navigate immediately — don't wait for AuthContext to finish
       router.push(profile.role === 'admin' ? '/admin' : '/dashboard');
-    } catch {
-      setError('Invalid email or password.');
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code ?? '';
+      if (code === 'auth/user-not-found' || code === 'auth/invalid-credential') {
+        setError('Invalid email or password.');
+      } else if (code === 'auth/too-many-requests') {
+        setError('Too many attempts. Please try again later.');
+      } else if (code === 'auth/network-request-failed') {
+        setError('Network error. Check your connection.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
       setLoading(false);
     }
   }
