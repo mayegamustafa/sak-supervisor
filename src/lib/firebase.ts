@@ -1,7 +1,7 @@
 // Firebase configuration and initialization
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { initializeFirestore, getFirestore, Firestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -23,9 +23,18 @@ let db: Firestore;
 let storage: FirebaseStorage;
 
 if (isConfigured) {
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  const isNew = !getApps().length;
+  app = isNew ? initializeApp(firebaseConfig) : getApp();
   auth = getAuth(app);
-  db = getFirestore(app);
+  // Enable IndexedDB persistence so Firestore works offline.
+  // initializeFirestore can only be called once; on HMR re-imports use getFirestore.
+  if (isNew) {
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    });
+  } else {
+    db = getFirestore(app);
+  }
   storage = getStorage(app);
 } else {
   // Provide safe no-op stubs at build/test time so imports don't throw.

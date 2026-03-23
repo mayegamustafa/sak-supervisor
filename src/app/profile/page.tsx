@@ -85,7 +85,7 @@ export default function ProfilePage() {
             Share Link
           </button>
           <a
-            href="/SAK-Supervision.apk"
+            href="/sak-supervision.apk"
             download
             className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
           >
