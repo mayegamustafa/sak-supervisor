@@ -153,3 +153,19 @@ export function CalendarIcon({ className = 'h-6 w-6' }: { className?: string }) 
     </svg>
   );
 }
+
+export function BellIcon({ className = 'h-6 w-6' }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+    </svg>
+  );
+}
+
+export function MegaphoneIcon({ className = 'h-6 w-6' }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38a.904.904 0 0 1-1.189-.377l-.18-.335a13.58 13.58 0 0 1-.985-2.748m2.49-1.214c3.027-.34 5.894-1.227 8.479-2.563M10.34 6.66c3.027.34 5.894 1.227 8.479 2.563M19.5 9.75l.813.406a1.032 1.032 0 0 1 0 1.838l-.813.407" />
+    </svg>
+  );
+}

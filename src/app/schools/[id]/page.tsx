@@ -5,7 +5,14 @@ import { useRouter, useParams } from 'next/navigation';
 import { getSchool, getSchoolIssues, updateSchool } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
 import IssueCard from '@/components/IssueCard';
-import type { School, Issue } from '@/types';
+import type { School, Issue, IssueStatus } from '@/types';
+
+const FILTERS: { label: string; value: IssueStatus | 'All' }[] = [
+  { label: 'All', value: 'All' },
+  { label: 'Pending', value: 'Pending' },
+  { label: 'In Progress', value: 'In Progress' },
+  { label: 'Resolved', value: 'Resolved' },
+];
 
 export default function SchoolDetailPage() {
   const { appUser, loading } = useAuth();
@@ -18,6 +25,7 @@ export default function SchoolDetailPage() {
   const [form, setForm] = useState({ school_name: '' });
   const [saving, setSaving] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [filter, setFilter] = useState<IssueStatus | 'All'>('All');
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
@@ -92,6 +100,24 @@ export default function SchoolDetailPage() {
         </div>
       )}
 
+      {/* Issue Status Summary */}
+      {issues.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl bg-red-50 border border-red-100 p-3 text-center">
+            <p className="text-xl font-bold text-red-700">{issues.filter(i => i.status === 'Pending').length}</p>
+            <p className="text-xs text-red-600 font-medium">Pending</p>
+          </div>
+          <div className="rounded-xl bg-yellow-50 border border-yellow-100 p-3 text-center">
+            <p className="text-xl font-bold text-yellow-700">{issues.filter(i => i.status === 'In Progress').length}</p>
+            <p className="text-xs text-yellow-600 font-medium">In Progress</p>
+          </div>
+          <div className="rounded-xl bg-green-50 border border-green-100 p-3 text-center">
+            <p className="text-xl font-bold text-green-700">{issues.filter(i => i.status === 'Resolved').length}</p>
+            <p className="text-xs text-green-600 font-medium">Resolved</p>
+          </div>
+        </div>
+      )}
+
       {/* Issues */}
       <section>
         <div className="mb-3 flex items-center justify-between">
@@ -104,11 +130,31 @@ export default function SchoolDetailPage() {
           </button>
         </div>
 
+        {/* Filter tabs */}
+        {issues.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none mb-3">
+            {FILTERS.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => setFilter(value)}
+                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  filter === value
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {issues.length === 0 ? (
           <p className="py-6 text-center text-sm text-gray-400">No issues reported for this school.</p>
         ) : (
           <div className="space-y-3">
-            {issues.map((issue) => <IssueCard key={issue.id} issue={issue} />)}
+            {(filter === 'All' ? issues : issues.filter(i => i.status === filter))
+              .map((issue) => <IssueCard key={issue.id} issue={issue} />)}
           </div>
         )}
       </section>

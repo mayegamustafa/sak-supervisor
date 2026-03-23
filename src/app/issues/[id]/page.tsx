@@ -8,7 +8,10 @@ import {
   getResolution,
   addFollowUp,
   resolveIssue,
+  updateIssueStatus,
+  createNotification,
 } from '@/lib/firestore';
+import { sendPush } from '@/lib/messaging';
 import { useAuth } from '@/context/AuthContext';
 import FollowUpTimeline from '@/components/FollowUpTimeline';
 import { CheckCircleIcon } from '@/components/Icons';
@@ -56,23 +59,38 @@ export default function IssueDetailPage() {
 
   async function handleAddComment(e: React.FormEvent) {
     e.preventDefault();
-    if (!comment.trim() || !appUser || !id) return;
+    if (!comment.trim() || !appUser || !id || !issue) return;
     setAddingComment(true);
     await addFollowUp(id, comment.trim(), appUser.name);
+    // Auto-set Pending → In Progress
+    if (issue.status === 'Pending') {
+      await updateIssueStatus(id, 'In Progress');
+      setIssue((prev) => prev ? { ...prev, status: 'In Progress' } : prev);
+    }
     const updated = await getFollowUps(id);
     setFollowups(updated);
+    // Notify about the follow-up
+    const notifTitle = 'Follow-up Added';
+    const notifBody = `${appUser.name} added a follow-up on: ${issue.issue_title}`;
+    createNotification({ type: 'issue', title: notifTitle, body: notifBody, target_all: true, created_by: appUser.id });
+    sendPush({ title: notifTitle, body: notifBody, target_all: true });
     setComment('');
     setAddingComment(false);
   }
 
   async function handleResolve(e: React.FormEvent) {
     e.preventDefault();
-    if (!resolutionDesc.trim() || !appUser || !id) return;
+    if (!resolutionDesc.trim() || !appUser || !id || !issue) return;
     setResolving(true);
     await resolveIssue(id, resolutionDesc.trim(), appUser.name);
     const [i, r] = await Promise.all([getIssue(id), getResolution(id)]);
     setIssue(i);
     setResolution(r);
+    // Notify about the resolution
+    const notifTitle = 'Issue Resolved';
+    const notifBody = `${appUser.name} resolved: ${issue.issue_title}`;
+    createNotification({ type: 'issue', title: notifTitle, body: notifBody, target_all: true, created_by: appUser.id });
+    sendPush({ title: notifTitle, body: notifBody, target_all: true });
     setShowResolveForm(false);
     setResolving(false);
   }
@@ -86,6 +104,12 @@ export default function IssueDetailPage() {
 
   return (
     <div className="space-y-5">
+      {/* Back button */}
+      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-blue-600 font-medium">
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+        Back
+      </button>
+
       {/* Header */}
       <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
         <div className="mb-3 flex items-start justify-between gap-2">

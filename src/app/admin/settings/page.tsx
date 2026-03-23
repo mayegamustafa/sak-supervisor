@@ -16,6 +16,8 @@ import {
   DocumentTextIcon,
   ShareIcon,
   DownloadIcon,
+  BellIcon,
+  MegaphoneIcon,
 } from '@/components/Icons';
 
 export default function AdminSettingsPage() {
@@ -72,6 +74,7 @@ export default function AdminSettingsPage() {
           <SettingsLink icon={<UsersIcon className="h-5 w-5" />} label="Manage Users" desc="Add, disable, change roles" onClick={() => router.push('/admin/users')} />
           <SettingsLink icon={<CalendarIcon className="h-5 w-5" />} label="Term Settings" desc="Set term dates & weeks" onClick={() => router.push('/admin/terms')} />
           <SettingsLink icon={<DocumentTextIcon className="h-5 w-5" />} label="Print Report" desc="Generate issues report" onClick={() => router.push('/report')} />
+          <SettingsLink icon={<MegaphoneIcon className="h-5 w-5" />} label="Send Notice" desc="Broadcast to all users" onClick={() => router.push('/notices/new')} />
         </div>
       </section>
 
@@ -81,6 +84,7 @@ export default function AdminSettingsPage() {
         <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
           <SettingsLink icon={<ClipboardIcon className="h-5 w-5" />} label="Supervisions" desc="View all supervision logs" onClick={() => router.push('/visits')} />
           <SettingsLink icon={<ChatBubbleIcon className="h-5 w-5" />} label="Messages" desc="Chat with team members" onClick={() => router.push('/chat')} />
+          <SettingsLink icon={<BellIcon className="h-5 w-5" />} label="Notices" desc="View all broadcast notices" onClick={() => router.push('/notices')} />
           <SettingsLink icon={<UserCircleIcon className="h-5 w-5" />} label="My Profile" desc="View your profile details" onClick={() => router.push('/profile')} />
         </div>
       </section>

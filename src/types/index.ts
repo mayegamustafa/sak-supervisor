@@ -4,3 +4,4 @@ export * from './issue';
 export * from './visit';
 export * from './term';
 export * from './chat';
+export * from './notice';

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { logout } from '@/lib/auth';
-import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon } from '@/components/Icons';
+import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon } from '@/components/Icons';
 
 export default function ProfilePage() {
   const { appUser, loading } = useAuth();
@@ -82,6 +82,10 @@ export default function ProfilePage() {
         <button onClick={() => router.push('/chat')} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50">
           <ChatBubbleIcon className="h-5 w-5 text-blue-600" />
           <span className="text-sm font-medium text-gray-900">Messages</span>
+        </button>
+        <button onClick={() => router.push('/notices')} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50">
+          <BellIcon className="h-5 w-5 text-blue-600" />
+          <span className="text-sm font-medium text-gray-900">Notices</span>
         </button>
       </div>
 

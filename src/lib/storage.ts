@@ -1,11 +1,14 @@
-import { auth } from './firebase';
-
 /**
- * Compress an image file to reduce upload size and time.
- * Returns a Blob ready for upload.
+ * Compress an image and return it as a base64 data URL.
+ * Stores directly in Firestore — no Firebase Storage needed.
+ *
+ * Images are aggressively compressed:
+ * - Max 800px wide
+ * - JPEG quality 0.6
+ * - Typical result: 30–100 KB base64 string
  */
-async function compressImage(file: File, maxWidth = 1200, quality = 0.7): Promise<Blob> {
-  return new Promise((resolve) => {
+function compressToDataURL(file: File, maxWidth = 800, quality = 0.6): Promise<string> {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
@@ -18,39 +21,23 @@ async function compressImage(file: File, maxWidth = 1200, quality = 0.7): Promis
       canvas.height = height;
       const ctx = canvas.getContext('2d')!;
       ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob(
-        (blob) => resolve(blob ?? file),
-        'image/jpeg',
-        quality
-      );
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      URL.revokeObjectURL(img.src);
+      resolve(dataUrl);
     };
-    img.onerror = () => resolve(file);
+    img.onerror = () => {
+      URL.revokeObjectURL(img.src);
+      reject(new Error('Failed to load image'));
+    };
     img.src = URL.createObjectURL(file);
   });
 }
 
 /**
- * Uploads a photo via the server-side API route (avoids CORS issues).
- * Compresses the image first, then uploads through /api/upload.
+ * "Upload" a photo by compressing it and returning a base64 data URL.
+ * This avoids Firebase Storage entirely (free tier limits).
+ * The data URL is stored directly in the Firestore document's photo_url field.
  */
-export async function uploadPhoto(file: File, pathPrefix: string): Promise<string> {
-  const compressed = await compressImage(file);
-
-  // Get current user's auth token for the server to authenticate with Firebase
-  const token = await auth.currentUser?.getIdToken();
-  if (!token) throw new Error('Not authenticated');
-
-  const formData = new FormData();
-  formData.append('file', compressed, 'photo.jpeg');
-  formData.append('path', pathPrefix);
-  formData.append('token', token);
-
-  const res = await fetch('/api/upload', { method: 'POST', body: formData });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'Upload failed');
-  }
-
-  const { url } = await res.json();
-  return url;
+export async function uploadPhoto(file: File, _pathPrefix: string): Promise<string> {
+  return compressToDataURL(file);
 }

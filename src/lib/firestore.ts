@@ -16,7 +16,7 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Issue, FollowUp, Resolution, School, VisitLog, TermConfig, ChatMessage, ChatRoom, AppUser } from '@/types';
+import type { Issue, FollowUp, Resolution, School, VisitLog, TermConfig, ChatMessage, ChatRoom, AppUser, Notice } from '@/types';
 
 // ─── Admin setup ─────────────────────────────────────────────────────────────
 
@@ -390,5 +390,40 @@ export async function createNotification(data: {
     read: false,
     created_at: serverTimestamp(),
   });
+}
+
+// ─── Broadcast Notices ───────────────────────────────────────────────────────
+
+export async function createNotice(data: {
+  title: string;
+  body: string;
+  created_by: string;
+  created_by_name: string;
+}): Promise<string> {
+  const ref = await addDoc(collection(db, 'notices'), {
+    ...data,
+    created_at: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+export async function getAllNotices(): Promise<Notice[]> {
+  const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(50));
+  const snap = await getDocs(q);
+  return snap.docs.map((s) => {
+    const d = s.data();
+    return {
+      id: s.id,
+      title: d.title ?? '',
+      body: d.body ?? '',
+      created_by: d.created_by ?? '',
+      created_by_name: d.created_by_name ?? '',
+      created_at: toDate(d.created_at),
+    } as Notice;
+  });
+}
+
+export async function deleteNotice(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'notices', id));
 }
 

@@ -236,7 +236,6 @@ export default function IssueForm({ schools }: Props) {
         <input
           type="file"
           accept="image/*"
-          capture="environment"
           onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
           className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm"
         />
