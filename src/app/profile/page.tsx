@@ -1,0 +1,80 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { logout } from '@/lib/auth';
+import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon } from '@/components/Icons';
+
+export default function ProfilePage() {
+  const { appUser, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !appUser) router.replace('/login');
+  }, [loading, appUser, router]);
+
+  async function handleLogout() {
+    await logout();
+    router.replace('/login');
+  }
+
+  if (loading || !appUser) return (
+    <div className="flex min-h-[60dvh] items-center justify-center">
+      <div className="spinner" />
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Avatar / Name */}
+      <div className="flex flex-col items-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 py-8 text-white shadow-md">
+        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-white">
+          <UserCircleIcon className="h-14 w-14" />
+        </div>
+        <h1 className="text-xl font-bold">{appUser.name}</h1>
+        <p className="mt-0.5 text-sm opacity-80">{appUser.email}</p>
+        <span className="mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold capitalize">
+          {appUser.role}
+        </span>
+      </div>
+
+      {/* Info */}
+      <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm space-y-4">
+        <InfoRow label="Name" value={appUser.name} />
+        <InfoRow label="Email" value={appUser.email} />
+        <InfoRow label="Role" value={appUser.role.charAt(0).toUpperCase() + appUser.role.slice(1)} />
+        <InfoRow label="Status" value={appUser.active ? 'Active' : 'Inactive'} />
+      </div>
+
+      {/* Admin quick link */}
+      {appUser.role === 'admin' && (
+        <button
+          onClick={() => router.push('/admin')}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-4 text-base font-bold text-white"
+        >
+          <BuildingIcon className="h-5 w-5" />
+          Admin Dashboard
+        </button>
+      )}
+
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-50 py-4 text-base font-bold text-red-700 hover:bg-red-100"
+      >
+        <ArrowRightOnRectangleIcon className="h-5 w-5" />
+        Sign Out
+      </button>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+      <span className="text-sm text-gray-500">{label}</span>
+      <span className="text-sm font-medium text-gray-900">{value}</span>
+    </div>
+  );
+}

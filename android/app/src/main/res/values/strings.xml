@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SAK Supervision</string>
+    <string name="title_activity_main">SAK Supervision</string>
+    <string name="package_name">com.sak.supervision</string>
+    <string name="custom_url_scheme">com.sak.supervision</string>
+</resources>

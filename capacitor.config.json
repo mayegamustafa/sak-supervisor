@@ -1,0 +1,20 @@
+{
+  "appId": "com.sak.supervision",
+  "appName": "SAK Supervision",
+  "webDir": "out",
+  "server": {
+    "url": "https://sak-supervision.vercel.app",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#1d4ed8",
+      "showSpinner": true,
+      "spinnerColor": "#ffffff"
+    }
+  }
+}

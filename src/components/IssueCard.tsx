@@ -1,0 +1,47 @@
+import Link from 'next/link';
+import type { Issue } from '@/types';
+
+const priorityColor: Record<Issue['priority'], string> = {
+  Low: 'bg-gray-100 text-gray-700',
+  Medium: 'bg-yellow-100 text-yellow-800',
+  High: 'bg-orange-100 text-orange-800',
+  Critical: 'bg-red-100 text-red-800',
+};
+
+const statusColor: Record<Issue['status'], string> = {
+  Pending: 'bg-red-50 text-red-700 border-red-200',
+  'In Progress': 'bg-yellow-50 text-yellow-800 border-yellow-200',
+  Resolved: 'bg-green-50 text-green-700 border-green-200',
+};
+
+interface Props {
+  issue: Issue;
+}
+
+export default function IssueCard({ issue }: Props) {
+  return (
+    <Link href={`/issues/${issue.id}`}>
+      <div className={`card-press rounded-xl border p-4 shadow-sm ${statusColor[issue.status]}`}>
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <h3 className="font-semibold leading-snug text-gray-900 line-clamp-2">
+            {issue.issue_title}
+          </h3>
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[issue.priority]}`}>
+            {issue.priority}
+          </span>
+        </div>
+
+        <p className="mb-3 text-sm text-gray-600 line-clamp-2">{issue.description}</p>
+
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+          <span className="rounded-full bg-white/60 px-2 py-0.5 border border-current">
+            {issue.status}
+          </span>
+          <span className="rounded-full bg-white/40 px-2 py-0.5">{issue.category}</span>
+          <span className="truncate max-w-[120px]">{issue.school_name}</span>
+          <span className="ml-auto text-gray-400">{new Date(issue.created_at).toLocaleDateString()}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
