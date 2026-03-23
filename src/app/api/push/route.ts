@@ -5,13 +5,17 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 function getAdminApp() {
   if (!getApps().length) {
-    const pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+    let pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
     if (!pk) throw new Error('Firebase Admin not configured');
+    // Handle both formats: escaped \n in single line, or real newlines in multi-line
+    pk = pk.replace(/\\n/g, '\n');
+    // Strip surrounding quotes if present
+    if (pk.startsWith('"') && pk.endsWith('"')) pk = pk.slice(1, -1);
     initializeApp({
       credential: cert({
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-        privateKey: pk.replace(/\\n/g, '\n'),
+        privateKey: pk,
       }),
     });
   }

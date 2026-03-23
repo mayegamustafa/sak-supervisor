@@ -5,10 +5,14 @@ import { db } from './firebase';
 let messaging: Messaging | null = null;
 let nativeListenersRegistered = false;
 
-/** Detect if running inside a Capacitor native shell */
+/** Detect if running inside a Capacitor native shell (not just web with Capacitor JS loaded) */
 function isNative(): boolean {
   if (typeof window === 'undefined') return false;
-  return !!(window as unknown as Record<string, unknown>).Capacitor;
+  const cap = (window as unknown as Record<string, unknown>).Capacitor as Record<string, unknown> | undefined;
+  if (!cap) return false;
+  // isNativePlatform() returns true ONLY inside the actual native app container
+  if (typeof cap.isNativePlatform === 'function') return (cap.isNativePlatform as () => boolean)();
+  return false;
 }
 
 function getMessagingInstance(): Messaging | null {
