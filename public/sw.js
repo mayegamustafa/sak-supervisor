@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sak-supervision-v2';
+const CACHE_NAME = 'sak-supervision-v3';
 const STATIC_ASSETS = [
   '/',
   '/dashboard',
@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
   '/issues',
   '/profile',
   '/admin',
+  '/chat',
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',

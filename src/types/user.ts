@@ -7,4 +7,6 @@ export interface AppUser {
   role: UserRole;
   active: boolean;
   created_at: string;
+  last_seen?: string;
+  online?: boolean;
 }

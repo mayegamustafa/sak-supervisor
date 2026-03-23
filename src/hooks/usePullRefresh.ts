@@ -41,6 +41,15 @@ export function usePullRefresh({
     }
   }, [onRefresh, refreshing]);
 
+  // Silent background refresh — no UI indicator
+  const doSilentRefresh = useCallback(async () => {
+    try {
+      await onRefresh();
+    } catch {
+      // ignore errors on background refresh
+    }
+  }, [onRefresh]);
+
   // Touch-based pull-to-refresh
   useEffect(() => {
     const el = containerRef.current;
@@ -83,23 +92,23 @@ export function usePullRefresh({
     };
   }, [containerRef, pullDistance, threshold, doRefresh]);
 
-  // Auto-background refresh
+  // Auto-background refresh (silent — no UI flicker)
   useEffect(() => {
     if (!autoRefreshInterval) return;
     const id = setInterval(() => {
-      if (!document.hidden) doRefresh();
+      if (!document.hidden) doSilentRefresh();
     }, autoRefreshInterval);
     return () => clearInterval(id);
-  }, [autoRefreshInterval, doRefresh]);
+  }, [autoRefreshInterval, doSilentRefresh]);
 
-  // Also refresh when page becomes visible again
+  // Also refresh when page becomes visible again (silent)
   useEffect(() => {
     function handleVisibility() {
-      if (!document.hidden) doRefresh();
+      if (!document.hidden) doSilentRefresh();
     }
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [doRefresh]);
+  }, [doSilentRefresh]);
 
   return { refreshing, pullDistance, containerRef, doRefresh };
 }

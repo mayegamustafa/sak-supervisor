@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createIssue, resolveIssue, updateIssueStatus } from '@/lib/firestore';
+import { createIssue, resolveIssue, updateIssueStatus, createNotification } from '@/lib/firestore';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
 import type { School, IssueCategory, IssuePriority, IssueStatus } from '@/types';
@@ -79,6 +79,15 @@ export default function IssueForm({ schools }: Props) {
       } else if (status === 'In Progress') {
         await updateIssueStatus(issueId, 'In Progress');
       }
+
+      // Notify all users about the new issue
+      await createNotification({
+        type: 'issue',
+        title: 'New Issue Reported',
+        body: `${appUser.name} reported: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`,
+        target_all: true,
+        created_by: appUser.id,
+      });
 
       router.push(`/issues/${issueId}`);
     } catch (err) {

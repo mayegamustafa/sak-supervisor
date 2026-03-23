@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HomeIcon, BuildingIcon, PlusCircleIcon, ClipboardIcon, UserCircleIcon } from './Icons';
+import { HomeIcon, BuildingIcon, PlusCircleIcon, ClipboardIcon, ChatBubbleIcon } from './Icons';
 
 const tabs = [
   { href: '/dashboard', label: 'Dashboard', Icon: HomeIcon },
   { href: '/schools', label: 'Schools', Icon: BuildingIcon },
   { href: '/issues/new', label: 'Add Issue', Icon: PlusCircleIcon },
   { href: '/visits', label: 'Supervisions', Icon: ClipboardIcon },
-  { href: '/profile', label: 'Profile', Icon: UserCircleIcon },
+  { href: '/chat', label: 'Chat', Icon: ChatBubbleIcon },
 ];
 
 export default function BottomNavigation() {

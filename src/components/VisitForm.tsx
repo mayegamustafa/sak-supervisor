@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { logVisit } from '@/lib/firestore';
+import { logVisit, getAllTermConfigs, getActiveTerm, getWeekNumber, createNotification } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
-import type { School, Term } from '@/types';
+import type { School, Term, TermConfig } from '@/types';
 
 const TERMS: Term[] = ['Term 1', 'Term 2', 'Term 3'];
 const WEEKS = Array.from({ length: 14 }, (_, i) => i + 1);
@@ -26,6 +26,19 @@ export default function VisitForm({ schools }: Props) {
   const [visit_notes, setVisitNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [autoDetected, setAutoDetected] = useState(false);
+
+  // Auto-detect term and week from term configs
+  useEffect(() => {
+    getAllTermConfigs().then((configs: TermConfig[]) => {
+      const active = getActiveTerm(configs);
+      if (active) {
+        setTerm(active.term);
+        setWeek(getWeekNumber(active.start_date));
+        setAutoDetected(true);
+      }
+    });
+  }, []);
 
   const selectedSchool = schools.find((s) => s.id === school_id);
 
@@ -47,6 +60,14 @@ export default function VisitForm({ schools }: Props) {
         term,
         week,
         visit_notes,
+      });
+      // Notify about new supervision log
+      await createNotification({
+        type: 'visit',
+        title: 'New Supervision Log',
+        body: `${appUser.name} logged a supervision at ${selectedSchool?.school_name ?? 'a school'}`,
+        target_all: true,
+        created_by: appUser.id,
       });
       router.push('/visits');
     } catch (err) {

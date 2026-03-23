@@ -171,6 +171,14 @@ export default function AdminDashboardPage() {
           Manage Schools
         </button>
       </div>
+      <div className="grid grid-cols-2 gap-3">
+        <button onClick={() => router.push('/admin/users')} className="rounded-xl bg-indigo-600 py-4 font-semibold text-white shadow">
+          Manage Users
+        </button>
+        <button onClick={() => router.push('/admin/terms')} className="rounded-xl border border-indigo-600 py-4 font-semibold text-indigo-600">
+          Term Settings
+        </button>
+      </div>
       <button
         onClick={() => router.push('/report')}
         className="w-full rounded-xl bg-gray-800 py-4 font-semibold text-white shadow"

@@ -2,18 +2,21 @@ import {
   collection,
   addDoc,
   updateDoc,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
+  setDoc,
   query,
   where,
   orderBy,
   serverTimestamp,
   Timestamp,
   limit,
+  onSnapshot,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Issue, FollowUp, Resolution, School, VisitLog } from '@/types';
+import type { Issue, FollowUp, Resolution, School, VisitLog, TermConfig, ChatMessage, ChatRoom, AppUser } from '@/types';
 
 // ─── Admin setup ─────────────────────────────────────────────────────────────
 
@@ -218,3 +221,174 @@ export async function getAllVisits(): Promise<VisitLog[]> {
     return { ...d, id: s.id, created_at: toDate(d.created_at) } as VisitLog;
   });
 }
+
+// ─── User Management (Admin) ─────────────────────────────────────────────────
+
+export async function getAllUsers(): Promise<AppUser[]> {
+  const snaps = await getDocs(collection(db, 'users'));
+  return snaps.docs.map((s) => {
+    const d = s.data();
+    return { ...d, id: s.id, created_at: toDate(d.created_at) } as AppUser;
+  });
+}
+
+export async function updateUserProfile(
+  uid: string,
+  data: Partial<Pick<AppUser, 'name' | 'role' | 'active'>>
+): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), data);
+}
+
+export async function deleteUser(uid: string): Promise<void> {
+  await deleteDoc(doc(db, 'users', uid));
+}
+
+// ─── Term Configuration ──────────────────────────────────────────────────────
+
+export async function saveTermConfig(data: Omit<TermConfig, 'id' | 'created_at'>): Promise<string> {
+  const ref = await addDoc(collection(db, 'term_configs'), {
+    ...data,
+    created_at: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+export async function updateTermConfig(id: string, data: Partial<Omit<TermConfig, 'id' | 'created_at'>>): Promise<void> {
+  await updateDoc(doc(db, 'term_configs', id), data);
+}
+
+export async function getAllTermConfigs(): Promise<TermConfig[]> {
+  const snaps = await getDocs(collection(db, 'term_configs'));
+  return snaps.docs
+    .map((s) => {
+      const d = s.data();
+      return { ...d, id: s.id, created_at: toDate(d.created_at) } as TermConfig;
+    })
+    .sort((a, b) => (b.start_date > a.start_date ? 1 : -1));
+}
+
+export function getActiveTerm(terms: TermConfig[], date: Date = new Date()): TermConfig | null {
+  const iso = date.toISOString().split('T')[0];
+  return terms.find((t) => iso >= t.start_date && iso <= t.end_date) ?? null;
+}
+
+export function getWeekNumber(termStart: string, date: Date = new Date()): number {
+  const start = new Date(termStart);
+  const diff = date.getTime() - start.getTime();
+  return Math.max(1, Math.ceil(diff / (7 * 24 * 60 * 60 * 1000)));
+}
+
+// ─── Presence ────────────────────────────────────────────────────────────────
+
+export async function setUserOnline(uid: string): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), {
+    online: true,
+    last_seen: new Date().toISOString(),
+  });
+}
+
+export async function setUserOffline(uid: string): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), {
+    online: false,
+    last_seen: new Date().toISOString(),
+  });
+}
+
+// ─── Chat ────────────────────────────────────────────────────────────────────
+
+export async function getOrCreateChatRoom(
+  user1Id: string,
+  user1Name: string,
+  user2Id: string,
+  user2Name: string
+): Promise<string> {
+  // Check if a room already exists between these two users
+  const q = query(
+    collection(db, 'chat_rooms'),
+    where('participants', 'array-contains', user1Id)
+  );
+  const snaps = await getDocs(q);
+  const existing = snaps.docs.find((s) => {
+    const d = s.data();
+    return d.participants.includes(user2Id);
+  });
+  if (existing) return existing.id;
+
+  const ref = await addDoc(collection(db, 'chat_rooms'), {
+    participants: [user1Id, user2Id],
+    participant_names: { [user1Id]: user1Name, [user2Id]: user2Name },
+    last_message: '',
+    last_message_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
+  return ref.id;
+}
+
+export async function sendMessage(
+  chatId: string,
+  senderId: string,
+  senderName: string,
+  text: string
+): Promise<void> {
+  await addDoc(collection(db, 'chat_rooms', chatId, 'messages'), {
+    chat_id: chatId,
+    sender_id: senderId,
+    sender_name: senderName,
+    text,
+    created_at: serverTimestamp(),
+  });
+  await updateDoc(doc(db, 'chat_rooms', chatId), {
+    last_message: text,
+    last_message_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
+}
+
+export function onMessages(
+  chatId: string,
+  callback: (messages: ChatMessage[]) => void
+): () => void {
+  const q = query(
+    collection(db, 'chat_rooms', chatId, 'messages'),
+    orderBy('created_at', 'asc')
+  );
+  return onSnapshot(q, (snap) => {
+    const msgs = snap.docs.map((s) => {
+      const d = s.data();
+      return { ...d, id: s.id, created_at: toDate(d.created_at) } as ChatMessage;
+    });
+    callback(msgs);
+  });
+}
+
+export async function getUserChatRooms(userId: string): Promise<ChatRoom[]> {
+  const q = query(
+    collection(db, 'chat_rooms'),
+    where('participants', 'array-contains', userId)
+  );
+  const snaps = await getDocs(q);
+  return snaps.docs
+    .map((s) => {
+      const d = s.data();
+      return { ...d, id: s.id } as ChatRoom;
+    })
+    .sort((a, b) => (b.last_message_at > a.last_message_at ? 1 : -1));
+}
+
+// ─── Notifications (Firestore-based for triggers) ────────────────────────────
+
+export async function createNotification(data: {
+  type: 'issue' | 'chat' | 'visit' | 'system';
+  title: string;
+  body: string;
+  target_user_id?: string;
+  target_all?: boolean;
+  created_by: string;
+}): Promise<void> {
+  await addDoc(collection(db, 'notifications'), {
+    ...data,
+    read: false,
+    created_at: serverTimestamp(),
+  });
+}
+
