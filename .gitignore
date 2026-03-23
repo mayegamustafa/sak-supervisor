@@ -39,3 +39,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+sir-apollo-kaggwa-supervision-firebase-adminsdk-fbsvc-1ade6d666f.json
+*.json.bak
