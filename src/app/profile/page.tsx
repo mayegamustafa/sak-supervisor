@@ -20,16 +20,27 @@ export default function ProfilePage() {
   }
 
   async function handleShareApp() {
-    const shareData = {
-      title: 'SAK Schools Supervision',
-      text: 'Install the SAK Schools Supervision app to manage school supervisions and issues.',
-      url: 'https://sak-supervisor.vercel.app',
-    };
-    if (navigator.share) {
-      try { await navigator.share(shareData); } catch { /* user cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(shareData.url);
-      alert('Link copied to clipboard!');
+    try {
+      const res = await fetch('/sak-supervision.apk');
+      const blob = await res.blob();
+      const file = new File([blob], 'SAK-Supervision.apk', { type: 'application/vnd.android.package-archive' });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: 'SAK Schools Supervision',
+          text: 'Install the SAK Schools Supervision app for school supervision management.',
+          files: [file],
+        });
+      } else {
+        // Fallback: trigger download
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'SAK-Supervision.apk';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+    } catch {
+      // Final fallback: direct download link
+      window.open('/sak-supervision.apk', '_blank');
     }
   }
 
@@ -99,7 +110,7 @@ export default function ProfilePage() {
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700"
           >
             <ShareIcon className="h-5 w-5" />
-            Share Link
+            Share APK
           </button>
           <a
             href="/sak-supervision.apk"

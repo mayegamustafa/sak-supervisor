@@ -35,16 +35,25 @@ export default function AdminSettingsPage() {
   }
 
   async function handleShareApp() {
-    const shareData = {
-      title: 'SAK Schools Supervision',
-      text: 'Install the SAK Schools Supervision app to manage school supervisions and issues.',
-      url: 'https://sak-supervisor.vercel.app',
-    };
-    if (navigator.share) {
-      try { await navigator.share(shareData); } catch { /* cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(shareData.url);
-      alert('Link copied!');
+    try {
+      const res = await fetch('/sak-supervision.apk');
+      const blob = await res.blob();
+      const file = new File([blob], 'SAK-Supervision.apk', { type: 'application/vnd.android.package-archive' });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: 'SAK Schools Supervision',
+          text: 'Install the SAK Schools Supervision app for school supervision management.',
+          files: [file],
+        });
+      } else {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'SAK-Supervision.apk';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+    } catch {
+      window.open('/sak-supervision.apk', '_blank');
     }
   }
 
@@ -93,7 +102,7 @@ export default function AdminSettingsPage() {
       <section>
         <h2 className="mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-1">App</h2>
         <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
-          <SettingsLink icon={<ShareIcon className="h-5 w-5" />} label="Share App" desc="Invite others to install" onClick={handleShareApp} />
+          <SettingsLink icon={<ShareIcon className="h-5 w-5" />} label="Share APK" desc="Send APK file via WhatsApp, etc." onClick={handleShareApp} />
           <a href="/sak-supervision.apk" download className="flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 text-gray-600"><DownloadIcon className="h-5 w-5" /></span>
             <div className="flex-1 min-w-0">
