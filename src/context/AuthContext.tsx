@@ -34,19 +34,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setFirebaseUser(user);
       if (user) {
         const profile = await getUserProfile(user.uid);
-        // Always ensure id is set from the Firebase Auth UID — defensive against
-        // stale Turbopack cache where getUserProfile may return snap.data() without id.
         const resolvedUser = profile ? { ...profile, id: profile.id || user.uid } : null;
         setAppUser(resolvedUser);
+        setLoading(false);
 
-        // Request push notification permission after sign-in
+        // Request push notification permission AFTER UI is unblocked
         if (resolvedUser) {
-          requestNotificationPermission(resolvedUser.id).catch(() => {});
+          setTimeout(() => {
+            requestNotificationPermission(resolvedUser.id).catch(() => {});
+          }, 3000);
         }
       } else {
         setAppUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
     return unsub;
   }, []);

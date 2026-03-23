@@ -20,20 +20,19 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const cred = await loginWithEmail(email, password);
+      // Quick profile check — only validate active status + get role for routing.
+      // AuthContext will do the full profile hydration in parallel.
       const profile = await getUserProfile(cred.user.uid);
       if (!profile || !profile.active) {
         await auth.signOut();
         setError('Your account is not active. Contact your administrator.');
+        setLoading(false);
         return;
       }
-      if (profile.role === 'admin') {
-        router.replace('/admin');
-      } else {
-        router.replace('/dashboard');
-      }
+      // Navigate immediately — don't wait for AuthContext to finish
+      router.push(profile.role === 'admin' ? '/admin' : '/dashboard');
     } catch {
       setError('Invalid email or password.');
-    } finally {
       setLoading(false);
     }
   }
