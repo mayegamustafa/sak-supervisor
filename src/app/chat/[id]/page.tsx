@@ -66,8 +66,9 @@ export default function ChatRoomPage() {
         const d = snap.data();
         const otherId = d.participants?.find((p: string) => p !== appUser.id);
         if (otherId) {
-          const notifTitle = `Message from ${appUser.name}`;
-          const notifBody = msg.length > 80 ? msg.slice(0, 80) + '…' : msg;
+          const preview = msg.length > 80 ? msg.slice(0, 80) + '…' : msg;
+          const notifTitle = `${appUser.name} sent you a message`;
+          const notifBody = `${preview}\n\nTap to reply`;
           await createNotification({
             type: 'chat',
             title: notifTitle,
