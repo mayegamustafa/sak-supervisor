@@ -44,11 +44,11 @@ export async function POST(req: NextRequest) {
       const snap = await db.collection('fcm_tokens').get();
       tokens = snap.docs.map((d) => d.data().token).filter(Boolean);
     } else if (target_user_id) {
-      const docSnap = await db.collection('fcm_tokens').doc(target_user_id).get();
-      if (docSnap.exists) {
-        const t = docSnap.data()?.token;
-        if (t) tokens.push(t);
-      }
+      // Query by user_id field (tokens stored as {userId}_web / {userId}_native)
+      const snap = await db.collection('fcm_tokens')
+        .where('user_id', '==', target_user_id)
+        .get();
+      tokens = snap.docs.map((d) => d.data().token).filter(Boolean);
     }
 
     if (tokens.length === 0) {

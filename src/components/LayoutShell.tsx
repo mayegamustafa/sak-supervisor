@@ -6,6 +6,7 @@ import Navbar from './Navbar';
 import BottomNavigation from './BottomNavigation';
 import PWAInstallPrompt from './PWAInstallPrompt';
 import NotificationToast from './NotificationToast';
+import NotificationPrompt from './NotificationPrompt';
 import OfflineBanner from './OfflineBanner';
 
 const PUBLIC_PATHS = ['/login', '/setup'];
@@ -29,6 +30,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       {showNav && <BottomNavigation />}
       <PWAInstallPrompt />
       <NotificationToast />
+      <NotificationPrompt />
       <OfflineBanner />
     </>
   );

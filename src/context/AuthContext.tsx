@@ -59,14 +59,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Presence: mark offline on tab close / visibility change, heartbeat while active
+  // Also re-request notification permission when app comes to foreground
   useEffect(() => {
     if (!appUser) return;
     const uid = appUser.id;
 
     function goOffline() { setUserOffline(uid).catch(() => {}); }
     function handleVisibility() {
-      if (document.hidden) goOffline();
-      else setUserOnline(uid).catch(() => {});
+      if (document.hidden) {
+        goOffline();
+      } else {
+        setUserOnline(uid).catch(() => {});
+        // Re-register push token when app comes back (handles case where user enabled in settings)
+        requestNotificationPermission(uid).catch(() => {});
+      }
     }
 
     window.addEventListener('beforeunload', goOffline);
