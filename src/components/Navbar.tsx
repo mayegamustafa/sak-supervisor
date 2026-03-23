@@ -19,7 +19,7 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-blue-800 bg-blue-700 px-4 shadow-sm print:hidden" style={{ paddingTop: 'var(--safe-top)' }}>
       <Link href="/dashboard" className="text-base font-bold text-white leading-tight">
         <span className="block text-xs font-normal opacity-80">SAK SUPERVISION</span>
-        Sir Apollo Kaggwa
+        SAK / CPS
       </Link>
 
       <div className="flex items-center gap-3">

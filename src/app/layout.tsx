@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "SAK Schools Supervision",
-  description: "Sir Apollo Kaggwa Schools Supervision System",
+  description: "SAK / CPS Schools Supervision System",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

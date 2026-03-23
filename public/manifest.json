@@ -1,7 +1,7 @@
 {
   "name": "SAK Schools Supervision",
   "short_name": "SAK Supervision",
-  "description": "Sir Apollo Kaggwa Schools Supervision System",
+  "description": "SAK / CPS Schools Supervision System",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#1d4ed8",

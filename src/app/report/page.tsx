@@ -86,7 +86,7 @@ export default function ReportPage() {
             Schools Supervision System
           </p>
           <h1 className="mt-1 text-2xl font-extrabold uppercase tracking-wide text-gray-900">
-            Sir Apollo Kaggwa Schools
+            SAK / CPS Schools
           </h1>
           <h2 className="mt-0.5 text-base font-bold text-gray-700">Issues &amp; Supervision Report</h2>
           <div className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-gray-500">

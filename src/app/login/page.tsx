@@ -55,7 +55,7 @@ export default function LoginPage() {
             <AcademicCapIcon className="h-9 w-9" />
           </div>
           <h1 className="text-xl font-bold text-gray-900 leading-snug">
-            Sir Apollo Kaggwa<br />
+            SAK / CPS<br />
             <span className="text-blue-600">Schools Supervision</span>
           </h1>
           <p className="mt-1 text-sm text-gray-500">Sign in to continue</p>
