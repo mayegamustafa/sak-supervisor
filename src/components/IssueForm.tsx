@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createIssue, resolveIssue, updateIssueStatus, createNotification } from '@/lib/firestore';
+import { createIssue, resolveIssue, updateIssueStatus, createNotification, autoLogVisit } from '@/lib/firestore';
 import { sendPush } from '@/lib/messaging';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
@@ -92,6 +92,15 @@ export default function IssueForm({ schools }: Props) {
         created_by: appUser.id,
       });
       sendPush({ title: notifTitle, body: notifBody, target_all: true });
+
+      // Auto-log supervision visit
+      autoLogVisit({
+        supervisor_id: appUser.id,
+        supervisor_name: appUser.name,
+        school_id,
+        school_name: selectedSchool?.school_name ?? '',
+        activity: `Reported issue: ${issue_title}`,
+      }).catch(() => {});
 
       router.push(`/issues/${issueId}`);
     } catch (err) {

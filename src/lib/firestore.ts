@@ -198,6 +198,60 @@ export async function logVisit(
   return ref.id;
 }
 
+/**
+ * Automatically log a supervision visit when a supervisor interacts with a school
+ * (e.g. reports an issue, adds a follow-up, resolves an issue).
+ * Deduplicates: only one auto-log per supervisor + school + date.
+ */
+export async function autoLogVisit(params: {
+  supervisor_id: string;
+  supervisor_name: string;
+  school_id: string;
+  school_name: string;
+  activity: string; // e.g. "Reported issue: Broken window"
+}): Promise<void> {
+  const today = new Date().toISOString().split('T')[0];
+
+  // Check if already logged today for this supervisor + school
+  const q = query(
+    collection(db, 'visit_logs'),
+    where('supervisor_id', '==', params.supervisor_id),
+    where('school_id', '==', params.school_id),
+    where('visit_date', '==', today),
+    limit(1)
+  );
+  const existing = await getDocs(q);
+
+  if (!existing.empty) {
+    // Append activity to existing log's notes
+    const existingDoc = existing.docs[0];
+    const currentNotes = existingDoc.data().visit_notes || '';
+    const newNote = currentNotes
+      ? `${currentNotes}\n• ${params.activity}`
+      : `• ${params.activity}`;
+    await updateDoc(doc(db, 'visit_logs', existingDoc.id), { visit_notes: newNote });
+    return;
+  }
+
+  // Detect term & week
+  const configs = await getAllTermConfigs();
+  const active = getActiveTerm(configs);
+  const term = active ? active.term : ('Term 1' as VisitLog['term']);
+  const week = active ? getWeekNumber(active.start_date) : 1;
+
+  await addDoc(collection(db, 'visit_logs'), {
+    supervisor_id: params.supervisor_id,
+    supervisor_name: params.supervisor_name,
+    school_id: params.school_id,
+    school_name: params.school_name,
+    visit_date: today,
+    term,
+    week,
+    visit_notes: `• ${params.activity}`,
+    created_at: serverTimestamp(),
+  });
+}
+
 export async function getSupervisorVisits(supervisorId: string): Promise<VisitLog[]> {
   if (!supervisorId) return [];
   const q = query(

@@ -10,6 +10,7 @@ import {
   resolveIssue,
   updateIssueStatus,
   createNotification,
+  autoLogVisit,
 } from '@/lib/firestore';
 import { sendPush } from '@/lib/messaging';
 import { useAuth } from '@/context/AuthContext';
@@ -74,6 +75,14 @@ export default function IssueDetailPage() {
     const notifBody = `${appUser.name} added a follow-up on: ${issue.issue_title}`;
     createNotification({ type: 'issue', title: notifTitle, body: notifBody, target_all: true, created_by: appUser.id });
     sendPush({ title: notifTitle, body: notifBody, target_all: true });
+    // Auto-log supervision visit
+    autoLogVisit({
+      supervisor_id: appUser.id,
+      supervisor_name: appUser.name,
+      school_id: issue.school_id,
+      school_name: issue.school_name,
+      activity: `Follow-up on: ${issue.issue_title}`,
+    }).catch(() => {});
     setComment('');
     setAddingComment(false);
   }
@@ -91,6 +100,14 @@ export default function IssueDetailPage() {
     const notifBody = `${appUser.name} resolved: ${issue.issue_title}`;
     createNotification({ type: 'issue', title: notifTitle, body: notifBody, target_all: true, created_by: appUser.id });
     sendPush({ title: notifTitle, body: notifBody, target_all: true });
+    // Auto-log supervision visit
+    autoLogVisit({
+      supervisor_id: appUser.id,
+      supervisor_name: appUser.name,
+      school_id: issue.school_id,
+      school_name: issue.school_name,
+      activity: `Resolved issue: ${issue.issue_title}`,
+    }).catch(() => {});
     setShowResolveForm(false);
     setResolving(false);
   }
