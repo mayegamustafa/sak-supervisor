@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import LayoutShell from "@/components/LayoutShell";
+import SplashHide from "@/components/SplashHide";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased bg-gray-50`}>
         <AuthProvider>
           <LayoutShell>{children}</LayoutShell>
+          <SplashHide />
         </AuthProvider>
       </body>
     </html>
