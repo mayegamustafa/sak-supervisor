@@ -166,6 +166,50 @@ export async function requestNotificationPermission(userId: string): Promise<str
 }
 
 /**
+ * Silently refresh/register FCM token ONLY if notification permission
+ * is already granted. Does NOT prompt the user.
+ * Safe to call from non-user-gesture contexts (setTimeout, visibilitychange).
+ */
+export async function refreshTokenIfGranted(userId: string): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  const status = await getNotificationStatus();
+  if (status !== 'granted') return null;
+
+  // Permission already granted — register/refresh the token without prompting
+  if (isNative()) {
+    try {
+      const { PushNotifications } = await import('@capacitor/push-notifications');
+      await PushNotifications.register();
+      return null; // Token handled by listener
+    } catch {
+      return null;
+    }
+  }
+
+  // Web: get token without calling requestPermission()
+  const msg = getMessagingInstance();
+  if (!msg) return null;
+  const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+  if (!vapidKey) return null;
+
+  try {
+    const swReg = await navigator.serviceWorker.getRegistration();
+    const token = await getToken(msg, { vapidKey, serviceWorkerRegistration: swReg });
+    if (token) {
+      await setDoc(doc(db, 'fcm_tokens', `${userId}_web`), {
+        token,
+        user_id: userId,
+        platform: 'web',
+        updated_at: new Date().toISOString(),
+      });
+    }
+    return token;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Listen for foreground push messages.
  * On web: uses Firebase onMessage. On native: uses Capacitor listener.
  */

@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { User } from 'firebase/auth';
 import { onAuthChange, getUserProfile } from '@/lib/auth';
-import { requestNotificationPermission } from '@/lib/messaging';
+import { refreshTokenIfGranted } from '@/lib/messaging';
 import { setUserOnline, setUserOffline } from '@/lib/firestore';
 import type { AppUser } from '@/types';
 
@@ -44,10 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserOnline(resolvedUser.id).catch(() => {});
         }
 
-        // Request push notification permission AFTER UI is unblocked
+        // Refresh push token if permission already granted (no prompting)
         if (resolvedUser) {
           setTimeout(() => {
-            requestNotificationPermission(resolvedUser.id).catch(() => {});
+            refreshTokenIfGranted(resolvedUser.id).catch(() => {});
           }, 3000);
         }
       } else {
@@ -70,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         goOffline();
       } else {
         setUserOnline(uid).catch(() => {});
-        // Re-register push token when app comes back (handles case where user enabled in settings)
-        requestNotificationPermission(uid).catch(() => {});
+        // Refresh push token when app comes back (only if permission already granted)
+        refreshTokenIfGranted(uid).catch(() => {});
       }
     }
 

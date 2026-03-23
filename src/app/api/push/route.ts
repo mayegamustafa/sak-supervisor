@@ -5,16 +5,26 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 function getAdminApp() {
   if (!getApps().length) {
+    const email = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+    const project = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
     let pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-    if (!pk) throw new Error('Firebase Admin not configured');
-    // Handle both formats: escaped \n in single line, or real newlines in multi-line
-    pk = pk.replace(/\\n/g, '\n');
+
+    if (!pk) throw new Error('Missing env: FIREBASE_ADMIN_PRIVATE_KEY');
+    if (!email) throw new Error('Missing env: FIREBASE_ADMIN_CLIENT_EMAIL');
+    if (!project) throw new Error('Missing env: NEXT_PUBLIC_FIREBASE_PROJECT_ID');
+
     // Strip surrounding quotes if present
     if (pk.startsWith('"') && pk.endsWith('"')) pk = pk.slice(1, -1);
+    if (pk.startsWith("'") && pk.endsWith("'")) pk = pk.slice(1, -1);
+    // Handle escaped \n in single line → convert to real newlines
+    pk = pk.replace(/\\n/g, '\n');
+
+    console.log('[Push] Admin init — project:', project, 'email:', email, 'pk starts:', pk.substring(0, 30));
+
     initializeApp({
       credential: cert({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+        projectId: project,
+        clientEmail: email,
         privateKey: pk,
       }),
     });
