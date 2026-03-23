@@ -82,6 +82,10 @@ export default function ReportPage() {
 
         {/* ── Report Header ── */}
         <div className="mb-6 border-b-2 border-gray-900 pb-5 text-center">
+          <div className="mx-auto mb-3 flex items-center justify-center gap-4">
+            <img src="/badges/sak.jpg" alt="SAK Badge" className="h-16 w-16 rounded-full object-cover shadow" />
+            <img src="/badges/cps.png" alt="CPS Badge" className="h-16 w-16 rounded-full object-cover shadow" />
+          </div>
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
             Schools Supervision System
           </p>

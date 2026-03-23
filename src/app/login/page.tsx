@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { loginWithEmail } from '@/lib/auth';
 import { getUserProfile } from '@/lib/auth';
 import { auth, isFirebaseConfigured } from '@/lib/firebase';
-import { AcademicCapIcon } from '@/components/Icons';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -51,8 +51,9 @@ export default function LoginPage() {
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 sm:p-8 shadow-2xl">
         {/* Logo / Title */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-md">
-            <AcademicCapIcon className="h-9 w-9" />
+          <div className="mx-auto mb-3 flex items-center justify-center gap-3">
+            <Image src="/badges/sak.jpg" alt="SAK Badge" width={56} height={56} className="h-14 w-14 rounded-full object-cover shadow-md ring-2 ring-white" />
+            <Image src="/badges/cps.png" alt="CPS Badge" width={56} height={56} className="h-14 w-14 rounded-full object-cover shadow-md ring-2 ring-white" />
           </div>
           <h1 className="text-xl font-bold text-gray-900 leading-snug">
             SAK / CPS<br />
