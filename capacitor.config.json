@@ -3,7 +3,7 @@
   "appName": "SAK Supervision",
   "webDir": "out",
   "server": {
-    "url": "https://sak-supervision.vercel.app",
+    "url": "https://sak-supervisor.vercel.app",
     "cleartext": true
   },
   "android": {

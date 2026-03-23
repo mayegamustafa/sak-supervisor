@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { logout } from '@/lib/auth';
-import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon } from '@/components/Icons';
+import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon } from '@/components/Icons';
 
 export default function ProfilePage() {
   const { appUser, loading } = useAuth();
@@ -17,6 +17,20 @@ export default function ProfilePage() {
   async function handleLogout() {
     await logout();
     router.replace('/login');
+  }
+
+  async function handleShareApp() {
+    const shareData = {
+      title: 'SAK Schools Supervision',
+      text: 'Install the SAK Schools Supervision app to manage school supervisions and issues.',
+      url: 'https://sak-supervisor.vercel.app',
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(shareData.url);
+      alert('Link copied to clipboard!');
+    }
   }
 
   if (loading || !appUser) return (
@@ -57,6 +71,29 @@ export default function ProfilePage() {
           Admin Dashboard
         </button>
       )}
+
+      {/* Share App */}
+      <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm space-y-3">
+        <h3 className="text-sm font-bold text-gray-900">Share App</h3>
+        <p className="text-xs text-gray-500">Invite colleagues to install the SAK Supervision app.</p>
+        <div className="flex gap-3">
+          <button
+            onClick={handleShareApp}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            <ShareIcon className="h-5 w-5" />
+            Share Link
+          </button>
+          <a
+            href="/SAK-Supervision.apk"
+            download
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <DownloadIcon className="h-5 w-5" />
+            Download APK
+          </a>
+        </div>
+      </div>
 
       {/* Logout */}
       <button
