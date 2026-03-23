@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getAllIssues, getSupervisorVisits } from '@/lib/firestore';
+import { usePullRefresh } from '@/hooks/usePullRefresh';
+import PullIndicator from '@/components/PullIndicator';
 import IssueCard from '@/components/IssueCard';
 import type { Issue, VisitLog } from '@/types';
 
@@ -38,6 +40,18 @@ export default function DashboardPage() {
     load();
   }, [appUser]);
 
+  const handleRefresh = useCallback(async () => {
+    if (!appUser) return;
+    const [allIssues, myVisits] = await Promise.all([
+      getAllIssues(),
+      getSupervisorVisits(appUser.id),
+    ]);
+    setIssues(allIssues);
+    setVisits(myVisits);
+  }, [appUser]);
+
+  const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
+
   if (loading || !appUser) return (
     <div className="flex min-h-[60dvh] items-center justify-center">
       <div className="spinner" />
@@ -50,7 +64,8 @@ export default function DashboardPage() {
   const recent = myIssues.slice(0, 5);
 
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
+      <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
       {/* Greeting */}
       <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-5 text-white shadow-md">
         <p className="text-sm opacity-80">Welcome back,</p>

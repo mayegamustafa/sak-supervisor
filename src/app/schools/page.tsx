@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllSchools } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
+import { usePullRefresh } from '@/hooks/usePullRefresh';
+import PullIndicator from '@/components/PullIndicator';
 import type { School } from '@/types';
 
 export default function SchoolsPage() {
@@ -22,6 +24,13 @@ export default function SchoolsPage() {
     getAllSchools().then((s) => { setSchools(s); setFetching(false); });
   }, [appUser]);
 
+  const handleRefresh = useCallback(async () => {
+    const s = await getAllSchools();
+    setSchools(s);
+  }, []);
+
+  const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
+
   const filtered = schools.filter((s) =>
     s.school_name.toLowerCase().includes(search.toLowerCase())
   );
@@ -33,7 +42,8 @@ export default function SchoolsPage() {
   );
 
   return (
-    <div className="space-y-4">
+    <div ref={containerRef} className="space-y-4">
+      <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-gray-900">Schools</h1>
         {appUser.role === 'admin' && (

@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllIssues, getAllVisits, getAllSchools } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
+import { usePullRefresh } from '@/hooks/usePullRefresh';
+import PullIndicator from '@/components/PullIndicator';
 import IssueCard from '@/components/IssueCard';
 import type { Issue, VisitLog, School } from '@/types';
 
@@ -35,6 +37,15 @@ export default function AdminDashboardPage() {
     );
   }, [appUser]);
 
+  const handleRefresh = useCallback(async () => {
+    const [i, v, s] = await Promise.all([getAllIssues(), getAllVisits(), getAllSchools()]);
+    setIssues(i);
+    setVisits(v);
+    setSchools(s);
+  }, []);
+
+  const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
+
   if (loading || !appUser || appUser.role !== 'admin') return (
     <div className="flex min-h-[60dvh] items-center justify-center">
       <div className="spinner" />
@@ -63,7 +74,8 @@ export default function AdminDashboardPage() {
   const visitsThisWeek = visits.filter((v) => new Date(v.visit_date) >= weekAgo);
 
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
+      <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
       <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-700 to-blue-800 p-5 text-white shadow-md">
         <h1 className="text-xl font-bold">Admin Dashboard</h1>
         <p className="text-sm opacity-80 mt-0.5">Sir Apollo Kaggwa Schools Supervision</p>

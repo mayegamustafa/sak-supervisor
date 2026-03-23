@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllIssues } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
+import { usePullRefresh } from '@/hooks/usePullRefresh';
+import PullIndicator from '@/components/PullIndicator';
 import IssueCard from '@/components/IssueCard';
 import type { Issue, IssueStatus } from '@/types';
 
@@ -30,6 +32,13 @@ export default function IssuesPage() {
     getAllIssues().then((i) => { setIssues(i); setFetching(false); });
   }, [appUser]);
 
+  const handleRefresh = useCallback(async () => {
+    const i = await getAllIssues();
+    setIssues(i);
+  }, []);
+
+  const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
+
   const filtered = filter === 'All' ? issues : issues.filter((i) => i.status === filter);
 
   if (loading || !appUser) return (
@@ -39,7 +48,8 @@ export default function IssuesPage() {
   );
 
   return (
-    <div className="space-y-4">
+    <div ref={containerRef} className="space-y-4">
+      <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-gray-900">Issues</h1>
         <div className="flex gap-2">

@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupervisorVisits } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
+import { usePullRefresh } from '@/hooks/usePullRefresh';
+import PullIndicator from '@/components/PullIndicator';
 import type { VisitLog } from '@/types';
 
 export default function VisitsPage() {
@@ -21,6 +23,14 @@ export default function VisitsPage() {
     getSupervisorVisits(appUser.id).then((v) => { setVisits(v); setFetching(false); });
   }, [appUser]);
 
+  const handleRefresh = useCallback(async () => {
+    if (!appUser) return;
+    const v = await getSupervisorVisits(appUser.id);
+    setVisits(v);
+  }, [appUser]);
+
+  const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
+
   if (loading || !appUser) return (
     <div className="flex min-h-[60dvh] items-center justify-center">
       <div className="spinner" />
@@ -28,7 +38,8 @@ export default function VisitsPage() {
   );
 
   return (
-    <div className="space-y-4">
+    <div ref={containerRef} className="space-y-4">
+      <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-gray-900">My Supervision Logs</h1>
         <button
