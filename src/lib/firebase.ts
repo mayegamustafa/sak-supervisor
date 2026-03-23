@@ -1,7 +1,7 @@
 // Firebase configuration and initialization
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -27,11 +27,6 @@ if (isConfigured) {
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);
-
-  // Enable offline persistence so returning users load instantly from cache
-  if (typeof window !== 'undefined') {
-    enableIndexedDbPersistence(db).catch(() => {});
-  }
 } else {
   // Provide safe no-op stubs at build/test time so imports don't throw.
   // These are replaced at runtime when the actual env vars are present.
