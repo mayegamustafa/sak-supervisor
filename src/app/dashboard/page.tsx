@@ -52,7 +52,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Greeting */}
-      <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-5 text-white shadow-md">
+      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-5 text-white shadow-md">
         <p className="text-sm opacity-80">Welcome back,</p>
         <h2 className="text-xl font-bold">{appUser.name}</h2>
         <p className="mt-0.5 text-xs opacity-70 capitalize">{appUser.role}</p>

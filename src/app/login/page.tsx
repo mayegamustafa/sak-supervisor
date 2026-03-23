@@ -48,7 +48,7 @@ export default function LoginPage() {
           </div>
           <h1 className="text-xl font-bold text-gray-900 leading-snug">
             Sir Apollo Kaggwa<br />
-            <span className="text-blue-600">School Supervision</span>
+            <span className="text-blue-600">Schools Supervision</span>
           </h1>
           <p className="mt-1 text-sm text-gray-500">Sign in to continue</p>
         </div>

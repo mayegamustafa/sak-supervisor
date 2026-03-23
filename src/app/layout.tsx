@@ -7,8 +7,8 @@ import LayoutShell from "@/components/LayoutShell";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "SAK School Supervision",
-  description: "Sir Apollo Kaggwa School Supervision System",
+  title: "SAK Schools Supervision",
+  description: "Sir Apollo Kaggwa Schools Supervision System",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

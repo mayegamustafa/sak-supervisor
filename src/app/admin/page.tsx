@@ -64,9 +64,9 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-800 p-5 text-white shadow-md">
+      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-700 to-blue-800 p-5 text-white shadow-md">
         <h1 className="text-xl font-bold">Admin Dashboard</h1>
-        <p className="text-sm opacity-80 mt-0.5">Sir Apollo Kaggwa School Supervision</p>
+        <p className="text-sm opacity-80 mt-0.5">Sir Apollo Kaggwa Schools Supervision</p>
       </div>
 
       {/* Stats row */}

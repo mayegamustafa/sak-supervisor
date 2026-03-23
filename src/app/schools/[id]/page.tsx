@@ -75,7 +75,7 @@ export default function SchoolDetailPage() {
           </div>
         </form>
       ) : (
-        <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-5 text-white shadow-md">
+        <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-5 text-white shadow-md">
           <div className="flex items-start justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold">{school.school_name}</h1>

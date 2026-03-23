@@ -29,7 +29,7 @@ export default function NewVisitPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-bold text-gray-900">Log a School Supervision</h1>
+      <h1 className="mb-6 text-lg font-bold text-gray-900">Log a Schools Supervision</h1>
       <VisitForm schools={schools} />
     </div>
   );

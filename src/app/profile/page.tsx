@@ -28,7 +28,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       {/* Avatar / Name */}
-      <div className="flex flex-col items-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 py-8 text-white shadow-md">
+      <div className="-mx-4 sm:mx-0 flex flex-col items-center rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 py-8 text-white shadow-md">
         <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-white">
           <UserCircleIcon className="h-14 w-14" />
         </div>

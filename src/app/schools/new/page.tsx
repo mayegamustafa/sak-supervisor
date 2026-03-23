@@ -47,7 +47,7 @@ export default function NewSchoolPage() {
             type="text"
             value={form.school_name}
             onChange={(e) => setForm((f) => ({ ...f, school_name: e.target.value }))}
-            placeholder="e.g. Kampala Primary School"
+            placeholder="e.g. SIR APOLLO KAGGWA - MENGO"
             required
             className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
           />

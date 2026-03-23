@@ -83,7 +83,7 @@ export default function ReportPage() {
         {/* ── Report Header ── */}
         <div className="mb-6 border-b-2 border-gray-900 pb-5 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-            School Supervision System
+            Schools Supervision System
           </p>
           <h1 className="mt-1 text-2xl font-extrabold uppercase tracking-wide text-gray-900">
             Sir Apollo Kaggwa Schools
@@ -208,7 +208,7 @@ export default function ReportPage() {
 
         {/* ── Footer ── */}
         <div className="mt-8 flex items-center justify-between border-t pt-4 text-xs text-gray-400">
-          <span>SAK School Supervision System · Confidential</span>
+          <span>SAK Schools Supervision System · Confidential</span>
           <span>Generated on {today}</span>
         </div>
       </div>
