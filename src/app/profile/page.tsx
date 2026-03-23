@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { logout } from '@/lib/auth';
-import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon } from '@/components/Icons';
+import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon } from '@/components/Icons';
 
 export default function ProfilePage() {
   const { appUser, loading } = useAuth();
@@ -64,13 +64,26 @@ export default function ProfilePage() {
       {/* Admin quick link */}
       {appUser.role === 'admin' && (
         <button
-          onClick={() => router.push('/admin')}
+          onClick={() => router.push('/admin/settings')}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-4 text-base font-bold text-white"
         >
           <BuildingIcon className="h-5 w-5" />
-          Admin Dashboard
+          Admin Settings
         </button>
       )}
+
+      {/* Quick Access */}
+      <div className="rounded-2xl bg-white border border-gray-200 p-4 shadow-sm space-y-2">
+        <h3 className="text-sm font-bold text-gray-900 mb-3">Quick Access</h3>
+        <button onClick={() => router.push('/visits')} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50">
+          <ClipboardIcon className="h-5 w-5 text-blue-600" />
+          <span className="text-sm font-medium text-gray-900">Supervisions</span>
+        </button>
+        <button onClick={() => router.push('/chat')} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50">
+          <ChatBubbleIcon className="h-5 w-5 text-blue-600" />
+          <span className="text-sm font-medium text-gray-900">Messages</span>
+        </button>
+      </div>
 
       {/* Share App */}
       <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm space-y-3">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { logVisit, getAllTermConfigs, getActiveTerm, getWeekNumber, createNotification } from '@/lib/firestore';
+import { sendPush } from '@/lib/messaging';
 import { useAuth } from '@/context/AuthContext';
 import type { School, Term, TermConfig } from '@/types';
 
@@ -62,13 +63,16 @@ export default function VisitForm({ schools }: Props) {
         visit_notes,
       });
       // Notify about new supervision log
+      const notifTitle = 'New Supervision Log';
+      const notifBody = `${appUser.name} logged a supervision at ${selectedSchool?.school_name ?? 'a school'}`;
       await createNotification({
         type: 'visit',
-        title: 'New Supervision Log',
-        body: `${appUser.name} logged a supervision at ${selectedSchool?.school_name ?? 'a school'}`,
+        title: notifTitle,
+        body: notifBody,
         target_all: true,
         created_by: appUser.id,
       });
+      sendPush({ title: notifTitle, body: notifBody, target_all: true });
       router.push('/visits');
     } catch (err) {
       console.error(err);

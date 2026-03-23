@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "377893065842",
+    "project_id": "sir-apollo-kaggwa-supervision",
+    "storage_bucket": "sir-apollo-kaggwa-supervision.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377893065842:android:7b687948ae41ac7d5b5eeb",
+        "android_client_info": {
+          "package_name": "com.sak.supervision"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "377893065842-aotjgpubmrtkornf77nqqsa62k91dh67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlM9kk9V-E5GiOCAMdyBJ005bP9IVhXyY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "377893065842-aotjgpubmrtkornf77nqqsa62k91dh67.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

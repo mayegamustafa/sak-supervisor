@@ -4,8 +4,15 @@ import { db } from './firebase';
 
 let messaging: Messaging | null = null;
 
+/** Detect if running inside a Capacitor native shell */
+function isNative(): boolean {
+  if (typeof window === 'undefined') return false;
+  return !!(window as unknown as Record<string, unknown>).Capacitor;
+}
+
 function getMessagingInstance(): Messaging | null {
   if (typeof window === 'undefined') return null;
+  if (isNative()) return null; // Use Capacitor plugin on native
   if (messaging) return messaging;
   try {
     const { getApps } = require('firebase/app');
@@ -20,10 +27,46 @@ function getMessagingInstance(): Messaging | null {
 
 /**
  * Request notification permission and register the FCM token in Firestore.
- * Call this after user logs in.
+ * Works on both web (Firebase JS SDK) and native (Capacitor Push Notifications).
  */
 export async function requestNotificationPermission(userId: string): Promise<string | null> {
-  if (typeof window === 'undefined' || !('Notification' in window)) return null;
+  if (typeof window === 'undefined') return null;
+
+  // ── Native (Android / iOS via Capacitor) ──
+  if (isNative()) {
+    try {
+      const { PushNotifications } = await import('@capacitor/push-notifications');
+
+      const permResult = await PushNotifications.requestPermissions();
+      if (permResult.receive !== 'granted') return null;
+
+      await PushNotifications.register();
+
+      return new Promise((resolve) => {
+        PushNotifications.addListener('registration', async (token) => {
+          if (token.value) {
+            await setDoc(doc(db, 'fcm_tokens', userId), {
+              token: token.value,
+              platform: 'native',
+              updated_at: new Date().toISOString(),
+            });
+          }
+          resolve(token.value || null);
+        });
+
+        PushNotifications.addListener('registrationError', (err) => {
+          console.error('Native push registration error:', err);
+          resolve(null);
+        });
+      });
+    } catch (err) {
+      console.error('Capacitor push setup failed:', err);
+      return null;
+    }
+  }
+
+  // ── Web (Firebase JS SDK) ──
+  if (!('Notification' in window)) return null;
 
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') return null;
@@ -44,9 +87,9 @@ export async function requestNotificationPermission(userId: string): Promise<str
     });
 
     if (token) {
-      // Store the token in Firestore so the backend can send pushes
       await setDoc(doc(db, 'fcm_tokens', userId), {
         token,
+        platform: 'web',
         updated_at: new Date().toISOString(),
       });
     }
@@ -59,9 +102,22 @@ export async function requestNotificationPermission(userId: string): Promise<str
 }
 
 /**
- * Listen for foreground push messages and show an in-app notification.
+ * Listen for foreground push messages.
+ * On web: uses Firebase onMessage. On native: uses Capacitor listener.
  */
 export function onForegroundMessage(callback: (payload: { title: string; body: string }) => void) {
+  if (isNative()) {
+    import('@capacitor/push-notifications').then(({ PushNotifications }) => {
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        callback({
+          title: notification.title ?? 'Notification',
+          body: notification.body ?? '',
+        });
+      });
+    });
+    return () => {};
+  }
+
   const msg = getMessagingInstance();
   if (!msg) return () => {};
 
@@ -70,4 +126,25 @@ export function onForegroundMessage(callback: (payload: { title: string; body: s
     const body = payload.notification?.body ?? '';
     callback({ title, body });
   });
+}
+
+/**
+ * Send a push notification via the server API.
+ * Call this from client code after creating a Firestore notification.
+ */
+export async function sendPush(data: {
+  title: string;
+  body: string;
+  target_user_id?: string;
+  target_all?: boolean;
+}): Promise<void> {
+  try {
+    await fetch('/api/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    // Push is best-effort — don't block the caller
+  }
 }

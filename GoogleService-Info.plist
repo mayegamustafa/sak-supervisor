@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>377893065842-4q1pdj2tiac8jsjeh806537u943p9qfm.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.377893065842-4q1pdj2tiac8jsjeh806537u943p9qfm</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA14CJnHth8EAyC-5o2w9nzVhrcHdb6sCE</string>
+	<key>GCM_SENDER_ID</key>
+	<string>377893065842</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.supervisor.app</string>
+	<key>PROJECT_ID</key>
+	<string>sir-apollo-kaggwa-supervision</string>
+	<key>STORAGE_BUCKET</key>
+	<string>sir-apollo-kaggwa-supervision.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:377893065842:ios:600acae5678b33dd5b5eeb</string>
+</dict>
+</plist>

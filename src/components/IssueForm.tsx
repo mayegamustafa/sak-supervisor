@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createIssue, resolveIssue, updateIssueStatus, createNotification } from '@/lib/firestore';
+import { sendPush } from '@/lib/messaging';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
 import type { School, IssueCategory, IssuePriority, IssueStatus } from '@/types';
@@ -81,13 +82,16 @@ export default function IssueForm({ schools }: Props) {
       }
 
       // Notify all users about the new issue
+      const notifTitle = 'New Issue Reported';
+      const notifBody = `${appUser.name} reported: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`;
       await createNotification({
         type: 'issue',
-        title: 'New Issue Reported',
-        body: `${appUser.name} reported: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`,
+        title: notifTitle,
+        body: notifBody,
         target_all: true,
         created_by: appUser.id,
       });
+      sendPush({ title: notifTitle, body: notifBody, target_all: true });
 
       router.push(`/issues/${issueId}`);
     } catch (err) {

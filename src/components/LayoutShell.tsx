@@ -13,11 +13,12 @@ const NO_NAV_PATHS = ['/login', '/setup', '/report'];
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { appUser } = useAuth();
+  const { appUser, loading } = useAuth();
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
   const isNoNav = NO_NAV_PATHS.some((p) => pathname.startsWith(p));
-  const showNav = !isNoNav && !!appUser;
+  // Show nav when authenticated OR still loading on a non-public page (prevents flicker on navigation)
+  const showNav = !isNoNav && (!!appUser || (loading && !isPublic));
 
   return (
     <>

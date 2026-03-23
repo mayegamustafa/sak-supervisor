@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { onMessages, sendMessage, createNotification } from '@/lib/firestore';
+import { sendPush } from '@/lib/messaging';
 import { useAuth } from '@/context/AuthContext';
 import type { ChatMessage } from '@/types';
 import { doc, getDoc } from 'firebase/firestore';
@@ -65,13 +66,16 @@ export default function ChatRoomPage() {
         const d = snap.data();
         const otherId = d.participants?.find((p: string) => p !== appUser.id);
         if (otherId) {
+          const notifTitle = `Message from ${appUser.name}`;
+          const notifBody = msg.length > 80 ? msg.slice(0, 80) + '…' : msg;
           await createNotification({
             type: 'chat',
-            title: `Message from ${appUser.name}`,
-            body: msg.length > 80 ? msg.slice(0, 80) + '…' : msg,
+            title: notifTitle,
+            body: notifBody,
             target_user_id: otherId,
             created_by: appUser.id,
           });
+          sendPush({ title: notifTitle, body: notifBody, target_user_id: otherId });
         }
       }
     } finally {
