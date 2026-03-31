@@ -64,3 +64,18 @@ button:focus-visible {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* Print: remove layout constraints so full content prints */
+@media print {
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+  nav, .no-print {
+    display: none !important;
+  }
+}

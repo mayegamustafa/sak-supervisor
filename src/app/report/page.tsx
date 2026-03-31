@@ -264,7 +264,7 @@ export default function ReportPage() {
         {issues.length === 0 ? (
           <p className="py-10 text-center text-sm text-gray-400">No issues to display for the selected period.</p>
         ) : (
-          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
             <table className="w-full border-collapse text-[11px] leading-snug" style={{ minWidth: '900px' }}>
               <thead>
                 <tr className="bg-gray-800 text-white">
