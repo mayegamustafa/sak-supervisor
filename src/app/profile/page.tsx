@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { logout } from '@/lib/auth';
-import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon, AppleIcon, AndroidIcon } from '@/components/Icons';
+import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon, AppleIcon, AndroidIcon, DevicePhoneIcon } from '@/components/Icons';
 
 export default function ProfilePage() {
   const { appUser, loading } = useAuth();
@@ -48,13 +48,12 @@ export default function ProfilePage() {
     try {
       await navigator.share({
         title: 'SAK Schools Supervision (iOS)',
-        text: 'Install the SAK Schools Supervision app on your iPhone. Open this link in Safari and tap "Add to Home Screen".',
-        url: 'https://supervision.saktech.org',
+        text: 'Install the SAK Schools Supervision app on your iPhone via TestFlight.',
+        url: 'https://testflight.apple.com/join/SAKSupervision',
       });
     } catch {
-      // Fallback: copy link
-      await navigator.clipboard?.writeText('https://supervision.saktech.org');
-      alert('Link copied to clipboard!');
+      await navigator.clipboard?.writeText('https://testflight.apple.com/join/SAKSupervision');
+      alert('TestFlight link copied to clipboard!');
     }
   }
 
@@ -151,16 +150,16 @@ export default function ProfilePage() {
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gray-900 py-3 text-sm font-semibold text-white hover:bg-gray-800"
           >
             <ShareIcon className="h-5 w-5" />
-            Share iOS Link
+            Share iOS App
           </button>
           <a
-            href="https://supervision.saktech.org"
+            href="https://testflight.apple.com/join/SAKSupervision"
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
           >
-            <AppleIcon className="h-5 w-5" />
-            Open Web App
+            <DevicePhoneIcon className="h-5 w-5" />
+            Get on iPhone
           </a>
         </div>
       </div>
