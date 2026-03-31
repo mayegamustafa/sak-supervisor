@@ -130,27 +130,24 @@ export default function ReportPage() {
     <>
       <style>{`
         @media print {
-          body { font-size: 9pt; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          @page { size: landscape; margin: 10mm; }
+          body { font-size: 8pt; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
           table { page-break-inside: auto; border-collapse: collapse; width: 100%; table-layout: fixed; }
           tr { page-break-inside: avoid; page-break-after: auto; }
           thead { display: table-header-group; }
           tfoot { display: table-footer-group; }
           .col-no   { width: 3%; }
-          .col-date { width: 7%; }
+          .col-date { width: 6%; }
           .col-school { width: 10%; }
           .col-class { width: 7%; }
           .col-title { width: 11%; }
           .col-details { width: 26%; }
           .col-cat  { width: 7%; }
           .col-status { width: 6%; }
-          .col-action { width: 15%; }
+          .col-action { width: 16%; }
           .col-by   { width: 8%; }
           td, th { word-wrap: break-word; overflow-wrap: break-word; }
-        }
-        @media screen {
-          .report-table { table-layout: fixed; }
-          .col-details { width: 28%; }
         }
       `}</style>
 
@@ -267,8 +264,8 @@ export default function ReportPage() {
         {issues.length === 0 ? (
           <p className="py-10 text-center text-sm text-gray-400">No issues to display for the selected period.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="report-table w-full border-collapse text-[11px] leading-snug">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="w-full border-collapse text-[11px] leading-snug" style={{ minWidth: '900px' }}>
               <thead>
                 <tr className="bg-gray-800 text-white">
                   <th className="col-no border border-gray-600 px-1.5 py-2 text-center font-semibold">#</th>
