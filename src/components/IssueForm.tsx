@@ -73,6 +73,7 @@ export default function IssueForm({ schools }: Props) {
         status,
         photo_url,
         created_by: appUser.name,
+        created_by_id: appUser.id,
       });
 
       if (status === 'Resolved') {

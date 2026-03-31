@@ -84,6 +84,17 @@ export async function updateIssueStatus(
   await updateDoc(doc(db, 'issues', issueId), { status });
 }
 
+export async function updateIssue(
+  issueId: string,
+  data: Partial<Pick<Issue, 'issue_title' | 'description' | 'category' | 'priority' | 'class_section' | 'photo_url'>>
+): Promise<void> {
+  await updateDoc(doc(db, 'issues', issueId), data);
+}
+
+export async function deleteIssue(issueId: string): Promise<void> {
+  await deleteDoc(doc(db, 'issues', issueId));
+}
+
 // ─── Resolutions ─────────────────────────────────────────────────────────────
 
 export async function resolveIssue(

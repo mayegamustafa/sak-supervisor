@@ -22,6 +22,7 @@ export interface Issue {
   status: IssueStatus;
   photo_url?: string;
   created_by: string;
+  created_by_id: string;
   created_at: string;
 }
 

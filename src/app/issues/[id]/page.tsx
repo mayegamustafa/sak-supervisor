@@ -9,14 +9,17 @@ import {
   addFollowUp,
   resolveIssue,
   updateIssueStatus,
+  updateIssue,
+  deleteIssue,
   createNotification,
   autoLogVisit,
 } from '@/lib/firestore';
 import { sendPush } from '@/lib/messaging';
+import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
 import FollowUpTimeline from '@/components/FollowUpTimeline';
 import { CheckCircleIcon } from '@/components/Icons';
-import type { Issue, FollowUp, Resolution } from '@/types';
+import type { Issue, FollowUp, Resolution, IssueCategory, IssuePriority } from '@/types';
 
 const priorityColor: Record<Issue['priority'], string> = {
   Low: 'bg-gray-100 text-gray-700',
@@ -24,6 +27,13 @@ const priorityColor: Record<Issue['priority'], string> = {
   High: 'bg-orange-100 text-orange-800',
   Critical: 'bg-red-100 text-red-800',
 };
+
+const CATEGORIES: IssueCategory[] = ['Infrastructure', 'Teaching', 'Discipline', 'Attendance', 'Learning Materials', 'Sanitation', 'Other'];
+const PRIORITIES: IssuePriority[] = ['Low', 'Medium', 'High', 'Critical'];
+
+function isWithin24Hours(createdAt: string): boolean {
+  return Date.now() - new Date(createdAt).getTime() < 24 * 60 * 60 * 1000;
+}
 
 export default function IssueDetailPage() {
   const { appUser, loading } = useAuth();
@@ -42,6 +52,20 @@ export default function IssueDetailPage() {
   const [resolving, setResolving] = useState(false);
   const [showResolveForm, setShowResolveForm] = useState(false);
 
+  // Edit state
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCategory, setEditCategory] = useState<IssueCategory>('Infrastructure');
+  const [editPriority, setEditPriority] = useState<IssuePriority>('Medium');
+  const [editClassSection, setEditClassSection] = useState('');
+  const [editPhoto, setEditPhoto] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Delete state
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
   }, [loading, appUser, router]);
@@ -57,6 +81,61 @@ export default function IssueDetailPage() {
       }
     );
   }, [id, appUser]);
+
+  // Ownership & permission checks
+  const isOwner = !!(issue && appUser && (issue.created_by_id === appUser.id || issue.created_by === appUser.name));
+  const isAdmin = appUser?.role === 'admin';
+  const canEdit = isOwner && issue ? isWithin24Hours(issue.created_at) : false;
+  const canDelete = isOwner && issue ? isWithin24Hours(issue.created_at) : false;
+  const canResolve = isOwner || isAdmin;
+
+  function startEditing() {
+    if (!issue) return;
+    setEditTitle(issue.issue_title);
+    setEditDescription(issue.description);
+    setEditCategory(issue.category as IssueCategory);
+    setEditPriority(issue.priority);
+    setEditClassSection(issue.class_section);
+    setEditPhoto(null);
+    setEditing(true);
+  }
+
+  async function handleSaveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!issue || !appUser || !id) return;
+    if (!editTitle.trim()) return;
+    setSaving(true);
+    try {
+      let photo_url = issue.photo_url;
+      if (editPhoto) {
+        photo_url = await uploadPhoto(editPhoto, `issues/${issue.school_id}`);
+      }
+      await updateIssue(id, {
+        issue_title: editTitle.trim(),
+        description: editDescription.trim(),
+        category: editCategory,
+        priority: editPriority,
+        class_section: editClassSection.trim(),
+        photo_url,
+      });
+      const updated = await getIssue(id);
+      setIssue(updated);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!id || !appUser) return;
+    setDeleting(true);
+    try {
+      await deleteIssue(id);
+      router.push('/issues');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function handleAddComment(e: React.FormEvent) {
     e.preventDefault();
@@ -119,6 +198,8 @@ export default function IssueDetailPage() {
   );
   if (!issue) return <p className="p-4 text-gray-500">Issue not found.</p>;
 
+  const hoursLeft = Math.max(0, 24 - (Date.now() - new Date(issue.created_at).getTime()) / 3600000);
+
   return (
     <div className="space-y-5">
       {/* Back button */}
@@ -127,47 +208,142 @@ export default function IssueDetailPage() {
         Back
       </button>
 
-      {/* Header */}
-      <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
-        <div className="mb-3 flex items-start justify-between gap-2">
-          <h1 className="text-lg font-bold text-gray-900 leading-snug">{issue.issue_title}</h1>
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[issue.priority]}`}>
-            {issue.priority}
-          </span>
-        </div>
+      {/* Header / View Mode */}
+      {!editing ? (
+        <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
+          <div className="mb-3 flex items-start justify-between gap-2">
+            <h1 className="text-lg font-bold text-gray-900 leading-snug">{issue.issue_title}</h1>
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[issue.priority]}`}>
+              {issue.priority}
+            </span>
+          </div>
 
-        <div className="flex flex-wrap gap-2 text-xs">
-          <span className={`rounded-full px-3 py-1 font-medium ${
-            issue.status === 'Resolved'
-              ? 'bg-green-100 text-green-700'
-              : issue.status === 'In Progress'
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-red-100 text-red-700'
-          }`}>
-            {issue.status}
-          </span>
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.category}</span>
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.school_name}</span>
-          {issue.class_section && (
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.class_section}</span>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className={`rounded-full px-3 py-1 font-medium ${
+              issue.status === 'Resolved'
+                ? 'bg-green-100 text-green-700'
+                : issue.status === 'In Progress'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {issue.status}
+            </span>
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.category}</span>
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.school_name}</span>
+            {issue.class_section && (
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.class_section}</span>
+            )}
+          </div>
+
+          <p className="mt-3 text-sm text-gray-700">{issue.description}</p>
+
+          {issue.photo_url && (
+            <img
+              src={issue.photo_url}
+              alt="Issue photo"
+              loading="lazy"
+              className="mt-3 w-full rounded-xl object-cover max-h-60"
+            />
+          )}
+
+          <p className="mt-3 text-xs text-gray-400">
+            Reported by {issue.created_by} · {new Date(issue.created_at).toLocaleString()}
+          </p>
+
+          {/* Edit / Delete buttons (owner only, within 24hrs, not resolved) */}
+          {(canEdit || canDelete) && issue.status !== 'Resolved' && (
+            <div className="mt-4 flex gap-3">
+              {canEdit && (
+                <button onClick={startEditing} className="flex-1 rounded-xl border border-blue-300 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-50">
+                  Edit Issue
+                </button>
+              )}
+              {canDelete && (
+                <button onClick={() => setShowDeleteConfirm(true)} className="flex-1 rounded-xl border border-red-300 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50">
+                  Delete Issue
+                </button>
+              )}
+            </div>
+          )}
+          {isOwner && !canEdit && issue.status !== 'Resolved' && (
+            <p className="mt-2 text-xs text-gray-400">Edit/delete window has expired (24 hours).</p>
           )}
         </div>
+      ) : (
+        /* Edit Mode */
+        <form onSubmit={handleSaveEdit} className="rounded-2xl bg-white border border-blue-200 p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-blue-700 uppercase tracking-wide">Edit Issue</h2>
+            <span className="text-xs text-gray-400">{Math.floor(hoursLeft)}h left to edit</span>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Title *</label>
+            <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} required
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Description *</label>
+            <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={4} required
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+            <select value={editCategory} onChange={(e) => setEditCategory(e.target.value as IssueCategory)}
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none">
+              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Priority</label>
+            <div className="grid grid-cols-4 gap-2">
+              {PRIORITIES.map((p) => (
+                <button key={p} type="button" onClick={() => setEditPriority(p)}
+                  className={`rounded-xl border py-2 text-sm font-medium transition-colors ${
+                    editPriority === p ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 bg-white text-gray-700'
+                  }`}>{p}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Class / Section</label>
+            <input type="text" value={editClassSection} onChange={(e) => setEditClassSection(e.target.value)}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Replace Photo (optional)</label>
+            <input type="file" accept="image/*" onChange={(e) => setEditPhoto(e.target.files?.[0] ?? null)}
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm" />
+          </div>
+          <div className="flex gap-3">
+            <button type="submit" disabled={saving || !editTitle.trim()}
+              className="flex-1 rounded-xl bg-blue-600 py-3 font-semibold text-white disabled:opacity-60">
+              {saving ? 'Saving…' : 'Save Changes'}
+            </button>
+            <button type="button" onClick={() => setEditing(false)}
+              className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold text-gray-700">
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
 
-        <p className="mt-3 text-sm text-gray-700">{issue.description}</p>
-
-        {issue.photo_url && (
-          <img
-            src={issue.photo_url}
-            alt="Issue photo"
-            loading="lazy"
-            className="mt-3 w-full rounded-xl object-cover max-h-60"
-          />
-        )}
-
-        <p className="mt-3 text-xs text-gray-400">
-          Reported by {issue.created_by} · {new Date(issue.created_at).toLocaleString()}
-        </p>
-      </div>
+      {/* Delete Confirmation */}
+      {showDeleteConfirm && (
+        <div className="rounded-2xl bg-red-50 border border-red-200 p-5 shadow-sm space-y-3">
+          <h2 className="text-sm font-bold text-red-800">Delete this issue?</h2>
+          <p className="text-sm text-red-700">This action cannot be undone. The issue and all its data will be permanently removed.</p>
+          <div className="flex gap-3">
+            <button onClick={handleDelete} disabled={deleting}
+              className="flex-1 rounded-xl bg-red-600 py-3 font-semibold text-white disabled:opacity-60">
+              {deleting ? 'Deleting…' : 'Yes, Delete'}
+            </button>
+            <button onClick={() => setShowDeleteConfirm(false)}
+              className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold text-gray-700">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Timeline */}
       <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
@@ -196,8 +372,8 @@ export default function IssueDetailPage() {
         </form>
       )}
 
-      {/* Resolve button */}
-      {issue.status !== 'Resolved' && !showResolveForm && (
+      {/* Resolve button — only for admin or issue creator */}
+      {issue.status !== 'Resolved' && canResolve && !showResolveForm && (
         <button
           onClick={() => setShowResolveForm(true)}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-4 text-base font-bold text-white"
