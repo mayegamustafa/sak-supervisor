@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { logout } from '@/lib/auth';
-import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon } from '@/components/Icons';
+import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon, AppleIcon, AndroidIcon } from '@/components/Icons';
 
 export default function ProfilePage() {
   const { appUser, loading } = useAuth();
@@ -41,6 +41,20 @@ export default function ProfilePage() {
     } catch {
       // Final fallback: direct download link
       window.open('/sak-supervision.apk', '_blank');
+    }
+  }
+
+  async function handleShareiOS() {
+    try {
+      await navigator.share({
+        title: 'SAK Schools Supervision (iOS)',
+        text: 'Install the SAK Schools Supervision app on your iPhone. Open this link in Safari and tap "Add to Home Screen".',
+        url: 'https://supervision.saktech.org',
+      });
+    } catch {
+      // Fallback: copy link
+      await navigator.clipboard?.writeText('https://supervision.saktech.org');
+      alert('Link copied to clipboard!');
     }
   }
 
@@ -104,6 +118,11 @@ export default function ProfilePage() {
       <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm space-y-3">
         <h3 className="text-sm font-bold text-gray-900">Share App</h3>
         <p className="text-xs text-gray-500">Invite colleagues to install the SAK Supervision app.</p>
+
+        {/* Android */}
+        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide flex items-center gap-1">
+          <AndroidIcon className="h-4 w-4" /> Android
+        </p>
         <div className="flex gap-3">
           <button
             onClick={handleShareApp}
@@ -119,6 +138,29 @@ export default function ProfilePage() {
           >
             <DownloadIcon className="h-5 w-5" />
             Download APK
+          </a>
+        </div>
+
+        {/* iOS */}
+        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide flex items-center gap-1 pt-2">
+          <AppleIcon className="h-4 w-4" /> iPhone / iPad
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={handleShareiOS}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gray-900 py-3 text-sm font-semibold text-white hover:bg-gray-800"
+          >
+            <ShareIcon className="h-5 w-5" />
+            Share iOS Link
+          </button>
+          <a
+            href="https://supervision.saktech.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <AppleIcon className="h-5 w-5" />
+            Open Web App
           </a>
         </div>
       </div>

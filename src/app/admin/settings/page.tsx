@@ -18,6 +18,8 @@ import {
   DownloadIcon,
   BellIcon,
   MegaphoneIcon,
+  AppleIcon,
+  AndroidIcon,
 } from '@/components/Icons';
 
 export default function AdminSettingsPage() {
@@ -54,6 +56,19 @@ export default function AdminSettingsPage() {
       }
     } catch {
       window.open('/sak-supervision.apk', '_blank');
+    }
+  }
+
+  async function handleShareiOS() {
+    try {
+      await navigator.share({
+        title: 'SAK Schools Supervision (iOS)',
+        text: 'Install the SAK Schools Supervision app on your iPhone. Open this link in Safari and tap "Add to Home Screen".',
+        url: 'https://supervision.saktech.org',
+      });
+    } catch {
+      await navigator.clipboard?.writeText('https://supervision.saktech.org');
+      alert('Link copied to clipboard!');
     }
   }
 
@@ -98,9 +113,9 @@ export default function AdminSettingsPage() {
         </div>
       </section>
 
-      {/* Share App */}
+      {/* Share App — Android */}
       <section>
-        <h2 className="mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-1">App</h2>
+        <h2 className="mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-1 flex items-center gap-1"><AndroidIcon className="h-4 w-4" /> Android</h2>
         <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
           <SettingsLink icon={<ShareIcon className="h-5 w-5" />} label="Share APK" desc="Send APK file via WhatsApp, etc." onClick={handleShareApp} />
           <a href="/sak-supervision.apk" download className="flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors">
@@ -108,6 +123,22 @@ export default function AdminSettingsPage() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900">Download APK</p>
               <p className="text-xs text-gray-500">Android installation file</p>
+            </div>
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+          </a>
+        </div>
+      </section>
+
+      {/* Share App — iOS */}
+      <section>
+        <h2 className="mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-1 flex items-center gap-1"><AppleIcon className="h-4 w-4" /> iPhone / iPad</h2>
+        <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
+          <SettingsLink icon={<ShareIcon className="h-5 w-5" />} label="Share iOS Link" desc="Send web app link for iPhone users" onClick={handleShareiOS} />
+          <a href="https://supervision.saktech.org" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 text-gray-600"><AppleIcon className="h-5 w-5" /></span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900">Open Web App</p>
+              <p className="text-xs text-gray-500">iPhone users: Add to Home Screen from Safari</p>
             </div>
             <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
           </a>
