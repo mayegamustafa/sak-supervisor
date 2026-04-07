@@ -130,48 +130,43 @@ export default function ReportPage() {
     <>
       <style>{`
         @media print {
-          @page { size: landscape; margin: 10mm; }
-          body { font-size: 8pt; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          @page { margin: 10mm; }
+          html, body { margin: 0; padding: 0; font-size: 9pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          table { page-break-inside: auto; border-collapse: collapse; width: 100%; table-layout: fixed; }
+          .print-container { padding: 0 !important; }
+          table { page-break-inside: auto; border-collapse: collapse; width: 100%; }
           tr { page-break-inside: avoid; page-break-after: auto; }
           thead { display: table-header-group; }
           tfoot { display: table-footer-group; }
-          .col-no   { width: 3%; }
-          .col-date { width: 6%; }
-          .col-school { width: 10%; }
-          .col-class { width: 7%; }
-          .col-title { width: 11%; }
-          .col-details { width: 26%; }
-          .col-cat  { width: 7%; }
-          .col-status { width: 6%; }
-          .col-action { width: 16%; }
-          .col-by   { width: 8%; }
-          td, th { word-wrap: break-word; overflow-wrap: break-word; }
+          td, th { word-wrap: break-word; overflow-wrap: break-word; white-space: normal !important; padding: 4px 6px !important; font-size: 8pt; }
+          .report-header { page-break-after: avoid; }
+          .report-footer { page-break-before: avoid; }
         }
       `}</style>
 
-      <div className="min-h-dvh bg-white px-4 py-6 pb-24 sm:px-10">
+      <div className="print-container min-h-dvh bg-white px-4 py-6 pb-24 sm:px-10">
         {/* ── Toolbar ── */}
         <div className="no-print mb-4 flex items-center justify-between gap-4">
-          <button onClick={() => router.back()} className="text-sm font-medium text-red-800 hover:underline">
-            ← Back
+          <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm font-medium text-red-800 hover:underline">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            Back
           </button>
-          <button onClick={() => window.print()} className="rounded-xl bg-red-800 px-6 py-2.5 text-sm font-bold text-white shadow hover:bg-red-900">
+          <button onClick={() => window.print()} className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-800 to-red-900 px-6 py-2.5 text-sm font-bold text-white shadow-lg hover:from-red-900 hover:to-red-950 transition-all">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
             Print / Save PDF
           </button>
         </div>
 
         {/* ── Filters (bank-statement style) ── */}
         <div className="no-print mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-4 space-y-3">
-          <h3 className="text-sm font-bold text-gray-700">Filter Report</h3>
+          <h3 className="text-sm font-bold text-red-900">Filter Report</h3>
 
           {/* Mode tabs */}
           <div className="flex flex-wrap gap-2">
             {([['all', 'All'], ['term', 'By Term'], ['year', 'By Year'], ['date', 'Date Range']] as const).map(([m, l]) => (
               <button key={m} onClick={() => setFilterMode(m)}
                 className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
-                  filterMode === m ? 'bg-red-800 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                  filterMode === m ? 'bg-gradient-to-r from-red-800 to-red-900 text-white shadow-sm' : 'bg-white border border-gray-300 text-gray-700 hover:bg-red-50'
                 }`}>
                 {l}
               </button>
@@ -241,14 +236,14 @@ export default function ReportPage() {
         </div>
 
         {/* ── Report Header ── */}
-        <div className="mb-5 border-b-2 border-gray-900 pb-5 text-center">
+        <div className="report-header mb-5 border-b-2 border-red-900 pb-5 text-center">
           <div className="mx-auto mb-3 flex items-center justify-center gap-4">
-            <img src="/badges/sak.jpg" alt="SAK Badge" className="h-16 w-16 rounded-full object-cover shadow" />
-            <img src="/badges/cps.png" alt="CPS Badge" className="h-16 w-16 rounded-full object-cover shadow" />
+            <img src="/badges/sak.jpg" alt="SAK Badge" className="h-16 w-16 rounded-full object-cover shadow ring-2 ring-red-200" />
+            <img src="/badges/cps.png" alt="CPS Badge" className="h-16 w-16 rounded-full bg-white object-cover shadow ring-2 ring-red-200" />
           </div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Schools Supervision System</p>
-          <h1 className="mt-1 text-2xl font-extrabold uppercase tracking-wide text-gray-900">SAK / CPS Schools</h1>
-          <h2 className="mt-0.5 text-base font-bold text-gray-700">Issues &amp; Supervision Report</h2>
+          <p className="text-xs font-semibold uppercase tracking-widest text-red-800">Schools Supervision System</p>
+          <h1 className="mt-1 text-2xl font-extrabold uppercase tracking-wide text-red-950">SAK / CPS Schools</h1>
+          <h2 className="mt-0.5 text-base font-bold text-amber-700">Issues &amp; Supervision Report</h2>
           <p className="mt-1 text-sm font-medium text-gray-600">Period: {filterLabel}</p>
           <div className="mt-2 flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-gray-500">
             <span>Date Generated: <strong>{today}</strong></span>
@@ -256,7 +251,7 @@ export default function ReportPage() {
             <span className="capitalize">Role: <strong>{appUser.role}</strong></span>
           </div>
           {appUser.role !== 'admin' && (
-            <p className="mt-1 text-xs text-gray-400">Showing issues submitted by {appUser.name}</p>
+            <p className="mt-1 text-xs text-amber-600">Showing issues submitted by {appUser.name}</p>
           )}
         </div>
 
@@ -265,32 +260,32 @@ export default function ReportPage() {
           <p className="py-10 text-center text-sm text-gray-400">No issues to display for the selected period.</p>
         ) : (
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <table className="w-full border-collapse text-[11px] leading-snug" style={{ minWidth: '900px' }}>
+            <table className="w-full border-collapse text-[11px] leading-snug">
               <thead>
-                <tr className="bg-gray-800 text-white">
-                  <th className="col-no border border-gray-600 px-1.5 py-2 text-center font-semibold">#</th>
-                  <th className="col-date border border-gray-600 px-1.5 py-2 text-left font-semibold">Date</th>
-                  <th className="col-school border border-gray-600 px-1.5 py-2 text-left font-semibold">School</th>
-                  <th className="col-class border border-gray-600 px-1.5 py-2 text-left font-semibold">Class / Section</th>
-                  <th className="col-title border border-gray-600 px-1.5 py-2 text-left font-semibold">Issue / Title</th>
-                  <th className="col-details border border-gray-600 px-2 py-2 text-left font-semibold">Details</th>
-                  <th className="col-cat border border-gray-600 px-1.5 py-2 text-left font-semibold">Category</th>
-                  <th className="col-status border border-gray-600 px-1.5 py-2 text-center font-semibold">Status</th>
-                  <th className="col-action border border-gray-600 px-1.5 py-2 text-left font-semibold">Action Taken</th>
-                  <th className="col-by border border-gray-600 px-1.5 py-2 text-left font-semibold">Submitted By</th>
+                <tr className="bg-gradient-to-r from-red-900 to-red-800 text-white">
+                  <th className="border border-red-700 px-1.5 py-2 text-center font-semibold">#</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Date</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">School</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Class</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Issue</th>
+                  <th className="border border-red-700 px-2 py-2 text-left font-semibold">Details</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Category</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-center font-semibold">Status</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Action Taken</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">By</th>
                 </tr>
               </thead>
               <tbody>
                 {issues.map((issue, idx) => {
                   const res = resolutions[issue.id];
                   return (
-                    <tr key={issue.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <tr key={issue.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-red-50/40'}>
                       <td className="border border-gray-300 px-1.5 py-1.5 text-center text-gray-400">{idx + 1}</td>
-                      <td className="border border-gray-300 px-1.5 py-1.5 text-gray-700 whitespace-nowrap">{fmtDate(issue.created_at)}</td>
+                      <td className="border border-gray-300 px-1.5 py-1.5 text-gray-700">{fmtDate(issue.created_at)}</td>
                       <td className="border border-gray-300 px-1.5 py-1.5 font-medium text-gray-900">{issue.school_name}</td>
                       <td className="border border-gray-300 px-1.5 py-1.5 text-gray-600">{issue.class_section || '—'}</td>
                       <td className="border border-gray-300 px-1.5 py-1.5 font-semibold text-gray-900">{issue.issue_title}</td>
-                      <td className="col-details border border-gray-300 px-2 py-1.5 text-gray-700" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                      <td className="border border-gray-300 px-2 py-1.5 text-gray-700" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                         {issue.description}
                       </td>
                       <td className="border border-gray-300 px-1.5 py-1.5 text-gray-600">{issue.category}</td>
@@ -310,7 +305,7 @@ export default function ReportPage() {
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-gray-100 font-semibold text-gray-700">
+                <tr className="bg-red-50 font-semibold text-red-900">
                   <td colSpan={10} className="border border-gray-300 px-3 py-2 text-xs">
                     Total: {issues.length} &nbsp;·&nbsp; Pending: {pending} &nbsp;·&nbsp; In Progress: {inProgress} &nbsp;·&nbsp; Resolved: {resolved}
                   </td>
@@ -321,8 +316,8 @@ export default function ReportPage() {
         )}
 
         {/* ── Footer ── */}
-        <div className="mt-8 flex items-center justify-between border-t pt-4 text-xs text-gray-400">
-          <span>SAK Schools Supervision System · Confidential</span>
+        <div className="report-footer mt-8 flex items-center justify-between border-t-2 border-red-900 pt-4 text-xs text-gray-500">
+          <span className="font-medium text-red-800">SAK Schools Supervision System · Confidential</span>
           <span>Generated on {today}</span>
         </div>
       </div>
