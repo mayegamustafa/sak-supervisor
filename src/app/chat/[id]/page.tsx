@@ -19,6 +19,7 @@ export default function ChatRoomPage() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [otherName, setOtherName] = useState('Chat');
+  const [otherPhotoUrl, setOtherPhotoUrl] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,6 +35,14 @@ export default function ChatRoomPage() {
       const otherId = d.participants?.find((p: string) => p !== appUser.id);
       if (otherId && d.participant_names?.[otherId]) {
         setOtherName(d.participant_names[otherId]);
+      }
+      // Fetch other user's photo
+      if (otherId) {
+        getDoc(doc(db, 'users', otherId)).then((uSnap) => {
+          if (uSnap.exists()) {
+            setOtherPhotoUrl(uSnap.data().photo_url ?? null);
+          }
+        });
       }
     });
   }, [appUser, chatId]);
@@ -101,8 +110,12 @@ export default function ChatRoomPage() {
         <button onClick={() => router.push('/chat')} className="text-red-800 text-sm font-medium">
           ← Back
         </button>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-900">
-          {otherName.charAt(0).toUpperCase()}
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-900 overflow-hidden">
+          {otherPhotoUrl ? (
+            <img src={otherPhotoUrl} alt={otherName} className="h-full w-full object-cover" />
+          ) : (
+            otherName.charAt(0).toUpperCase()
+          )}
         </div>
         <h1 className="text-base font-bold text-gray-900 truncate">{otherName}</h1>
       </div>

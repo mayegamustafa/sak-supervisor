@@ -36,9 +36,20 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           {appUser && (
-            <span className="hidden text-xs text-white/70 sm:block">
-              {appUser.name}
-            </span>
+            <Link href="/profile" className="flex items-center gap-2">
+              <span className="hidden text-xs text-white/70 sm:block">
+                {appUser.name}
+              </span>
+              <div className="h-8 w-8 rounded-full overflow-hidden ring-2 ring-white/20 shadow">
+                {appUser.photo_url ? (
+                  <Image src={appUser.photo_url} alt={appUser.name} width={32} height={32} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-white/20 text-xs font-bold text-white">
+                    {appUser.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+            </Link>
           )}
           <Link
             href="/notifications"

@@ -81,8 +81,14 @@ export default function AdminSettingsPage() {
     <div className="space-y-6 py-2">
       {/* Profile Header */}
       <div className="-mx-4 sm:mx-0 flex flex-col items-center rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 py-6 text-white shadow-md">
-        <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
-          <UserCircleIcon className="h-10 w-10" />
+        <div className="mb-2 h-16 w-16 rounded-full overflow-hidden ring-2 ring-white/20 shadow bg-white/20">
+          {appUser.photo_url ? (
+            <img src={appUser.photo_url} alt={appUser.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <UserCircleIcon className="h-10 w-10" />
+            </div>
+          )}
         </div>
         <h1 className="text-lg font-bold">{appUser.name}</h1>
         <p className="text-sm opacity-80">{appUser.email}</p>

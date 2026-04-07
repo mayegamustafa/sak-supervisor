@@ -98,8 +98,12 @@ export default function ChatListPage() {
                 disabled={starting === u.id}
                 className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:bg-gray-50 active:bg-gray-100"
               >
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-sm font-bold text-red-900">
-                  {u.name.charAt(0).toUpperCase()}
+                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-sm font-bold text-red-900 overflow-hidden">
+                  {u.photo_url ? (
+                    <img src={u.photo_url} alt={u.name} className="h-full w-full object-cover" />
+                  ) : (
+                    u.name.charAt(0).toUpperCase()
+                  )}
                   <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white ${u.online ? 'bg-green-500' : 'bg-gray-300'}`} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -131,8 +135,12 @@ export default function ChatListPage() {
                   onClick={() => router.push(`/chat/${room.id}`)}
                   className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:bg-gray-50 active:bg-gray-100"
                 >
-                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-sm font-bold text-red-900">
-                    {getOtherName(room).charAt(0).toUpperCase()}
+                  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-sm font-bold text-red-900 overflow-hidden">
+                    {otherUser?.photo_url ? (
+                      <img src={otherUser.photo_url} alt={getOtherName(room)} className="h-full w-full object-cover" />
+                    ) : (
+                      getOtherName(room).charAt(0).toUpperCase()
+                    )}
                     <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white ${otherUser?.online ? 'bg-green-500' : 'bg-gray-300'}`} />
                   </div>
                   <div className="flex-1 min-w-0">

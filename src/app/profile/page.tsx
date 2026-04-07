@@ -13,7 +13,9 @@ export default function ProfilePage() {
   const { appUser, loading, setAppUser } = useAuth();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [showPhotoPicker, setShowPhotoPicker] = useState(false);
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
@@ -89,7 +91,7 @@ export default function ProfilePage() {
       <div className="-mx-4 sm:mx-0 flex flex-col items-center rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 py-8 text-white shadow-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full -translate-y-8 translate-x-8" />
         <button
-          onClick={() => fileRef.current?.click()}
+          onClick={() => setShowPhotoPicker(true)}
           disabled={uploading}
           className="relative mb-3 group"
         >
@@ -115,6 +117,39 @@ export default function ProfilePage() {
           )}
         </button>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoChange} className="hidden" />
+        <input ref={galleryRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+
+        {/* Photo picker modal */}
+        {showPhotoPicker && (
+          <div className="flex gap-3 mt-1 mb-2 animate-in fade-in">
+            <button
+              onClick={() => { setShowPhotoPicker(false); fileRef.current?.click(); }}
+              className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/30 transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+              </svg>
+              Camera
+            </button>
+            <button
+              onClick={() => { setShowPhotoPicker(false); galleryRef.current?.click(); }}
+              className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/30 transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+              </svg>
+              Gallery
+            </button>
+            <button
+              onClick={() => setShowPhotoPicker(false)}
+              className="rounded-xl bg-white/10 px-3 py-2.5 text-sm text-white/70 hover:bg-white/20 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
         <p className="text-[10px] text-white/50 mb-2">Tap photo to change</p>
         <h1 className="text-xl font-bold">{appUser.name}</h1>
         <p className="mt-0.5 text-sm text-white/70">{appUser.email}</p>
