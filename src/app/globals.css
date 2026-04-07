@@ -79,3 +79,117 @@ button:focus-visible {
     display: none !important;
   }
 }
+
+/* ─── Splash Screen ──────────────────────────────────────────────────────── */
+
+/* Gradient background — deep maroon to black, full viewport */
+.splash-bg {
+  background: linear-gradient(160deg, #4a0e0e 0%, #1a0000 40%, #000 100%);
+  background-size: 200% 200%;
+  animation: splashGradientShift 4s ease infinite alternate;
+}
+
+@keyframes splashGradientShift {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Badge containers — circular frame with glow */
+.splash-badge {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.15),
+    0 0 60px rgba(180, 40, 40, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+  animation: splashBadgePulse 2.5s ease-in-out infinite;
+}
+
+@media (min-width: 640px) {
+  .splash-badge {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+@keyframes splashBadgePulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.15), 0 0 60px rgba(180,40,40,0.3); }
+  50%      { box-shadow: 0 0 30px rgba(255,255,255,0.25), 0 0 80px rgba(180,40,40,0.5); }
+}
+
+/* Logo entrance — fade + scale + slide up */
+.splash-logos-in {
+  animation: splashLogosEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes splashLogosEntrance {
+  0%   { opacity: 0; transform: scale(0.6) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Glow ring behind logos */
+.splash-glow {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,40,40,0.25) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-glow-in {
+  animation: splashGlowIn 1.5s ease-out 0.3s forwards;
+}
+
+@keyframes splashGlowIn {
+  0%   { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Loader — spinning arc */
+.splash-loader {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-right-color: rgba(180, 40, 40, 0.6);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Floating particles */
+.splash-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.splash-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  animation: splashFloat 6s ease-in-out infinite;
+  left: calc(8% + var(--i) * 7.5%);
+  top: calc(20% + var(--i) * 5%);
+  animation-delay: calc(var(--i) * -0.5s);
+}
+
+.splash-particle:nth-child(odd) {
+  width: 3px;
+  height: 3px;
+  background: rgba(180, 40, 40, 0.15);
+}
+
+@keyframes splashFloat {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+  25%      { transform: translateY(-30px) translateX(10px) scale(1.5); opacity: 0.6; }
+  50%      { transform: translateY(-50px) translateX(-5px) scale(1); opacity: 0.4; }
+  75%      { transform: translateY(-25px) translateX(15px) scale(1.3); opacity: 0.5; }
+}
