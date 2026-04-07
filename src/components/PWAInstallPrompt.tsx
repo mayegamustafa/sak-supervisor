@@ -39,7 +39,7 @@ export default function PWAInstallPrompt() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-50 rounded-2xl bg-blue-700 p-4 text-white shadow-2xl sm:left-auto sm:right-6 sm:w-80" style={{ bottom: 'calc(5rem + var(--safe-bottom))' }}>
+    <div className="fixed bottom-20 left-4 right-4 z-50 rounded-2xl bg-red-900 p-4 text-white shadow-2xl sm:left-auto sm:right-6 sm:w-80" style={{ bottom: 'calc(5rem + var(--safe-bottom))' }}>
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
@@ -56,7 +56,7 @@ export default function PWAInstallPrompt() {
       </div>
       <button
         onClick={handleInstall}
-        className="mt-3 w-full rounded-xl bg-white py-2.5 text-sm font-bold text-blue-700"
+        className="mt-3 w-full rounded-xl bg-white py-2.5 text-sm font-bold text-red-900"
       >
         Install Now
       </button>

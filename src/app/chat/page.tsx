@@ -79,7 +79,7 @@ export default function ChatListPage() {
         <h1 className="text-lg font-bold text-gray-900">Messages</h1>
         <button
           onClick={() => setShowUsers(!showUsers)}
-          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm"
+          className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white shadow-sm"
         >
           {showUsers ? 'Back to Chats' : 'New Chat'}
         </button>
@@ -98,7 +98,7 @@ export default function ChatListPage() {
                 disabled={starting === u.id}
                 className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:bg-gray-50 active:bg-gray-100"
               >
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-sm font-bold text-red-900">
                   {u.name.charAt(0).toUpperCase()}
                   <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white ${u.online ? 'bg-green-500' : 'bg-gray-300'}`} />
                 </div>
@@ -118,7 +118,7 @@ export default function ChatListPage() {
           ) : rooms.length === 0 ? (
             <div className="py-12 text-center">
               <p className="text-sm text-gray-400">No conversations yet.</p>
-              <button onClick={() => setShowUsers(true)} className="mt-2 text-sm font-medium text-blue-600">
+              <button onClick={() => setShowUsers(true)} className="mt-2 text-sm font-medium text-red-800">
                 Start a new chat →
               </button>
             </div>
@@ -131,7 +131,7 @@ export default function ChatListPage() {
                   onClick={() => router.push(`/chat/${room.id}`)}
                   className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:bg-gray-50 active:bg-gray-100"
                 >
-                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-sm font-bold text-red-900">
                     {getOtherName(room).charAt(0).toUpperCase()}
                     <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white ${otherUser?.online ? 'bg-green-500' : 'bg-gray-300'}`} />
                   </div>

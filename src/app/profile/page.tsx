@@ -66,7 +66,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       {/* Avatar / Name */}
-      <div className="-mx-4 sm:mx-0 flex flex-col items-center rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 py-8 text-white shadow-md">
+      <div className="-mx-4 sm:mx-0 flex flex-col items-center rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 py-8 text-white shadow-md">
         <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-white">
           <UserCircleIcon className="h-14 w-14" />
         </div>
@@ -100,15 +100,15 @@ export default function ProfilePage() {
       <div className="rounded-2xl bg-white border border-gray-200 p-4 shadow-sm space-y-2">
         <h3 className="text-sm font-bold text-gray-900 mb-3">Quick Access</h3>
         <button onClick={() => router.push('/visits')} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50">
-          <ClipboardIcon className="h-5 w-5 text-blue-600" />
+          <ClipboardIcon className="h-5 w-5 text-red-800" />
           <span className="text-sm font-medium text-gray-900">Supervisions</span>
         </button>
         <button onClick={() => router.push('/chat')} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50">
-          <ChatBubbleIcon className="h-5 w-5 text-blue-600" />
+          <ChatBubbleIcon className="h-5 w-5 text-red-800" />
           <span className="text-sm font-medium text-gray-900">Messages</span>
         </button>
         <button onClick={() => router.push('/notices')} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50">
-          <BellIcon className="h-5 w-5 text-blue-600" />
+          <BellIcon className="h-5 w-5 text-red-800" />
           <span className="text-sm font-medium text-gray-900">Notices</span>
         </button>
       </div>
@@ -125,7 +125,7 @@ export default function ProfilePage() {
         <div className="flex gap-3">
           <button
             onClick={handleShareApp}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-800 py-3 text-sm font-semibold text-white hover:bg-red-900"
           >
             <ShareIcon className="h-5 w-5" />
             Share APK

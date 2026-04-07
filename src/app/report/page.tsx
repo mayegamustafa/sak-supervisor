@@ -119,7 +119,7 @@ export default function ReportPage() {
   if (loading || fetching || !appUser) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-red-800 border-t-transparent" />
       </div>
     );
   }
@@ -154,10 +154,10 @@ export default function ReportPage() {
       <div className="min-h-dvh bg-white px-4 py-6 pb-24 sm:px-10">
         {/* ── Toolbar ── */}
         <div className="no-print mb-4 flex items-center justify-between gap-4">
-          <button onClick={() => router.back()} className="text-sm font-medium text-blue-600 hover:underline">
+          <button onClick={() => router.back()} className="text-sm font-medium text-red-800 hover:underline">
             ← Back
           </button>
-          <button onClick={() => window.print()} className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow hover:bg-blue-700">
+          <button onClick={() => window.print()} className="rounded-xl bg-red-800 px-6 py-2.5 text-sm font-bold text-white shadow hover:bg-red-900">
             Print / Save PDF
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function ReportPage() {
             {([['all', 'All'], ['term', 'By Term'], ['year', 'By Year'], ['date', 'Date Range']] as const).map(([m, l]) => (
               <button key={m} onClick={() => setFilterMode(m)}
                 className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
-                  filterMode === m ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                  filterMode === m ? 'bg-red-800 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
                 }`}>
                 {l}
               </button>
@@ -184,7 +184,7 @@ export default function ReportPage() {
               <div className="flex-1 min-w-[200px]">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Select Term</label>
                 <select value={selectedTerm} onChange={(e) => setSelectedTerm(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
                   <option value="">— Choose term —</option>
                   {terms.map((t) => (
                     <option key={t.id} value={t.id}>{t.term} {t.year} ({fmtDate(t.start_date)} – {fmtDate(t.end_date)})</option>
@@ -197,7 +197,7 @@ export default function ReportPage() {
               <div className="flex-1 min-w-[140px]">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Select Year</label>
                 <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
                   <option value="">— Choose year —</option>
                   {availableYears.map((y) => (
                     <option key={y} value={y}>{y}</option>
@@ -211,12 +211,12 @@ export default function ReportPage() {
                 <div className="flex-1 min-w-[140px]">
                   <label className="block text-xs font-medium text-gray-600 mb-1">From</label>
                   <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" />
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
                 </div>
                 <div className="flex-1 min-w-[140px]">
                   <label className="block text-xs font-medium text-gray-600 mb-1">To</label>
                   <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" />
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
                 </div>
               </>
             )}
@@ -225,7 +225,7 @@ export default function ReportPage() {
             <div className="min-w-[130px]">
               <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
                 <option value="all">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>

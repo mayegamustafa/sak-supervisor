@@ -91,7 +91,7 @@ export default function TermsPage() {
         <h1 className="text-lg font-bold text-gray-900">Term Dates</h1>
         <button
           onClick={() => { setShowAdd(!showAdd); setEditId(null); setError(''); }}
-          className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+          className="rounded-full bg-red-800 px-4 py-2 text-sm font-semibold text-white"
         >
           + Add Term
         </button>
@@ -112,13 +112,13 @@ export default function TermsPage() {
       {error && <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>}
 
       {showAdd && (
-        <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+        <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-red-200 bg-red-50 p-4">
           <h2 className="font-semibold text-gray-800">{editId ? 'Edit Term' : 'New Term'}</h2>
           <div className="grid grid-cols-2 gap-3">
             <select
               value={term}
               onChange={(e) => setTerm(e.target.value as Term)}
-              className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+              className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
             >
               {TERMS.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -128,23 +128,23 @@ export default function TermsPage() {
               onChange={(e) => setYear(Number(e.target.value))}
               min={2020}
               max={2040}
-              className="rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+              className="rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Start Date</label>
               <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">End Date</label>
               <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none" />
             </div>
           </div>
           <button type="submit" disabled={submitting}
-            className="w-full rounded-xl bg-blue-600 py-3 font-bold text-white disabled:opacity-60">
+            className="w-full rounded-xl bg-red-800 py-3 font-bold text-white disabled:opacity-60">
             {submitting ? 'Saving…' : editId ? 'Update Term' : 'Save Term'}
           </button>
         </form>

@@ -49,14 +49,14 @@ export default function NewSchoolPage() {
             onChange={(e) => setForm((f) => ({ ...f, school_name: e.target.value }))}
             placeholder="e.g. SAK / CPS - MENGO"
             required
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           />
         </div>
 
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60"
+          className="w-full rounded-xl bg-red-800 py-4 text-base font-bold text-white shadow-sm hover:bg-red-900 disabled:opacity-60"
         >
           {submitting ? 'Creating…' : 'Create School'}
         </button>

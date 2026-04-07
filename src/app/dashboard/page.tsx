@@ -95,10 +95,11 @@ export default function DashboardPage() {
     <div ref={containerRef} className="space-y-6">
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
       {/* Greeting */}
-      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-5 text-white shadow-md">
-        <p className="text-sm opacity-80">Welcome back,</p>
+      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 p-5 text-white shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full -translate-y-8 translate-x-8" />
+        <p className="text-sm text-white/70">Welcome back,</p>
         <h2 className="text-xl font-bold">{appUser.name}</h2>
-        <p className="mt-0.5 text-xs opacity-70 capitalize">{appUser.role}</p>
+        <p className="mt-0.5 text-xs text-amber-300/80 font-medium uppercase tracking-wider">{appUser.role}</p>
       </div>
 
       {/* Term filter */}
@@ -142,7 +143,7 @@ export default function DashboardPage() {
                   >
                     <span className="text-sm font-medium text-gray-800">{school}</span>
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700">
+                      <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-900">
                         {schoolIssues.length}
                       </span>
                       <svg className={`h-4 w-4 text-gray-400 transition-transform ${expandedSchool === school ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,7 +170,7 @@ export default function DashboardPage() {
           <h3 className="text-base font-bold text-gray-900">Recent Issues</h3>
           <button
             onClick={() => router.push('/issues/new')}
-            className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white"
+            className="rounded-full bg-red-800 px-3 py-1 text-xs font-semibold text-white"
           >
             + Add
           </button>

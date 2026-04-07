@@ -98,10 +98,10 @@ export default function ChatRoomPage() {
     <div className="flex flex-col" style={{ height: 'calc(100dvh - 8rem)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-gray-200 pb-3 mb-3">
-        <button onClick={() => router.push('/chat')} className="text-blue-600 text-sm font-medium">
+        <button onClick={() => router.push('/chat')} className="text-red-800 text-sm font-medium">
           ← Back
         </button>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-900">
           {otherName.charAt(0).toUpperCase()}
         </div>
         <h1 className="text-base font-bold text-gray-900 truncate">{otherName}</h1>
@@ -118,14 +118,14 @@ export default function ChatRoomPage() {
             <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                 isMine
-                  ? 'bg-blue-600 text-white rounded-br-md'
+                  ? 'bg-red-800 text-white rounded-br-md'
                   : 'bg-gray-100 text-gray-900 rounded-bl-md'
               }`}>
                 {!isMine && (
-                  <p className="text-[10px] font-semibold text-blue-600 mb-0.5">{msg.sender_name}</p>
+                  <p className="text-[10px] font-semibold text-red-800 mb-0.5">{msg.sender_name}</p>
                 )}
                 <p className="text-sm whitespace-pre-wrap break-words">{msg.text}</p>
-                <p className={`text-[10px] mt-1 ${isMine ? 'text-blue-200' : 'text-gray-400'}`}>
+                <p className={`text-[10px] mt-1 ${isMine ? 'text-red-200' : 'text-gray-400'}`}>
                   {formatTime(msg.created_at)}
                 </p>
               </div>
@@ -142,13 +142,13 @@ export default function ChatRoomPage() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type a message…"
-          className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+          className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-amber-500 focus:outline-none"
           autoComplete="off"
         />
         <button
           type="submit"
           disabled={!text.trim() || sending}
-          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
+          className="rounded-xl bg-red-800 px-5 py-3 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
         >
           Send
         </button>

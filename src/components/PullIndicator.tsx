@@ -19,10 +19,10 @@ export default function PullIndicator({
       style={{ height: refreshing ? 48 : pullDistance }}
     >
       {refreshing ? (
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-800 border-t-transparent" />
       ) : (
         <svg
-          className="h-6 w-6 text-blue-600 transition-transform"
+          className="h-6 w-6 text-red-800 transition-transform"
           style={{ transform: `rotate(${progress * 180}deg)`, opacity: progress }}
           fill="none"
           viewBox="0 0 24 24"

@@ -134,7 +134,7 @@ export default function ManageUsersPage() {
         <h1 className="text-lg font-bold text-gray-900">Manage Users</h1>
         <button
           onClick={() => { setShowAdd(!showAdd); setError(''); setSuccess(''); }}
-          className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+          className="rounded-full bg-red-800 px-4 py-2 text-sm font-semibold text-white"
         >
           + Add User
         </button>
@@ -145,7 +145,7 @@ export default function ManageUsersPage() {
 
       {/* Add User Form */}
       {showAdd && (
-        <form onSubmit={handleAddUser} className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+        <form onSubmit={handleAddUser} className="space-y-3 rounded-xl border border-red-200 bg-red-50 p-4">
           <h2 className="font-semibold text-gray-800">New User</h2>
           <input
             type="text"
@@ -153,7 +153,7 @@ export default function ManageUsersPage() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             required
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           />
           <input
             type="email"
@@ -161,7 +161,7 @@ export default function ManageUsersPage() {
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             required
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           />
           <input
             type="text"
@@ -170,12 +170,12 @@ export default function ManageUsersPage() {
             onChange={(e) => setNewPassword(e.target.value)}
             required
             minLength={6}
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           />
           <select
             value={newRole}
             onChange={(e) => setNewRole(e.target.value as UserRole)}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           >
             <option value="supervisor">Supervisor</option>
             <option value="admin">Admin</option>
@@ -183,7 +183,7 @@ export default function ManageUsersPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-xl bg-blue-600 py-3 font-bold text-white disabled:opacity-60"
+            className="w-full rounded-xl bg-red-800 py-3 font-bold text-white disabled:opacity-60"
           >
             {submitting ? 'Creating…' : 'Create User'}
           </button>
@@ -205,7 +205,7 @@ export default function ManageUsersPage() {
                   </div>
                   <p className="text-sm text-gray-500 mt-0.5">{u.email}</p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-red-100 text-red-900'}`}>
                       {u.role}
                     </span>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${u.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -252,12 +252,12 @@ export default function ManageUsersPage() {
                     placeholder="New password"
                     value={resetPassword}
                     onChange={(e) => setResetPassword(e.target.value)}
-                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
                   />
                   <button
                     onClick={() => handleResetPassword(u.id)}
                     disabled={submitting}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                    className="rounded-lg bg-red-800 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
                   >
                     Save
                   </button>

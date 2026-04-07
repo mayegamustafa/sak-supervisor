@@ -96,7 +96,7 @@ export default function VisitForm({ schools }: Props) {
         <select
           value={school_id}
           onChange={(e) => setSchoolId(e.target.value)}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           required
         >
           <option value="">Select school…</option>
@@ -113,7 +113,7 @@ export default function VisitForm({ schools }: Props) {
           type="date"
           value={visit_date}
           onChange={(e) => setVisitDate(e.target.value)}
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           required
         />
       </div>
@@ -129,8 +129,8 @@ export default function VisitForm({ schools }: Props) {
               onClick={() => setTerm(t)}
               className={`rounded-xl border py-3 text-sm font-medium transition-colors ${
                 term === t
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400'
+                  ? 'border-red-800 bg-red-800 text-white'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-red-500'
               }`}
             >
               {t}
@@ -145,7 +145,7 @@ export default function VisitForm({ schools }: Props) {
         <select
           value={week}
           onChange={(e) => setWeek(Number(e.target.value))}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
         >
           {WEEKS.map((w) => (
             <option key={w} value={w}>Week {w}</option>
@@ -161,14 +161,14 @@ export default function VisitForm({ schools }: Props) {
           onChange={(e) => setVisitNotes(e.target.value)}
           rows={4}
           placeholder="General observations from this supervision…"
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-60"
+        className="w-full rounded-xl bg-red-800 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-red-900 disabled:opacity-60"
       >
         {submitting ? 'Logging Supervision…' : 'Log Supervision'}
       </button>

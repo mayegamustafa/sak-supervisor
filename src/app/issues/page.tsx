@@ -61,7 +61,7 @@ export default function IssuesPage() {
           </button>
           <button
             onClick={() => router.push('/issues/new')}
-            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+            className="rounded-full bg-red-800 px-4 py-2 text-sm font-semibold text-white"
           >
             + Report
           </button>
@@ -75,7 +75,7 @@ export default function IssuesPage() {
             onClick={() => setFilter(value)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors active:scale-95 ${
               filter === value
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-red-800 text-white shadow-sm'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >

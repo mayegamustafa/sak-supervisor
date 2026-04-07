@@ -203,7 +203,7 @@ export default function IssueDetailPage() {
   return (
     <div className="space-y-5">
       {/* Back button */}
-      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-blue-600 font-medium">
+      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-red-800 font-medium">
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
         Back
       </button>
@@ -254,7 +254,7 @@ export default function IssueDetailPage() {
           {(canEdit || canDelete) && (
             <div className="mt-4 flex gap-3">
               {canEdit && issue.status !== 'Resolved' && (
-                <button onClick={startEditing} className="flex-1 rounded-xl border border-blue-300 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-50">
+                <button onClick={startEditing} className="flex-1 rounded-xl border border-red-300 py-2.5 text-sm font-semibold text-red-900 hover:bg-red-50">
                   Edit Issue
                 </button>
               )}
@@ -271,25 +271,25 @@ export default function IssueDetailPage() {
         </div>
       ) : (
         /* Edit Mode */
-        <form onSubmit={handleSaveEdit} className="rounded-2xl bg-white border border-blue-200 p-5 shadow-sm space-y-4">
+        <form onSubmit={handleSaveEdit} className="rounded-2xl bg-white border border-red-200 p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-blue-700 uppercase tracking-wide">Edit Issue</h2>
+            <h2 className="text-sm font-bold text-red-900 uppercase tracking-wide">Edit Issue</h2>
             <span className="text-xs text-gray-400">{Math.floor(hoursLeft)}h left to edit</span>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Title *</label>
             <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none" />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Description *</label>
             <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={4} required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none" />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
             <select value={editCategory} onChange={(e) => setEditCategory(e.target.value as IssueCategory)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none">
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-amber-500 focus:outline-none">
               {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
             </select>
           </div>
@@ -299,7 +299,7 @@ export default function IssueDetailPage() {
               {PRIORITIES.map((p) => (
                 <button key={p} type="button" onClick={() => setEditPriority(p)}
                   className={`rounded-xl border py-2 text-sm font-medium transition-colors ${
-                    editPriority === p ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 bg-white text-gray-700'
+                    editPriority === p ? 'border-red-800 bg-red-800 text-white' : 'border-gray-300 bg-white text-gray-700'
                   }`}>{p}</button>
               ))}
             </div>
@@ -307,7 +307,7 @@ export default function IssueDetailPage() {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Class / Section</label>
             <input type="text" value={editClassSection} onChange={(e) => setEditClassSection(e.target.value)}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none" />
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none" />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Replace Photo (optional)</label>
@@ -316,7 +316,7 @@ export default function IssueDetailPage() {
           </div>
           <div className="flex gap-3">
             <button type="submit" disabled={saving || !editTitle.trim()}
-              className="flex-1 rounded-xl bg-blue-600 py-3 font-semibold text-white disabled:opacity-60">
+              className="flex-1 rounded-xl bg-red-800 py-3 font-semibold text-white disabled:opacity-60">
               {saving ? 'Saving…' : 'Save Changes'}
             </button>
             <button type="button" onClick={() => setEditing(false)}
@@ -360,12 +360,12 @@ export default function IssueDetailPage() {
             onChange={(e) => setComment(e.target.value)}
             rows={3}
             placeholder="Add an update or observation…"
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           />
           <button
             type="submit"
             disabled={addingComment || !comment.trim()}
-            className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white disabled:opacity-60"
+            className="w-full rounded-xl bg-red-800 py-3 font-semibold text-white disabled:opacity-60"
           >
             {addingComment ? 'Posting…' : 'Post Comment'}
           </button>

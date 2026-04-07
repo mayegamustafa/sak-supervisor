@@ -44,7 +44,7 @@ export default function VisitsPage() {
         <h1 className="text-lg font-bold text-gray-900">My Supervision Logs</h1>
         <button
           onClick={() => router.push('/visits/new')}
-          className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+          className="rounded-full bg-red-800 px-4 py-2 text-sm font-semibold text-white"
         >
           + Log Supervision
         </button>

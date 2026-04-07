@@ -70,7 +70,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-br from-blue-700 to-blue-800 px-4">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-br from-red-800 via-red-900 to-red-950 px-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 sm:p-8 shadow-2xl">
         {/* Logo / Title */}
         <div className="mb-8 text-center">
@@ -80,7 +80,7 @@ export default function LoginPage() {
           </div>
           <h1 className="text-xl font-bold text-gray-900 leading-snug">
             SAK / CPS<br />
-            <span className="text-blue-600">Schools Supervision</span>
+            <span className="text-red-800">Schools Supervision</span>
           </h1>
           <p className="mt-1 text-sm text-gray-500">Sign in to continue</p>
         </div>
@@ -106,7 +106,7 @@ export default function LoginPage() {
               placeholder="your@email.com"
               required
               autoComplete="email"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
             />
           </div>
 
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-12 text-base focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-12 text-base focus:border-amber-500 focus:outline-none"
               />
               <button
                 type="button"
@@ -142,7 +142,7 @@ export default function LoginPage() {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 rounded border-gray-300 text-red-800 focus:ring-amber-500"
             />
             <span className="text-sm text-gray-600">Remember me</span>
           </label>
@@ -150,7 +150,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-60"
+            className="w-full rounded-xl bg-red-800 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-red-900 disabled:opacity-60"
           >
             {loading ? 'Signing in…' : 'Sign In'}
           </button>

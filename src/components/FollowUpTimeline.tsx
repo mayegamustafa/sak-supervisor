@@ -53,7 +53,7 @@ export default function FollowUpTimeline({ issue, followups, resolution }: Props
     <div className="mt-4">
       <TimelineItem
         Icon={DocumentTextIcon}
-        dotColor="bg-blue-100 text-blue-600"
+        dotColor="bg-red-100 text-red-800"
         title="Issue Reported"
         subtitle={`By ${issue.created_by}`}
         date={issue.created_at}

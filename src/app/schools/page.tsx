@@ -49,7 +49,7 @@ export default function SchoolsPage() {
         {appUser.role === 'admin' && (
           <button
             onClick={() => router.push('/schools/new')}
-            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+            className="rounded-full bg-red-800 px-4 py-2 text-sm font-semibold text-white"
           >
             + Add School
           </button>
@@ -61,7 +61,7 @@ export default function SchoolsPage() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search by school name…"
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
       />
 
       {fetching ? (

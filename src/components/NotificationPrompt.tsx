@@ -69,7 +69,7 @@ export default function NotificationPrompt() {
 
   return (
     <div className="fixed top-14 left-0 right-0 z-[90] px-3 pt-1">
-      <div className="mx-auto max-w-2xl rounded-xl bg-blue-600 text-white p-3 shadow-lg flex items-center gap-3">
+      <div className="mx-auto max-w-2xl rounded-xl bg-red-800 text-white p-3 shadow-lg flex items-center gap-3">
         <BellIcon className="h-6 w-6 shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold">Enable Notifications</p>
@@ -78,7 +78,7 @@ export default function NotificationPrompt() {
         <button
           onClick={handleEnable}
           disabled={requesting}
-          className="shrink-0 rounded-lg bg-white text-blue-600 px-3 py-1.5 text-xs font-bold hover:bg-blue-50 disabled:opacity-60"
+          className="shrink-0 rounded-lg bg-white text-red-800 px-3 py-1.5 text-xs font-bold hover:bg-red-50 disabled:opacity-60"
         >
           {requesting ? 'Enabling…' : 'Enable'}
         </button>

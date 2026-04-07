@@ -64,13 +64,13 @@ export default function NewNoticePage() {
           <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
         </button>
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <MegaphoneIcon className="h-6 w-6 text-blue-600" />
+          <MegaphoneIcon className="h-6 w-6 text-red-800" />
           Send Notice
         </h1>
       </div>
 
-      <div className="rounded-2xl border border-blue-100 bg-blue-50 p-3 mb-6">
-        <p className="text-sm text-blue-800">
+      <div className="rounded-2xl border border-red-100 bg-red-50 p-3 mb-6">
+        <p className="text-sm text-red-900">
           This notice will be sent to <strong>all users</strong> as both an in-app notification and a push notification on their devices.
         </p>
       </div>
@@ -83,7 +83,7 @@ export default function NewNoticePage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Staff Meeting Tomorrow"
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             required
             maxLength={100}
           />
@@ -96,7 +96,7 @@ export default function NewNoticePage() {
             onChange={(e) => setBody(e.target.value)}
             placeholder="Write your notice message here..."
             rows={5}
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 resize-none"
             required
             maxLength={500}
           />
@@ -106,7 +106,7 @@ export default function NewNoticePage() {
         <button
           type="submit"
           disabled={submitting || !title.trim() || !body.trim()}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-800 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-red-900 disabled:opacity-60"
         >
           {submitting ? (
             <>

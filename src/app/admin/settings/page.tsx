@@ -80,7 +80,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6 py-2">
       {/* Profile Header */}
-      <div className="-mx-4 sm:mx-0 flex flex-col items-center rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 py-6 text-white shadow-md">
+      <div className="-mx-4 sm:mx-0 flex flex-col items-center rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 py-6 text-white shadow-md">
         <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
           <UserCircleIcon className="h-10 w-10" />
         </div>
@@ -161,7 +161,7 @@ export default function AdminSettingsPage() {
 function SettingsLink({ icon, label, desc, onClick }: { icon: React.ReactNode; label: string; desc: string; onClick: () => void }) {
   return (
     <button onClick={onClick} className="flex w-full items-center gap-4 px-4 py-3.5 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors">
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">{icon}</span>
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-800">{icon}</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-gray-900">{label}</p>
         <p className="text-xs text-gray-500">{desc}</p>

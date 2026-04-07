@@ -49,7 +49,7 @@ export default function SetupPage() {
   if (step === 'checking') {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-red-800 border-t-transparent" />
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default function SetupPage() {
           </p>
           <button
             onClick={() => router.replace('/login')}
-            className="mt-6 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white"
+            className="mt-6 w-full rounded-xl bg-red-800 py-3 font-semibold text-white"
           >
             Go to Login
           </button>
@@ -94,7 +94,7 @@ export default function SetupPage() {
     <div className="flex min-h-dvh items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 shadow-lg">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-800 shadow-lg">
             <AcademicCapIcon className="h-9 w-9 text-white" />
           </div>
           <h1 className="text-2xl font-extrabold text-gray-900">First-Time Setup</h1>
@@ -110,7 +110,7 @@ export default function SetupPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="Your full name"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
             />
           </div>
 
@@ -122,7 +122,7 @@ export default function SetupPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@example.com"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
             />
           </div>
 
@@ -134,7 +134,7 @@ export default function SetupPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 6 characters"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
             />
           </div>
 
@@ -146,7 +146,7 @@ export default function SetupPage() {
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="Repeat password"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
             />
           </div>
 
@@ -159,7 +159,7 @@ export default function SetupPage() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-xl bg-blue-600 py-3 font-bold text-white disabled:opacity-60"
+            className="w-full rounded-xl bg-red-800 py-3 font-bold text-white disabled:opacity-60"
           >
             {busy ? 'Creating Admin…' : 'Create Admin Account'}
           </button>

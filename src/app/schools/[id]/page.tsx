@@ -69,12 +69,12 @@ export default function SchoolDetailPage() {
               type="text"
               value={form.school_name}
               onChange={(e) => setForm((f) => ({ ...f, school_name: e.target.value }))}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
               required
             />
           </div>
           <div className="flex gap-3">
-            <button type="submit" disabled={saving} className="flex-1 rounded-xl bg-blue-600 py-3 font-semibold text-white disabled:opacity-60">
+            <button type="submit" disabled={saving} className="flex-1 rounded-xl bg-red-800 py-3 font-semibold text-white disabled:opacity-60">
               {saving ? 'Saving…' : 'Save'}
             </button>
             <button type="button" onClick={() => setEditing(false)} className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold text-gray-700">
@@ -83,7 +83,7 @@ export default function SchoolDetailPage() {
           </div>
         </form>
       ) : (
-        <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-5 text-white shadow-md">
+        <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 p-5 text-white shadow-md">
           <div className="flex items-start justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold">{school.school_name}</h1>
@@ -124,7 +124,7 @@ export default function SchoolDetailPage() {
           <h2 className="text-base font-bold text-gray-900">Issues ({issues.length})</h2>
           <button
             onClick={() => router.push('/issues/new')}
-            className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white"
+            className="rounded-full bg-red-800 px-3 py-1 text-xs font-semibold text-white"
           >
             + Report
           </button>
@@ -139,7 +139,7 @@ export default function SchoolDetailPage() {
                 onClick={() => setFilter(value)}
                 className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   filter === value
-                    ? 'bg-blue-600 text-white shadow-sm'
+                    ? 'bg-red-800 text-white shadow-sm'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >

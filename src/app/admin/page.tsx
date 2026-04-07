@@ -98,9 +98,10 @@ export default function AdminDashboardPage() {
   return (
     <div ref={containerRef} className="space-y-6">
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
-      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-blue-700 to-blue-800 p-5 text-white shadow-md">
+      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 p-5 text-white shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full -translate-y-8 translate-x-8" />
         <h1 className="text-xl font-bold">Admin Dashboard</h1>
-        <p className="text-sm opacity-80 mt-0.5">SAK / CPS Schools Supervision</p>
+        <p className="text-sm text-amber-300/80 font-medium mt-0.5">SAK / CPS Schools Supervision</p>
       </div>
 
       {/* Term filter */}
@@ -120,7 +121,7 @@ export default function AdminDashboardPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
-        <StatCard label="Total Issues" value={filteredIssues.length} color="bg-blue-50 text-blue-700" />
+        <StatCard label="Total Issues" value={filteredIssues.length} color="bg-red-50 text-red-900" />
         <StatCard label="Pending" value={pending.length} color="bg-red-50 text-red-700" />
         <StatCard label="In Progress" value={inProgress.length} color="bg-yellow-50 text-yellow-800" />
         <StatCard label="Resolved" value={resolved.length} color="bg-green-50 text-green-700" />
@@ -150,7 +151,7 @@ export default function AdminDashboardPage() {
                   >
                     <span className="text-sm font-medium text-gray-800">{school}</span>
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700">
+                      <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-900">
                         {schoolIssues.length}
                       </span>
                       <svg className={`h-4 w-4 text-gray-400 transition-transform ${expandedSchool === school ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -225,7 +226,7 @@ export default function AdminDashboardPage() {
           <h2 className="text-base font-bold text-gray-900">Recent Issues</h2>
           <button
             onClick={() => router.push('/issues')}
-            className="text-sm font-medium text-blue-600"
+            className="text-sm font-medium text-red-800"
           >
             View all →
           </button>
@@ -243,10 +244,10 @@ export default function AdminDashboardPage() {
 
       {/* Quick links */}
       <div className="grid grid-cols-2 gap-3">
-        <button onClick={() => router.push('/schools/new')} className="rounded-xl bg-blue-600 py-4 font-semibold text-white shadow">
+        <button onClick={() => router.push('/schools/new')} className="rounded-xl bg-red-800 py-4 font-semibold text-white shadow">
           + Add School
         </button>
-        <button onClick={() => router.push('/schools')} className="rounded-xl border border-blue-600 py-4 font-semibold text-blue-600">
+        <button onClick={() => router.push('/schools')} className="rounded-xl border border-red-800 py-4 font-semibold text-red-800">
           Manage Schools
         </button>
       </div>

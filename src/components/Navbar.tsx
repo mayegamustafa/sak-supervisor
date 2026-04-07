@@ -17,30 +17,36 @@ export default function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-blue-800 bg-blue-700 px-4 shadow-sm print:hidden" style={{ paddingTop: 'var(--safe-top)' }}>
-      <Link href="/dashboard" className="flex items-center gap-2 text-white">
-        <Image src="/badges/sak.jpg" alt="SAK" width={32} height={32} className="h-8 w-8 rounded-full object-cover ring-1 ring-white/40" />
-        <Image src="/badges/cps.png" alt="CPS" width={32} height={32} className="h-8 w-8 rounded-full object-cover ring-1 ring-white/40" />
-        <div className="leading-tight">
-          <span className="block text-xs font-normal opacity-80">SAK SUPERVISION</span>
-          <span className="text-sm font-bold">SAK / CPS</span>
-        </div>
-      </Link>
+    <>
+      <header className="navbar-gradient fixed top-0 left-0 right-0 z-40 flex h-16 items-center justify-between px-4 shadow-lg print:hidden" style={{ paddingTop: 'var(--safe-top)' }}>
+        <Link href="/dashboard" className="flex items-center gap-2.5 text-white">
+          <div className="flex -space-x-2">
+            <Image src="/badges/sak.jpg" alt="SAK" width={36} height={36} className="h-9 w-9 rounded-full object-cover ring-2 ring-white/30 shadow-md" />
+            <Image src="/badges/cps.png" alt="CPS" width={36} height={36} className="h-9 w-9 rounded-full object-cover ring-2 ring-white/30 shadow-md" />
+          </div>
+          <div className="leading-tight">
+            <span className="block text-[10px] font-semibold tracking-widest uppercase text-amber-300/90">Supervision</span>
+            <span className="text-sm font-bold tracking-wide">SAK / CPS</span>
+          </div>
+        </Link>
 
-      <div className="flex items-center gap-3">
-        {appUser && (
-          <span className="hidden text-xs text-blue-100 sm:block">
-            {appUser.name}
-          </span>
-        )}
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1.5 rounded-lg bg-blue-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-900 active:bg-blue-950 transition-colors"
-        >
-          <ArrowRightOnRectangleIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">Logout</span>
-        </button>
-      </div>
-    </header>
+        <div className="flex items-center gap-3">
+          {appUser && (
+            <span className="hidden text-xs text-white/70 sm:block">
+              {appUser.name}
+            </span>
+          )}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 active:bg-white/5 transition-colors"
+          >
+            <ArrowRightOnRectangleIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+      </header>
+      {/* Curved bottom edge */}
+      <div className="navbar-curve fixed top-16 left-0 right-0 z-39 h-4 print:hidden" style={{ marginTop: 'var(--safe-top)' }} />
+    </>
   );
 }

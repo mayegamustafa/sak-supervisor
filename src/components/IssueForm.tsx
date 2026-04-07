@@ -126,7 +126,7 @@ export default function IssueForm({ schools }: Props) {
         <select
           value={school_id}
           onChange={(e) => setSchoolId(e.target.value)}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           required
         >
           <option value="">Select school…</option>
@@ -144,7 +144,7 @@ export default function IssueForm({ schools }: Props) {
           value={class_section}
           onChange={(e) => setClassSection(e.target.value)}
           placeholder="e.g. KG 1, P.2 Y, P.7 Y"
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
         />
       </div>
 
@@ -154,7 +154,7 @@ export default function IssueForm({ schools }: Props) {
         <select
           value={category}
           onChange={(e) => { setCategory(e.target.value as IssueCategory); if (e.target.value !== 'Other') setCustomCategory(''); }}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
         >
           {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
         </select>
@@ -169,7 +169,7 @@ export default function IssueForm({ schools }: Props) {
             onChange={(e) => setCustomCategory(e.target.value)}
             placeholder="Enter custom category…"
             required
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           />
         </div>
       )}
@@ -182,7 +182,7 @@ export default function IssueForm({ schools }: Props) {
           value={issue_title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Brief title of the issue"
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           required
         />
       </div>
@@ -195,7 +195,7 @@ export default function IssueForm({ schools }: Props) {
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
           placeholder="Describe the issue in detail…"
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           required
         />
       </div>
@@ -211,8 +211,8 @@ export default function IssueForm({ schools }: Props) {
               onClick={() => setStatus(s)}
               className={`rounded-xl border py-2 text-sm font-medium transition-colors ${
                 status === s
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400'
+                  ? 'border-red-800 bg-red-800 text-white'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-red-500'
               }`}
             >
               {s}
@@ -255,7 +255,7 @@ export default function IssueForm({ schools }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-60"
+        className="w-full rounded-xl bg-red-800 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-red-900 disabled:opacity-60"
       >
         {submitting ? 'Submitting…' : 'Submit Issue'}
       </button>

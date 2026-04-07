@@ -56,12 +56,12 @@ export default function NoticesPage() {
 
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <BellIcon className="h-6 w-6 text-blue-600" />
+          <BellIcon className="h-6 w-6 text-red-800" />
           Notices
         </h1>
         <button
           onClick={() => router.push('/notices/new')}
-          className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition-all"
+          className="flex items-center gap-1.5 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-900 active:scale-95 transition-all"
         >
           <PlusCircleIcon className="h-4 w-4" />
           Send Notice
