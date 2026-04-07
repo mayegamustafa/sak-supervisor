@@ -3,11 +3,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getAllIssues, getSupervisorVisits } from '@/lib/firestore';
+import { getAllIssues, getSupervisorVisits, getAllTermConfigs, getActiveTerm } from '@/lib/firestore';
 import { usePullRefresh } from '@/hooks/usePullRefresh';
 import PullIndicator from '@/components/PullIndicator';
 import IssueCard from '@/components/IssueCard';
-import type { Issue, VisitLog } from '@/types';
+import type { Issue, VisitLog, TermConfig } from '@/types';
 
 export default function DashboardPage() {
   const { appUser, loading } = useAuth();
@@ -15,6 +15,8 @@ export default function DashboardPage() {
 
   const [issues, setIssues] = useState<Issue[]>([]);
   const [visits, setVisits] = useState<VisitLog[]>([]);
+  const [terms, setTerms] = useState<TermConfig[]>([]);
+  const [selectedTermId, setSelectedTermId] = useState<string>('');
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
@@ -27,12 +29,16 @@ export default function DashboardPage() {
     if (!appUser) return;
     async function load() {
       try {
-        const [allIssues, myVisits] = await Promise.all([
+        const [allIssues, myVisits, allTerms] = await Promise.all([
           getAllIssues(),
           getSupervisorVisits(appUser!.id),
+          getAllTermConfigs(),
         ]);
         setIssues(allIssues);
         setVisits(myVisits);
+        setTerms(allTerms);
+        const active = getActiveTerm(allTerms);
+        if (active) setSelectedTermId(active.id);
       } finally {
         setFetching(false);
       }
@@ -42,12 +48,14 @@ export default function DashboardPage() {
 
   const handleRefresh = useCallback(async () => {
     if (!appUser) return;
-    const [allIssues, myVisits] = await Promise.all([
+    const [allIssues, myVisits, allTerms] = await Promise.all([
       getAllIssues(),
       getSupervisorVisits(appUser.id),
+      getAllTermConfigs(),
     ]);
     setIssues(allIssues);
     setVisits(myVisits);
+    setTerms(allTerms);
   }, [appUser]);
 
   const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
@@ -58,7 +66,19 @@ export default function DashboardPage() {
     </div>
   );
 
-  const myIssues = issues.filter((i) => i.created_by === appUser.name);
+  // Filter by selected term
+  const selectedTerm = terms.find((t) => t.id === selectedTermId);
+  const filteredIssues = selectedTerm
+    ? issues.filter((i) => {
+        const d = i.created_at.split('T')[0];
+        return d >= selectedTerm.start_date && d <= selectedTerm.end_date;
+      })
+    : issues;
+  const filteredVisits = selectedTerm
+    ? visits.filter((v) => v.visit_date >= selectedTerm.start_date && v.visit_date <= selectedTerm.end_date)
+    : visits;
+
+  const myIssues = filteredIssues.filter((i) => i.created_by === appUser.name);
   const pendingIssues = myIssues.filter((i) => i.status === 'Pending');
   const resolvedIssues = myIssues.filter((i) => i.status === 'Resolved');
   const recent = myIssues.slice(0, 5);
@@ -73,9 +93,24 @@ export default function DashboardPage() {
         <p className="mt-0.5 text-xs opacity-70 capitalize">{appUser.role}</p>
       </div>
 
+      {/* Term filter */}
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium text-gray-700 shrink-0">Period:</label>
+        <select
+          value={selectedTermId}
+          onChange={(e) => setSelectedTermId(e.target.value)}
+          className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm"
+        >
+          <option value="">All time</option>
+          {terms.map((t) => (
+            <option key={t.id} value={t.id}>{t.term} {t.year}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <StatCard label="Supervisions" value={visits.length} color="bg-indigo-50 text-indigo-700" />
+        <StatCard label="Supervisions" value={filteredVisits.length} color="bg-indigo-50 text-indigo-700" />
         <StatCard label="Pending" value={pendingIssues.length} color="bg-red-50 text-red-700" />
         <StatCard label="Resolved" value={resolvedIssues.length} color="bg-green-50 text-green-700" />
       </div>

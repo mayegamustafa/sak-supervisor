@@ -86,7 +86,7 @@ export default function IssueDetailPage() {
   const isOwner = !!(issue && appUser && (issue.created_by_id === appUser.id || issue.created_by === appUser.name));
   const isAdmin = appUser?.role === 'admin';
   const canEdit = isOwner && issue ? isWithin24Hours(issue.created_at) : false;
-  const canDelete = isOwner && issue ? isWithin24Hours(issue.created_at) : false;
+  const canDelete = isAdmin || (isOwner && issue ? isWithin24Hours(issue.created_at) : false);
   const canResolve = isOwner || isAdmin;
 
   function startEditing() {
@@ -250,10 +250,10 @@ export default function IssueDetailPage() {
             Reported by {issue.created_by} · {new Date(issue.created_at).toLocaleString()}
           </p>
 
-          {/* Edit / Delete buttons (owner only, within 24hrs, not resolved) */}
-          {(canEdit || canDelete) && issue.status !== 'Resolved' && (
+          {/* Edit / Delete buttons */}
+          {(canEdit || canDelete) && (
             <div className="mt-4 flex gap-3">
-              {canEdit && (
+              {canEdit && issue.status !== 'Resolved' && (
                 <button onClick={startEditing} className="flex-1 rounded-xl border border-blue-300 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-50">
                   Edit Issue
                 </button>
@@ -265,7 +265,7 @@ export default function IssueDetailPage() {
               )}
             </div>
           )}
-          {isOwner && !canEdit && issue.status !== 'Resolved' && (
+          {isOwner && !isAdmin && !canEdit && issue.status !== 'Resolved' && (
             <p className="mt-2 text-xs text-gray-400">Edit/delete window has expired (24 hours).</p>
           )}
         </div>
