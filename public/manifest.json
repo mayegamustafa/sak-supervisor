@@ -4,8 +4,8 @@
   "description": "SAK / CPS Schools Supervision System",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#1d4ed8",
-  "theme_color": "#1d4ed8",
+  "background_color": "#5A0A0A",
+  "theme_color": "#8B0000",
   "orientation": "portrait",
   "icons": [
     {
