@@ -44,7 +44,8 @@ export default function NotificationsPage() {
   const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
 
   async function handleMarkRead(id: string) {
-    await markNotificationRead(id);
+    if (!appUser) return;
+    await markNotificationRead(id, appUser.id);
     setNotifs((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   }
 

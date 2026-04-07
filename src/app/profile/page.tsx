@@ -114,7 +114,7 @@ export default function ProfilePage() {
             </div>
           )}
         </button>
-        <input ref={fileRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+        <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoChange} className="hidden" />
         <p className="text-[10px] text-white/50 mb-2">Tap photo to change</p>
         <h1 className="text-xl font-bold">{appUser.name}</h1>
         <p className="mt-0.5 text-sm text-white/70">{appUser.email}</p>

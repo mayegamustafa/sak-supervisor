@@ -14,6 +14,7 @@ import {
   Timestamp,
   limit,
   onSnapshot,
+  arrayUnion,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Issue, FollowUp, Resolution, School, VisitLog, TermConfig, ChatMessage, ChatRoom, AppUser, Notice } from '@/types';
@@ -458,47 +459,65 @@ export async function createNotification(data: {
 }
 
 export async function getUnreadNotificationCount(userId: string): Promise<number> {
+  // Personal unread notifications
   const q1 = query(
     collection(db, 'notifications'),
     where('target_user_id', '==', userId),
     where('read', '==', false)
   );
+  // All broadcast notifications — filter read_by client-side
   const q2 = query(
     collection(db, 'notifications'),
-    where('target_all', '==', true),
-    where('read', '==', false)
+    where('target_all', '==', true)
   );
   const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
   const ids = new Set<string>();
   s1.docs.forEach((d) => ids.add(d.id));
-  s2.docs.forEach((d) => ids.add(d.id));
+  s2.docs.forEach((d) => {
+    const readBy: string[] = d.data().read_by ?? [];
+    if (!readBy.includes(userId)) ids.add(d.id);
+  });
   return ids.size;
 }
 
 export async function getUserNotifications(userId: string): Promise<Array<{
   id: string; type: string; title: string; body: string; read: boolean; created_at: string;
 }>> {
+  // Personal notifications (no orderBy — sort in JS to avoid composite index)
   const q1 = query(
     collection(db, 'notifications'),
-    where('target_user_id', '==', userId),
-    orderBy('created_at', 'desc')
+    where('target_user_id', '==', userId)
   );
+  // All broadcast notifications
   const q2 = query(
     collection(db, 'notifications'),
-    where('target_all', '==', true),
-    orderBy('created_at', 'desc')
+    where('target_all', '==', true)
   );
   const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
   const map = new Map<string, { id: string; type: string; title: string; body: string; read: boolean; created_at: string }>();
-  [...s1.docs, ...s2.docs].forEach((d) => {
+  // Personal notifications — use `read` field
+  s1.docs.forEach((d) => {
+    const data = d.data();
+    map.set(d.id, {
+      id: d.id,
+      type: data.type ?? 'system',
+      title: data.title ?? '',
+      body: data.body ?? '',
+      read: data.read ?? false,
+      created_at: toDate(data.created_at),
+    });
+  });
+  // Broadcast notifications — per-user read via `read_by` array
+  s2.docs.forEach((d) => {
     if (!map.has(d.id)) {
       const data = d.data();
+      const readBy: string[] = data.read_by ?? [];
       map.set(d.id, {
         id: d.id,
         type: data.type ?? 'system',
         title: data.title ?? '',
         body: data.body ?? '',
-        read: data.read ?? false,
+        read: readBy.includes(userId),
         created_at: toDate(data.created_at),
       });
     }
@@ -506,14 +525,24 @@ export async function getUserNotifications(userId: string): Promise<Array<{
   return Array.from(map.values()).sort((a, b) => b.created_at.localeCompare(a.created_at));
 }
 
-export async function markNotificationRead(notifId: string): Promise<void> {
-  await updateDoc(doc(db, 'notifications', notifId), { read: true });
+export async function markNotificationRead(notifId: string, userId: string): Promise<void> {
+  const ref = doc(db, 'notifications', notifId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+  const data = snap.data();
+  if (data.target_all) {
+    // Broadcast: track per-user read via array
+    await updateDoc(ref, { read_by: arrayUnion(userId) });
+  } else {
+    // Personal: set read flag
+    await updateDoc(ref, { read: true });
+  }
 }
 
 export async function markAllNotificationsRead(userId: string): Promise<void> {
   const notifs = await getUserNotifications(userId);
   const unread = notifs.filter((n) => !n.read);
-  await Promise.all(unread.map((n) => updateDoc(doc(db, 'notifications', n.id), { read: true })));
+  await Promise.all(unread.map((n) => markNotificationRead(n.id, userId)));
 }
 
 // ─── Broadcast Notices ───────────────────────────────────────────────────────
