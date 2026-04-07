@@ -25,7 +25,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   return (
     <>
       {showNav && <Navbar />}
-      <main className={`mx-auto max-w-2xl px-4 sm:px-6 ${showNav ? 'pt-22 pb-20' : ''}`}>
+      <main className={showNav ? 'mx-auto max-w-2xl px-4 sm:px-6 pt-22 pb-20' : ''}>
         {children}
       </main>
       {showNav && <BottomNavigation />}

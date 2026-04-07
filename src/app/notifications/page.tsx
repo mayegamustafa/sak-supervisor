@@ -32,7 +32,7 @@ export default function NotificationsPage() {
     getUserNotifications(appUser.id).then((n) => {
       setNotifs(n);
       setFetching(false);
-    });
+    }).catch(() => setFetching(false));
   }, [appUser]);
 
   const handleRefresh = useCallback(async () => {

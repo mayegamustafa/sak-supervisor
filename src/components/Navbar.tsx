@@ -13,9 +13,9 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!appUser) return;
-    getUnreadNotificationCount(appUser.id).then(setUnreadCount);
+    getUnreadNotificationCount(appUser.id).then(setUnreadCount).catch(() => {});
     const iv = setInterval(() => {
-      getUnreadNotificationCount(appUser.id).then(setUnreadCount);
+      getUnreadNotificationCount(appUser.id).then(setUnreadCount).catch(() => {});
     }, 30000);
     return () => clearInterval(iv);
   }, [appUser]);
@@ -26,7 +26,7 @@ export default function Navbar() {
         <Link href="/dashboard" className="flex items-center gap-2.5 text-white">
           <div className="flex -space-x-2">
             <Image src="/badges/sak.jpg" alt="SAK" width={36} height={36} className="h-9 w-9 rounded-full object-cover ring-2 ring-white/30 shadow-md" />
-            <Image src="/badges/cps.png" alt="CPS" width={36} height={36} className="h-9 w-9 rounded-full object-cover ring-2 ring-white/30 shadow-md" />
+            <Image src="/badges/cps.png" alt="CPS" width={36} height={36} className="h-9 w-9 rounded-full object-cover ring-2 ring-white/30 shadow-md bg-white" />
           </div>
           <div className="leading-tight">
             <span className="block text-[10px] font-semibold tracking-widest uppercase text-amber-300/90">Supervision</span>
