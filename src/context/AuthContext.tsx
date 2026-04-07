@@ -17,12 +17,14 @@ interface AuthContextValue {
   firebaseUser: User | null;
   appUser: AppUser | null;
   loading: boolean;
+  setAppUser: React.Dispatch<React.SetStateAction<AppUser | null>>;
 }
 
 const AuthContext = createContext<AuthContextValue>({
   firebaseUser: null,
   appUser: null,
   loading: true,
+  setAppUser: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -91,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [appUser]);
 
   return (
-    <AuthContext.Provider value={{ firebaseUser, appUser, loading }}>
+    <AuthContext.Provider value={{ firebaseUser, appUser, loading, setAppUser }}>
       {children}
     </AuthContext.Provider>
   );

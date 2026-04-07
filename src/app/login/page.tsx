@@ -70,7 +70,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-br from-red-800 via-red-900 to-red-950 px-4">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-br from-red-800 via-red-900 to-red-950 px-4 py-8">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 sm:p-8 shadow-2xl">
         {/* Logo / Title */}
         <div className="mb-8 text-center">

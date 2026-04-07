@@ -6,6 +6,7 @@ export interface AppUser {
   email: string;
   role: UserRole;
   active: boolean;
+  photo_url?: string;
   created_at: string;
   last_seen?: string;
   online?: boolean;

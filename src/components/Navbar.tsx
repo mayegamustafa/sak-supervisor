@@ -1,20 +1,24 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { logout } from '@/lib/auth';
 import { useAuth } from '@/context/AuthContext';
-import { ArrowRightOnRectangleIcon } from './Icons';
+import { getUnreadNotificationCount } from '@/lib/firestore';
+import { BellIcon } from './Icons';
 
 export default function Navbar() {
   const { appUser } = useAuth();
-  const router = useRouter();
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  async function handleLogout() {
-    await logout();
-    router.replace('/login');
-  }
+  useEffect(() => {
+    if (!appUser) return;
+    getUnreadNotificationCount(appUser.id).then(setUnreadCount);
+    const iv = setInterval(() => {
+      getUnreadNotificationCount(appUser.id).then(setUnreadCount);
+    }, 30000);
+    return () => clearInterval(iv);
+  }, [appUser]);
 
   return (
     <>
@@ -36,13 +40,17 @@ export default function Navbar() {
               {appUser.name}
             </span>
           )}
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 active:bg-white/5 transition-colors"
+          <Link
+            href="/notifications"
+            className="relative flex items-center justify-center rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 p-2 text-white hover:bg-white/20 active:bg-white/5 transition-colors"
           >
-            <ArrowRightOnRectangleIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">Logout</span>
-          </button>
+            <BellIcon className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-red-950 shadow-sm">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </Link>
         </div>
       </header>
       {/* Curved bottom edge */}

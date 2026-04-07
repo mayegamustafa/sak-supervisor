@@ -299,7 +299,7 @@ export async function getAllUsers(): Promise<AppUser[]> {
 
 export async function updateUserProfile(
   uid: string,
-  data: Partial<Pick<AppUser, 'name' | 'role' | 'active'>>
+  data: Partial<Pick<AppUser, 'name' | 'role' | 'active' | 'photo_url'>>
 ): Promise<void> {
   await updateDoc(doc(db, 'users', uid), data);
 }
@@ -455,6 +455,65 @@ export async function createNotification(data: {
     read: false,
     created_at: serverTimestamp(),
   });
+}
+
+export async function getUnreadNotificationCount(userId: string): Promise<number> {
+  const q1 = query(
+    collection(db, 'notifications'),
+    where('target_user_id', '==', userId),
+    where('read', '==', false)
+  );
+  const q2 = query(
+    collection(db, 'notifications'),
+    where('target_all', '==', true),
+    where('read', '==', false)
+  );
+  const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+  const ids = new Set<string>();
+  s1.docs.forEach((d) => ids.add(d.id));
+  s2.docs.forEach((d) => ids.add(d.id));
+  return ids.size;
+}
+
+export async function getUserNotifications(userId: string): Promise<Array<{
+  id: string; type: string; title: string; body: string; read: boolean; created_at: string;
+}>> {
+  const q1 = query(
+    collection(db, 'notifications'),
+    where('target_user_id', '==', userId),
+    orderBy('created_at', 'desc')
+  );
+  const q2 = query(
+    collection(db, 'notifications'),
+    where('target_all', '==', true),
+    orderBy('created_at', 'desc')
+  );
+  const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+  const map = new Map<string, { id: string; type: string; title: string; body: string; read: boolean; created_at: string }>();
+  [...s1.docs, ...s2.docs].forEach((d) => {
+    if (!map.has(d.id)) {
+      const data = d.data();
+      map.set(d.id, {
+        id: d.id,
+        type: data.type ?? 'system',
+        title: data.title ?? '',
+        body: data.body ?? '',
+        read: data.read ?? false,
+        created_at: toDate(data.created_at),
+      });
+    }
+  });
+  return Array.from(map.values()).sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+export async function markNotificationRead(notifId: string): Promise<void> {
+  await updateDoc(doc(db, 'notifications', notifId), { read: true });
+}
+
+export async function markAllNotificationsRead(userId: string): Promise<void> {
+  const notifs = await getUserNotifications(userId);
+  const unread = notifs.filter((n) => !n.read);
+  await Promise.all(unread.map((n) => updateDoc(doc(db, 'notifications', n.id), { read: true })));
 }
 
 // ─── Broadcast Notices ───────────────────────────────────────────────────────
