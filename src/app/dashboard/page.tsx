@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [terms, setTerms] = useState<TermConfig[]>([]);
   const [selectedTermId, setSelectedTermId] = useState<string>('');
   const [fetching, setFetching] = useState(true);
+  const [expandedSchool, setExpandedSchool] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !appUser) {
@@ -83,6 +84,13 @@ export default function DashboardPage() {
   const resolvedIssues = myIssues.filter((i) => i.status === 'Resolved');
   const recent = myIssues.slice(0, 5);
 
+  // Issues per school (all users)
+  const issuesPerSchool: Record<string, Issue[]> = {};
+  filteredIssues.forEach((i) => {
+    if (!issuesPerSchool[i.school_name]) issuesPerSchool[i.school_name] = [];
+    issuesPerSchool[i.school_name].push(i);
+  });
+
   return (
     <div ref={containerRef} className="space-y-6">
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
@@ -114,6 +122,46 @@ export default function DashboardPage() {
         <StatCard label="Pending" value={pendingIssues.length} color="bg-red-50 text-red-700" />
         <StatCard label="Resolved" value={resolvedIssues.length} color="bg-green-50 text-green-700" />
       </div>
+
+      {/* Issues per school — clickable */}
+      <section>
+        <h2 className="mb-3 text-base font-bold text-gray-900">Issues per School</h2>
+        {fetching ? (
+          <p className="text-sm text-gray-500">Loading…</p>
+        ) : Object.keys(issuesPerSchool).length === 0 ? (
+          <p className="text-sm text-gray-400">No issues for this period.</p>
+        ) : (
+          <div className="space-y-2">
+            {Object.entries(issuesPerSchool)
+              .sort((a, b) => b[1].length - a[1].length)
+              .map(([school, schoolIssues]) => (
+                <div key={school}>
+                  <button
+                    onClick={() => setExpandedSchool(expandedSchool === school ? null : school)}
+                    className="flex w-full items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-sm font-medium text-gray-800">{school}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700">
+                        {schoolIssues.length}
+                      </span>
+                      <svg className={`h-4 w-4 text-gray-400 transition-transform ${expandedSchool === school ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </button>
+                  {expandedSchool === school && (
+                    <div className="mt-2 ml-2 space-y-2">
+                      {schoolIssues.map((issue) => (
+                        <IssueCard key={issue.id} issue={issue} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+      </section>
 
       {/* Recent Issues */}
       <section>
