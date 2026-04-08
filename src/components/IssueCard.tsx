@@ -26,8 +26,8 @@ export default function IssueCard({ issue }: Props) {
           <h3 className="font-semibold leading-snug text-gray-900 line-clamp-2">
             {issue.issue_title}
           </h3>
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[issue.priority]}`}>
-            {issue.priority}
+          <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 truncate max-w-[100px]">
+            {issue.created_by}
           </span>
         </div>
 

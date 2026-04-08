@@ -274,7 +274,7 @@ export default function IssueForm({ schools }: Props) {
           setPhoto(f);
           setPhotoPreview(f ? URL.createObjectURL(f) : null);
         }} className="hidden" />
-        <input ref={galleryRef} type="file" accept="image/*" onChange={(e) => {
+        <input ref={galleryRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(e) => {
           const f = e.target.files?.[0] ?? null;
           setPhoto(f);
           setPhotoPreview(f ? URL.createObjectURL(f) : null);

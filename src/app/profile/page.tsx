@@ -8,6 +8,7 @@ import { updateUserProfile } from '@/lib/firestore';
 import { uploadPhoto } from '@/lib/storage';
 import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon, AppleIcon, AndroidIcon, DevicePhoneIcon } from '@/components/Icons';
 import Image from 'next/image';
+import PhotoCropEditor from '@/components/PhotoCropEditor';
 
 export default function ProfilePage() {
   const { appUser, loading, setAppUser } = useAuth();
@@ -16,6 +17,7 @@ export default function ProfilePage() {
   const galleryRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
@@ -66,10 +68,18 @@ export default function ProfilePage() {
 
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !appUser) return;
+    if (!file) return;
+    // Reset input so the same file can be re-selected
+    e.target.value = '';
+    setCropFile(file);
+  }
+
+  async function handleCroppedPhoto(croppedFile: File) {
+    if (!appUser) return;
+    setCropFile(null);
     setUploading(true);
     try {
-      const dataUrl = await uploadPhoto(file, `avatars/${appUser.id}`);
+      const dataUrl = await uploadPhoto(croppedFile, `avatars/${appUser.id}`);
       await updateUserProfile(appUser.id, { photo_url: dataUrl });
       setAppUser((prev) => prev ? { ...prev, photo_url: dataUrl } : prev);
     } catch {
@@ -117,7 +127,7 @@ export default function ProfilePage() {
           )}
         </button>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoChange} className="hidden" />
-        <input ref={galleryRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+        <input ref={galleryRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handlePhotoChange} className="hidden" />
 
         {/* Photo picker modal */}
         {showPhotoPicker && (
@@ -157,6 +167,15 @@ export default function ProfilePage() {
           {appUser.role}
         </span>
       </div>
+
+      {/* Crop editor */}
+      {cropFile && (
+        <PhotoCropEditor
+          file={cropFile}
+          onCrop={handleCroppedPhoto}
+          onCancel={() => setCropFile(null)}
+        />
+      )}
 
       {/* Info */}
       <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm space-y-4">

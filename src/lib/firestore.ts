@@ -96,6 +96,23 @@ export async function deleteIssue(issueId: string): Promise<void> {
   await deleteDoc(doc(db, 'issues', issueId));
 }
 
+export async function deleteVisitLogsByIssue(schoolId: string, createdById: string, issueDate: string): Promise<number> {
+  const dayStr = issueDate.split('T')[0];
+  const q = query(
+    collection(db, 'visit_logs'),
+    where('school_id', '==', schoolId),
+    where('supervisor_id', '==', createdById),
+    where('visit_date', '==', dayStr)
+  );
+  const snaps = await getDocs(q);
+  let count = 0;
+  await Promise.all(snaps.docs.map(async (s) => {
+    await deleteDoc(doc(db, 'visit_logs', s.id));
+    count++;
+  }));
+  return count;
+}
+
 // ─── Resolutions ─────────────────────────────────────────────────────────────
 
 export async function resolveIssue(

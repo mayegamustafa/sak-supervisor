@@ -11,6 +11,7 @@ import {
   updateIssueStatus,
   updateIssue,
   deleteIssue,
+  deleteVisitLogsByIssue,
   createNotification,
   autoLogVisit,
 } from '@/lib/firestore';
@@ -18,6 +19,7 @@ import { sendPush } from '@/lib/messaging';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
 import FollowUpTimeline from '@/components/FollowUpTimeline';
+import ImageViewer from '@/components/ImageViewer';
 import { CheckCircleIcon } from '@/components/Icons';
 import type { Issue, FollowUp, Resolution, IssueCategory, IssuePriority } from '@/types';
 
@@ -68,6 +70,7 @@ export default function IssueDetailPage() {
   // Delete state
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteVisitLogs, setDeleteVisitLogs] = useState(false);
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
@@ -130,9 +133,12 @@ export default function IssueDetailPage() {
   }
 
   async function handleDelete() {
-    if (!id || !appUser) return;
+    if (!id || !appUser || !issue) return;
     setDeleting(true);
     try {
+      if (deleteVisitLogs) {
+        await deleteVisitLogsByIssue(issue.school_id, issue.created_by_id, issue.created_at);
+      }
       await deleteIssue(id);
       router.push('/issues');
     } finally {
@@ -216,8 +222,8 @@ export default function IssueDetailPage() {
         <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
           <div className="mb-3 flex items-start justify-between gap-2">
             <h1 className="text-lg font-bold text-gray-900 leading-snug">{issue.issue_title}</h1>
-            <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[issue.priority]}`}>
-              {issue.priority}
+            <span className="shrink-0 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 truncate max-w-[120px]">
+              {issue.created_by}
             </span>
           </div>
 
@@ -241,10 +247,9 @@ export default function IssueDetailPage() {
           <p className="mt-3 text-sm text-gray-700">{issue.description}</p>
 
           {issue.photo_url && (
-            <img
+            <ImageViewer
               src={issue.photo_url}
               alt="Issue photo"
-              loading="lazy"
               className="mt-3 w-full rounded-xl object-cover max-h-60"
             />
           )}
@@ -336,7 +341,7 @@ export default function IssueDetailPage() {
               setEditPhoto(f);
               setEditPhotoPreview(f ? URL.createObjectURL(f) : null);
             }} className="hidden" />
-            <input ref={editGalleryRef} type="file" accept="image/*" onChange={(e) => {
+            <input ref={editGalleryRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(e) => {
               const f = e.target.files?.[0] ?? null;
               setEditPhoto(f);
               setEditPhotoPreview(f ? URL.createObjectURL(f) : null);
@@ -367,12 +372,23 @@ export default function IssueDetailPage() {
         <div className="rounded-2xl bg-red-50 border border-red-200 p-5 shadow-sm space-y-3">
           <h2 className="text-sm font-bold text-red-800">Delete this issue?</h2>
           <p className="text-sm text-red-700">This action cannot be undone. The issue and all its data will be permanently removed.</p>
+          {isAdmin && (
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={deleteVisitLogs}
+                onChange={(e) => setDeleteVisitLogs(e.target.checked)}
+                className="h-4 w-4 rounded border-red-300 text-red-600 focus:ring-red-500"
+              />
+              <span className="text-sm text-red-700">Also delete associated visit logs for this school &amp; date</span>
+            </label>
+          )}
           <div className="flex gap-3">
             <button onClick={handleDelete} disabled={deleting}
               className="flex-1 rounded-xl bg-red-600 py-3 font-semibold text-white disabled:opacity-60">
               {deleting ? 'Deleting…' : 'Yes, Delete'}
             </button>
-            <button onClick={() => setShowDeleteConfirm(false)}
+            <button onClick={() => { setShowDeleteConfirm(false); setDeleteVisitLogs(false); }}
               className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold text-gray-700">
               Cancel
             </button>
