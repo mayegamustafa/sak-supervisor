@@ -71,7 +71,7 @@ export default function SessionReportPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm print:border-2 print:border-gray-400 print:shadow-none">
           <div className="text-center mb-4">
             <h2 className="text-xl font-bold text-red-900 print:text-black">
-              SAK / CPS Schools Supervision System
+              SIR APOLLO KAGGWA SCHOOL &mdash; SINCE 1996
             </h2>
             <p className="text-sm text-gray-500 mt-1">Routine Supervision Assessment Report</p>
           </div>

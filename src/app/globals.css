@@ -147,9 +147,16 @@ textarea:focus {
 
 /* Print: remove layout constraints so full content prints */
 @media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+  body {
+    background: white !important;
   }
   main {
     max-width: none !important;
@@ -160,7 +167,7 @@ textarea:focus {
   .overflow-x-auto {
     overflow: visible !important;
   }
-  nav, .no-print {
+  nav, .no-print, footer {
     display: none !important;
   }
   table {
@@ -171,6 +178,19 @@ textarea:focus {
     white-space: normal !important;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
+  }
+  .supervision-report {
+    padding: 0 !important;
+  }
+  .supervision-report > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .rounded-xl, .rounded-lg {
+    border-radius: 4px !important;
+  }
+  .shadow-sm, .shadow-lg {
+    box-shadow: none !important;
   }
 }
 

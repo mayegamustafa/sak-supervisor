@@ -10,12 +10,8 @@ const DEPARTMENTS = [
   'Finance',
   'Academic',
   'Quality Assurance',
-  'Administration',
-  'ICT',
-  'Library',
-  'Guidance & Counselling',
-  'Sports',
-  'Health',
+  'Theology',
+  'TDP',
 ];
 
 function newArea(): ToolArea {

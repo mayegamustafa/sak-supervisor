@@ -13,12 +13,8 @@ const DEPT_COLORS: Record<string, string> = {
   Finance: 'bg-emerald-100 text-emerald-800',
   Academic: 'bg-blue-100 text-blue-800',
   'Quality Assurance': 'bg-purple-100 text-purple-800',
-  Administration: 'bg-orange-100 text-orange-800',
-  ICT: 'bg-cyan-100 text-cyan-800',
-  Library: 'bg-yellow-100 text-yellow-800',
-  'Guidance & Counselling': 'bg-pink-100 text-pink-800',
-  Sports: 'bg-lime-100 text-lime-800',
-  Health: 'bg-rose-100 text-rose-800',
+  Theology: 'bg-orange-100 text-orange-800',
+  TDP: 'bg-cyan-100 text-cyan-800',
 };
 
 function getDeptColor(dept: string) {
@@ -169,6 +165,15 @@ export default function SupervisionPage() {
                     className="flex-1 rounded-lg bg-red-800 px-3 py-2 text-center text-sm font-semibold text-white active:bg-red-900"
                   >
                     Start Assessment
+                  </Link>
+                  <Link
+                    href={`/supervision/tools/${tool.id}/print`}
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 active:bg-gray-50"
+                    title="Print blank form for hardcopy"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
                   </Link>
                   {canManage && (
                     <>

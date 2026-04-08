@@ -4,18 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createSupervisionTool } from '@/lib/firestore-supervision';
+import { createNotification } from '@/lib/firestore';
+import { sendPush } from '@/lib/messaging';
 import type { ToolArea } from '@/types';
 
 const DEPARTMENTS = [
   'Finance',
   'Academic',
   'Quality Assurance',
-  'Administration',
-  'ICT',
-  'Library',
-  'Guidance & Counselling',
-  'Sports',
-  'Health',
+  'Theology',
+  'TDP',
 ];
 
 function newArea(): ToolArea {
@@ -100,6 +98,18 @@ export default function NewToolPage() {
         created_by: appUser.name,
         created_by_id: appUser.id,
       });
+
+      // Notify all users about the new tool
+      const notifTitle = 'New Supervision Tool';
+      const notifBody = `${appUser.name} created "${name.trim()}" for ${finalDept} department`;
+      createNotification({
+        type: 'system',
+        title: notifTitle,
+        body: notifBody,
+        target_all: true,
+        created_by: appUser.id,
+      }).catch(() => {});
+      sendPush({ title: notifTitle, body: notifBody, target_all: true }).catch(() => {});
 
       router.push('/supervision');
     } catch (err) {

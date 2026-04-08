@@ -3,8 +3,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getAllSchools } from '@/lib/firestore';
+import { getAllSchools, createNotification } from '@/lib/firestore';
 import { getSupervisionTool, createSupervisionSession } from '@/lib/firestore-supervision';
+import { sendPush } from '@/lib/messaging';
 import type { SupervisionTool, AreaScore, School } from '@/types';
 
 export default function AssessmentPage() {
@@ -116,6 +117,18 @@ export default function AssessmentPage() {
         headteacher_signature: headteacherSignature.trim(),
         session_date: sessionDate,
       });
+
+      // Notify all users about the submitted assessment
+      const notifTitle = 'Supervision Assessment Submitted';
+      const notifBody = `${appUser.name} assessed ${selectedSchool?.school_name ?? 'a school'} using ${tool.name} (${tool.department}) — Score: ${totalScore}/100`;
+      createNotification({
+        type: 'system',
+        title: notifTitle,
+        body: notifBody,
+        target_all: true,
+        created_by: appUser.id,
+      }).catch(() => {});
+      sendPush({ title: notifTitle, body: notifBody, target_all: true }).catch(() => {});
 
       router.push(`/supervision/sessions/${sessionId}`);
     } catch (err) {
@@ -242,10 +255,11 @@ export default function AssessmentPage() {
                   </label>
                   <input
                     type="number"
-                    value={score?.actual_score ?? 0}
+                    value={score?.actual_score || ''}
                     onChange={(e) => updateAreaScore(area.id, 'actual_score', e.target.value)}
                     min={0}
                     max={area.expected_score}
+                    placeholder="0"
                     className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none ${
                       scoreErr ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-amber-500'
                     }`}
