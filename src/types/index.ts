@@ -5,3 +5,4 @@ export * from './visit';
 export * from './term';
 export * from './chat';
 export * from './notice';
+export * from './supervision';

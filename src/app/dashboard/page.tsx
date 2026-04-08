@@ -175,6 +175,25 @@ export default function DashboardPage() {
         </button>
       </div>
 
+      {/* Supervision Tools */}
+      <button
+        onClick={() => router.push('/supervision')}
+        className="w-full card-press flex items-center gap-4 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-white p-4 shadow-sm hover:from-amber-100 transition-colors"
+      >
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-800 shadow">
+          <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <div className="text-left">
+          <p className="text-sm font-bold text-gray-900">Routine Supervision Tools</p>
+          <p className="text-xs text-gray-500">Structured assessment forms by department</p>
+        </div>
+        <svg className="ml-auto h-5 w-5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
       {/* Recent Issues */}
       <section>
         <div className="mb-3 flex items-center justify-between">
