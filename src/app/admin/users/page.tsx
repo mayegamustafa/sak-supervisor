@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAllUsers, updateUserProfile } from '@/lib/firestore';
+import { getAllUsers, updateUserProfile, deleteUser } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
 import type { AppUser, UserRole } from '@/types';
 
@@ -13,6 +13,9 @@ export default function ManageUsersPage() {
   const [fetching, setFetching] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [showReset, setShowReset] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
 
   // Add user form
   const [newName, setNewName] = useState('');
@@ -122,6 +125,69 @@ export default function ManageUsersPage() {
   async function changeRole(uid: string, role: UserRole) {
     await updateUserProfile(uid, { role });
     loadUsers();
+  }
+
+  function startEdit(u: AppUser) {
+    setEditingUser(u.id);
+    setEditName(u.name);
+    setEditEmail(u.email);
+    setError('');
+    setSuccess('');
+  }
+
+  async function handleSaveEdit(uid: string) {
+    if (!editName.trim() || !editEmail.trim()) {
+      setError('Name and email are required');
+      return;
+    }
+    setSubmitting(true);
+    setError('');
+    try {
+      const user = users.find(u => u.id === uid);
+      // Update email in Firebase Auth if changed
+      if (user && user.email !== editEmail.trim()) {
+        const res = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'updateEmail', uid, email: editEmail.trim() }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+      }
+      // Update Firestore profile
+      await updateUserProfile(uid, { name: editName.trim(), email: editEmail.trim() });
+      setSuccess('User updated!');
+      setEditingUser(null);
+      loadUsers();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update user');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDeleteUser(u: AppUser) {
+    if (!confirm(`Permanently delete ${u.name} (${u.email})? This cannot be undone.`)) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      // Delete from Firebase Auth
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteUser', uid: u.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      // Delete from Firestore
+      await deleteUser(u.id);
+      setSuccess(`${u.name} deleted permanently.`);
+      loadUsers();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete user');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (loading || !appUser || appUser.role !== 'admin') {
@@ -242,15 +308,54 @@ export default function ManageUsersPage() {
                     Reset Password
                   </button>
                   <button
-                    onClick={async () => {
-                      const newVal = !u.biometric_required;
-                      await updateUserProfile(u.id, { biometric_required: newVal, ...(newVal ? { biometric_enabled: true } : {}) });
-                      loadUsers();
-                    }}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-medium ${u.biometric_required ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}
+                    onClick={() => startEdit(u)}
+                    className="rounded-lg bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700"
                   >
-                    {u.biometric_required ? '🔒 Biometric Required' : '🔓 Require Biometric'}
+                    Edit
                   </button>
+                  <button
+                    onClick={() => handleDeleteUser(u)}
+                    disabled={submitting}
+                    className="rounded-lg bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+
+              {/* Edit User Form */}
+              {editingUser === u.id && (
+                <div className="mt-3 space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                  <p className="text-xs font-semibold text-blue-800">Edit User</p>
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSaveEdit(u.id)}
+                      disabled={submitting}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                    >
+                      {submitting ? 'Saving…' : 'Save'}
+                    </button>
+                    <button
+                      onClick={() => setEditingUser(null)}
+                      className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
 

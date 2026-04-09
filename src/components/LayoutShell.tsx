@@ -8,6 +8,7 @@ import PWAInstallPrompt from './PWAInstallPrompt';
 import NotificationToast from './NotificationToast';
 import NotificationPrompt from './NotificationPrompt';
 import OfflineBanner from './OfflineBanner';
+import PWASplashScreen from './PWASplashScreen';
 
 const PUBLIC_PATHS = ['/login', '/setup'];
 const NO_NAV_PATHS = ['/login', '/setup', '/report'];
@@ -32,6 +33,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <NotificationToast />
       <NotificationPrompt />
       <OfflineBanner />
+      <PWASplashScreen />
     </>
   );
 }

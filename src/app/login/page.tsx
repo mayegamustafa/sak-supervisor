@@ -42,8 +42,28 @@ export default function LoginPage() {
       setBiometricType(type);
       const stored = await hasStoredCredentials();
       setHasBiometric(stored);
+      // Auto-trigger biometric if credentials exist
+      if (stored) {
+        setBiometricLoading(true);
+        try {
+          const ok = await verifyBiometric();
+          if (ok) {
+            const creds = await getCredentials();
+            if (creds) {
+              const result = await loginWithEmail(creds.username, creds.password);
+              const profile = await getUserProfile(result.user.uid);
+              if (profile?.active) {
+                router.push(profile.role === 'admin' ? '/admin' : '/dashboard');
+                return;
+              }
+            }
+          }
+        } catch { /* fall through to manual login */ }
+        setBiometricLoading(false);
+      }
     }
     check();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function navigateAfterLogin(uid: string) {

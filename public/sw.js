@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sak-supervision-v5';
+const CACHE_NAME = 'sak-supervision-v7';
 const STATIC_ASSETS = [
   '/',
   '/dashboard',

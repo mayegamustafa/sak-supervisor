@@ -44,6 +44,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    if (action === 'updateEmail') {
+      await adminAuth.updateUser(uid, { email });
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === 'deleteUser') {
+      await adminAuth.deleteUser(uid);
+      return NextResponse.json({ success: true });
+    }
+
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
