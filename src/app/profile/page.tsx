@@ -9,6 +9,7 @@ import { uploadPhoto } from '@/lib/storage';
 import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon, AppleIcon, AndroidIcon, DevicePhoneIcon } from '@/components/Icons';
 import Image from 'next/image';
 import PhotoCropEditor from '@/components/PhotoCropEditor';
+import { isBiometricAvailable } from '@/lib/biometric';
 
 export default function ProfilePage() {
   const { appUser, loading, setAppUser } = useAuth();
@@ -18,10 +19,36 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [cropFile, setCropFile] = useState<File | null>(null);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricType, setBiometricType] = useState('Biometric');
+  const [togglingBiometric, setTogglingBiometric] = useState(false);
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
   }, [loading, appUser, router]);
+
+  useEffect(() => {
+    isBiometricAvailable().then(({ available, type }) => {
+      setBiometricAvailable(available);
+      setBiometricType(type);
+    });
+  }, []);
+
+  async function handleToggleBiometric() {
+    if (!appUser) return;
+    setTogglingBiometric(true);
+    const newVal = !appUser.biometric_enabled;
+    try {
+      if (newVal) {
+        const { verifyBiometric } = await import('@/lib/biometric');
+        const ok = await verifyBiometric();
+        if (!ok) { setTogglingBiometric(false); return; }
+      }
+      await updateUserProfile(appUser.id, { biometric_enabled: newVal });
+      setAppUser((prev) => prev ? { ...prev, biometric_enabled: newVal } : prev);
+    } catch { /* ignore */ }
+    setTogglingBiometric(false);
+  }
 
   async function handleLogout() {
     await logout();
@@ -184,6 +211,36 @@ export default function ProfilePage() {
         <InfoRow label="Role" value={appUser.role.charAt(0).toUpperCase() + appUser.role.slice(1)} />
         <InfoRow label="Status" value={appUser.active ? 'Active' : 'Inactive'} />
       </div>
+
+      {/* Biometric Lock */}
+      {biometricAvailable && (
+        <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-gray-900">Biometric Lock</h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Require {biometricType} to open the app
+                {appUser.biometric_required && (
+                  <span className="text-amber-600 font-medium"> (required by admin)</span>
+                )}
+              </p>
+            </div>
+            <button
+              onClick={handleToggleBiometric}
+              disabled={togglingBiometric || appUser.biometric_required}
+              className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                appUser.biometric_enabled ? 'bg-red-800' : 'bg-gray-300'
+              } ${(togglingBiometric || appUser.biometric_required) ? 'opacity-60 cursor-not-allowed' : ''}`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  appUser.biometric_enabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Admin quick link */}
       {appUser.role === 'admin' && (

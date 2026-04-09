@@ -10,4 +10,6 @@ export interface AppUser {
   created_at: string;
   last_seen?: string;
   online?: boolean;
+  biometric_enabled?: boolean;
+  biometric_required?: boolean;
 }

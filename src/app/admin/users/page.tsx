@@ -241,6 +241,16 @@ export default function ManageUsersPage() {
                   >
                     Reset Password
                   </button>
+                  <button
+                    onClick={async () => {
+                      const newVal = !u.biometric_required;
+                      await updateUserProfile(u.id, { biometric_required: newVal, ...(newVal ? { biometric_enabled: true } : {}) });
+                      loadUsers();
+                    }}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium ${u.biometric_required ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}
+                  >
+                    {u.biometric_required ? '🔒 Biometric Required' : '🔓 Require Biometric'}
+                  </button>
                 </div>
               )}
 
