@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { loginWithEmail } from '@/lib/auth';
 import { getUserProfile } from '@/lib/auth';
 import { auth, isFirebaseConfigured } from '@/lib/firebase';
+import { isBiometricAvailable, verifyBiometric, getCredentials, saveCredentials, hasStoredCredentials } from '@/lib/biometric';
 import Image from 'next/image';
 
 export default function LoginPage() {
@@ -15,6 +16,10 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [biometricType, setBiometricType] = useState('');
+  const [hasBiometric, setHasBiometric] = useState(false);
+  const [biometricLoading, setBiometricLoading] = useState(false);
+  const [showBiometricSetup, setShowBiometricSetup] = useState(false);
 
   // Load saved credentials on mount
   useEffect(() => {
@@ -28,6 +33,51 @@ export default function LoginPage() {
       }
     } catch { /* ignore */ }
   }, []);
+
+  // Check if biometric login is available
+  useEffect(() => {
+    async function check() {
+      const { available, type } = await isBiometricAvailable();
+      if (!available) return;
+      setBiometricType(type);
+      const stored = await hasStoredCredentials();
+      setHasBiometric(stored);
+    }
+    check();
+  }, []);
+
+  async function navigateAfterLogin(uid: string) {
+    const profile = await getUserProfile(uid);
+    if (!profile || !profile.active) {
+      await auth.signOut();
+      setError('Your account is not active. Contact your administrator.');
+      return false;
+    }
+    router.push(profile.role === 'admin' ? '/admin' : '/dashboard');
+    return true;
+  }
+
+  async function handleBiometricLogin() {
+    setBiometricLoading(true);
+    setError('');
+    try {
+      const ok = await verifyBiometric();
+      if (!ok) { setBiometricLoading(false); return; }
+
+      const creds = await getCredentials();
+      if (!creds) {
+        setError('No saved credentials. Please sign in with email and password first.');
+        setBiometricLoading(false);
+        return;
+      }
+
+      const result = await loginWithEmail(creds.username, creds.password);
+      await navigateAfterLogin(result.user.uid);
+    } catch {
+      setError('Biometric login failed. Please use email and password.');
+    }
+    setBiometricLoading(false);
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -43,17 +93,20 @@ export default function LoginPage() {
 
     try {
       const cred = await loginWithEmail(email, password);
-      // Quick profile check — only validate active status + get role for routing.
-      // AuthContext will do the full profile hydration in parallel.
-      const profile = await getUserProfile(cred.user.uid);
-      if (!profile || !profile.active) {
-        await auth.signOut();
-        setError('Your account is not active. Contact your administrator.');
+      const success = await navigateAfterLogin(cred.user.uid);
+      if (success) {
+        // After successful login, offer biometric setup if available and not already set up
+        const { available } = await isBiometricAvailable();
+        if (available) {
+          const stored = await hasStoredCredentials();
+          if (!stored) {
+            // Save credentials for biometric login — user can manage in profile
+            await saveCredentials(email, password);
+          }
+        }
+      } else {
         setLoading(false);
-        return;
       }
-      // Navigate immediately — don't wait for AuthContext to finish
-      router.push(profile.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code ?? '';
       if (code === 'auth/user-not-found' || code === 'auth/invalid-credential') {
@@ -155,6 +208,24 @@ export default function LoginPage() {
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
+
+        {/* Biometric Login */}
+        {hasBiometric && biometricType && (
+          <button
+            onClick={handleBiometricLogin}
+            disabled={biometricLoading}
+            className="mt-4 flex w-full items-center justify-center gap-3 rounded-xl border-2 border-gray-200 bg-gray-50 py-4 text-base font-semibold text-gray-800 transition-colors hover:bg-gray-100 disabled:opacity-60"
+          >
+            {biometricLoading ? (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-400 border-t-gray-800" />
+            ) : (
+              <svg className="h-5 w-5 text-red-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.864 4.243A7.5 7.5 0 0 1 19.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 0 0 4.5 10.5a48.667 48.667 0 0 0 1.758 11.673M11.25 4.652A7.497 7.497 0 0 0 4.755 10.5c0 3.07.547 6.012 1.548 8.736M12.75 19.348A7.497 7.497 0 0 0 19.245 10.5c0-3.07-.547-6.011-1.548-8.736M12 10.5a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+              </svg>
+            )}
+            {biometricLoading ? 'Verifying…' : `Sign in with ${biometricType}`}
+          </button>
+        )}
 
         {/* Support Contact */}
         <div className="mt-6 text-center text-xs text-gray-400">
