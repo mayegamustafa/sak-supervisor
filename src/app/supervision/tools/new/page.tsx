@@ -191,10 +191,10 @@ export default function NewToolPage() {
         {/* Running Total */}
         <div className={`rounded-xl border-2 p-3 text-center font-bold text-lg ${
           totalExpected === 100
-            ? 'border-green-400 bg-green-50 text-green-800'
+            ? 'border-green-300 bg-green-50/60 text-green-700'
             : totalExpected > 100
-            ? 'border-red-400 bg-red-50 text-red-800'
-            : 'border-amber-400 bg-amber-50 text-amber-800'
+            ? 'border-red-300 bg-red-50/60 text-red-700'
+            : 'border-amber-300 bg-amber-50/60 text-amber-700'
         }`}>
           Total Expected: {totalExpected} / 100
           {totalExpected === 100 && <span className="ml-2">✓</span>}
@@ -204,7 +204,7 @@ export default function NewToolPage() {
         {/* Areas */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Areas</h2>
+            <h2 className="text-sm font-semibold text-gray-800">Areas</h2>
             <button
               type="button"
               onClick={() => setAreas((prev) => [...prev, newArea()])}
@@ -217,7 +217,7 @@ export default function NewToolPage() {
           {areas.map((area, aIdx) => (
             <div key={area.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
               <div className="flex items-start justify-between gap-2">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-800 text-xs font-bold text-white">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-700 text-xs font-bold text-white">
                   {aIdx + 1}
                 </span>
                 {areas.length > 1 && (
@@ -307,7 +307,7 @@ export default function NewToolPage() {
         <button
           type="submit"
           disabled={submitting || !isValid}
-          className="w-full rounded-xl bg-red-800 py-3.5 text-base font-bold text-white shadow-sm disabled:opacity-50 active:bg-red-900"
+          className="w-full rounded-xl bg-gray-800 py-3.5 text-base font-bold text-white shadow-sm disabled:opacity-50 active:bg-gray-900"
         >
           {submitting ? 'Creating…' : 'Create Tool'}
         </button>

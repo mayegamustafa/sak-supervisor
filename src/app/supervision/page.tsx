@@ -78,7 +78,7 @@ export default function SupervisionPage() {
         </div>
         <Link
           href="/supervision/tools/new"
-          className="rounded-full bg-red-800 px-4 py-2 text-sm font-semibold text-white shadow-sm active:bg-red-900"
+          className="rounded-full bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm active:bg-gray-900"
         >
           + New Tool
         </Link>
@@ -162,7 +162,7 @@ export default function SupervisionPage() {
                 <div className="mt-3 flex items-center gap-2">
                   <Link
                     href={`/supervision/assess/${tool.id}`}
-                    className="flex-1 rounded-lg bg-red-800 px-3 py-2 text-center text-sm font-semibold text-white active:bg-red-900"
+                    className="flex-1 rounded-lg bg-gray-800 px-3 py-2 text-center text-sm font-semibold text-white active:bg-gray-900"
                   >
                     Start Assessment
                   </Link>

@@ -59,7 +59,7 @@ export default function SessionReportPage() {
         <h1 className="flex-1 text-lg font-bold text-gray-900 truncate">Assessment Report</h1>
         <button
           onClick={() => window.print()}
-          className="rounded-lg bg-red-800 px-4 py-2 text-sm font-semibold text-white shadow-sm active:bg-red-900"
+          className="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm active:bg-gray-900"
         >
           Print
         </button>
@@ -111,7 +111,7 @@ export default function SessionReportPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-red-900 text-white print:bg-gray-800">
+                <tr className="bg-gray-700 text-white print:bg-gray-800">
                   <th className="px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide">#</th>
                   <th className="px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide">Area</th>
                   <th className="px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide">Attributes</th>
@@ -175,13 +175,13 @@ export default function SessionReportPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-3 print:border-2 print:border-gray-400 print:shadow-none">
             {session.key_strengths && (
               <div>
-                <h3 className="text-sm font-bold text-green-800 mb-1">Key Strengths to Maintain</h3>
+                <h3 className="text-sm font-semibold text-gray-800 mb-1">Key Strengths to Maintain</h3>
                 <p className="text-sm text-gray-700 whitespace-pre-line">{session.key_strengths}</p>
               </div>
             )}
             {session.key_improvements && (
               <div>
-                <h3 className="text-sm font-bold text-amber-800 mb-1">Key Areas for Improvement</h3>
+                <h3 className="text-sm font-semibold text-gray-800 mb-1">Key Areas for Improvement</h3>
                 <p className="text-sm text-gray-700 whitespace-pre-line">{session.key_improvements}</p>
               </div>
             )}
@@ -190,7 +190,7 @@ export default function SessionReportPage() {
 
         {/* Signatures */}
         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm print:border-2 print:border-gray-400 print:shadow-none">
-          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Signatures</h3>
+          <h3 className="text-sm font-semibold text-gray-800 mb-3">Signatures</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="border-t-2 border-gray-300 pt-2">
               <p className="text-sm font-semibold text-gray-900">{session.supervisor_signature || session.supervisor_name}</p>

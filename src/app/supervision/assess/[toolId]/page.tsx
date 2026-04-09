@@ -172,7 +172,7 @@ export default function AssessmentPage() {
 
         {/* School + Date */}
         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-4">
-          <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">School Details</h2>
+          <h2 className="text-sm font-semibold text-gray-800">School Details</h2>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">School *</label>
             <select
@@ -206,7 +206,7 @@ export default function AssessmentPage() {
           return (
             <div key={area.id} className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
               {/* Area Header */}
-              <div className="flex items-center justify-between bg-gradient-to-r from-red-800 to-red-900 px-4 py-3">
+              <div className="flex items-center justify-between bg-gray-700 px-4 py-3">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-bold text-white">
                     {idx + 1}
@@ -222,7 +222,7 @@ export default function AssessmentPage() {
                 {/* Attributes Checklist */}
                 {area.attributes.length > 0 && area.attributes.some((a) => a.trim()) && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Guidance Checklist</p>
+                    <p className="text-xs font-medium text-gray-500 mb-2">Guidance Checklist</p>
                     <div className="space-y-1.5">
                       {area.attributes
                         .filter((a) => a.trim())
@@ -273,7 +273,7 @@ export default function AssessmentPage() {
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-red-800 to-amber-500 transition-all"
+                      className="h-full rounded-full bg-gray-500 transition-all"
                       style={{ width: `${Math.min(100, ((score?.actual_score ?? 0) / area.expected_score) * 100)}%` }}
                     />
                   </div>
@@ -290,10 +290,10 @@ export default function AssessmentPage() {
         <div className="sticky bottom-20 z-10">
           <div className={`rounded-xl border-2 p-3 text-center font-bold text-lg shadow-lg ${
             totalScore >= 80
-              ? 'border-green-400 bg-green-50 text-green-800'
+              ? 'border-green-300 bg-green-50/60 text-green-700'
               : totalScore >= 50
-              ? 'border-amber-400 bg-amber-50 text-amber-800'
-              : 'border-red-400 bg-red-50 text-red-800'
+              ? 'border-amber-300 bg-amber-50/60 text-amber-700'
+              : 'border-gray-300 bg-gray-50 text-gray-700'
           }`}>
             Total Score: {totalScore} / 100
           </div>
@@ -301,7 +301,7 @@ export default function AssessmentPage() {
 
         {/* Final Section */}
         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-4">
-          <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Final Comments & Signatures</h2>
+          <h2 className="text-sm font-semibold text-gray-800">Final Comments & Signatures</h2>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Key Strengths to Maintain</label>
@@ -363,7 +363,7 @@ export default function AssessmentPage() {
         <button
           type="submit"
           disabled={submitting || !schoolId}
-          className="w-full rounded-xl bg-red-800 py-3.5 text-base font-bold text-white shadow-sm disabled:opacity-50 active:bg-red-900"
+          className="w-full rounded-xl bg-gray-800 py-3.5 text-base font-bold text-white shadow-sm disabled:opacity-50 active:bg-gray-900"
         >
           {submitting ? 'Submitting…' : 'Submit Assessment'}
         </button>

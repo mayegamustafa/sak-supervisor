@@ -102,7 +102,7 @@ function SessionsInner() {
       ) : sessions.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white py-12 text-center">
           <p className="text-sm font-medium text-gray-500">No assessment sessions found</p>
-          <Link href="/supervision" className="mt-2 inline-block text-sm font-semibold text-red-800">
+          <Link href="/supervision" className="mt-2 inline-block text-sm font-semibold text-gray-700">
             Start an assessment →
           </Link>
         </div>
@@ -138,7 +138,7 @@ function SessionsInner() {
                 <div className="mt-3 flex items-center gap-2">
                   <Link
                     href={`/supervision/sessions/${session.id}`}
-                    className="flex-1 rounded-lg bg-red-800 px-3 py-2 text-center text-sm font-semibold text-white active:bg-red-900"
+                    className="flex-1 rounded-lg bg-gray-800 px-3 py-2 text-center text-sm font-semibold text-white active:bg-gray-900"
                   >
                     View Report
                   </Link>
