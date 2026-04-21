@@ -14,7 +14,7 @@ export default function BottomNavigation() {
   const tabs = [
     { href: '/dashboard', label: 'Dashboard', Icon: HomeIcon },
     { href: '/schools', label: 'Schools', Icon: BuildingIcon },
-    { href: '/issues/new', label: 'Add Issue', Icon: PlusCircleIcon },
+    { href: '/issues/new', label: 'Add', Icon: PlusCircleIcon },
     { href: '/notices', label: 'Notices', Icon: BellIcon },
     { href: morePath, label: 'More', Icon: Bars3Icon },
   ];

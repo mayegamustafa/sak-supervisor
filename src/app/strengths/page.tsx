@@ -16,7 +16,7 @@ const FILTERS: { label: string; value: IssueStatus | 'All' }[] = [
   { label: 'Resolved', value: 'Resolved' },
 ];
 
-export default function IssuesPage() {
+export default function StrengthsPage() {
   const { appUser, loading } = useAuth();
   const router = useRouter();
   const [allIssues, setAllIssues] = useState<Issue[]>([]);
@@ -30,14 +30,14 @@ export default function IssuesPage() {
   useEffect(() => {
     if (!appUser) return;
     getAllIssues().then((i) => {
-      setAllIssues(i.filter((item) => !item.submission_type || item.submission_type === 'issue'));
+      setAllIssues(i.filter((item) => item.submission_type === 'strength'));
       setFetching(false);
     });
   }, [appUser]);
 
   const handleRefresh = useCallback(async () => {
     const i = await getAllIssues();
-    setAllIssues(i.filter((item) => !item.submission_type || item.submission_type === 'issue'));
+    setAllIssues(i.filter((item) => item.submission_type === 'strength'));
   }, []);
 
   const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: handleRefresh });
@@ -60,10 +60,11 @@ export default function IssuesPage() {
   return (
     <div ref={containerRef} className="space-y-4">
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
+
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">⚠️ Issues</h1>
-          <p className="text-xs text-gray-500 mt-0.5">Problems identified across schools</p>
+          <h1 className="text-lg font-bold text-gray-900">⭐ Strengths & Achievements</h1>
+          <p className="text-xs text-gray-500 mt-0.5">Positive findings across all schools</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -74,13 +75,14 @@ export default function IssuesPage() {
           </button>
           <button
             onClick={() => router.push('/issues/new')}
-            className="rounded-full bg-red-800 px-4 py-2 text-sm font-semibold text-white"
+            className="rounded-full bg-green-700 px-4 py-2 text-sm font-semibold text-white"
           >
             + Add
           </button>
         </div>
       </div>
 
+      {/* Status filter tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-none">
         {FILTERS.map(({ label, value }) => (
           <button
@@ -88,7 +90,7 @@ export default function IssuesPage() {
             onClick={() => setFilter(value)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors active:scale-95 ${
               filter === value
-                ? 'bg-red-800 text-white shadow-sm'
+                ? 'bg-green-700 text-white shadow-sm'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -100,7 +102,7 @@ export default function IssuesPage() {
       {fetching ? (
         <p className="text-sm text-gray-500">Loading…</p>
       ) : filtered.length === 0 ? (
-        <p className="py-8 text-center text-sm text-gray-400">No issues found.</p>
+        <p className="py-8 text-center text-sm text-gray-400">No strengths recorded yet.</p>
       ) : (
         <div className="space-y-4">
           {Object.entries(bySchool)
@@ -109,7 +111,7 @@ export default function IssuesPage() {
               <div key={school}>
                 <div className="mb-2 flex items-center gap-2">
                   <span className="text-sm font-semibold text-gray-800">{school}</span>
-                  <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-800">
+                  <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800">
                     {schoolItems.length}
                   </span>
                 </div>

@@ -6,9 +6,9 @@ import { createIssue, resolveIssue, updateIssueStatus, createNotification, autoL
 import { sendPush } from '@/lib/messaging';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
-import type { School, IssueCategory, IssuePriority, IssueStatus } from '@/types';
+import type { School, IssueCategory, IssuePriority, IssueStatus, SubmissionType } from '@/types';
 
-const CATEGORIES: IssueCategory[] = [
+const ISSUE_CATEGORIES: IssueCategory[] = [
   'Infrastructure',
   'Teaching',
   'Discipline',
@@ -18,16 +18,28 @@ const CATEGORIES: IssueCategory[] = [
   'Other',
 ];
 
+const STRENGTH_CATEGORIES: IssueCategory[] = [
+  'Academic Excellence',
+  'Teacher Performance',
+  'Student Achievement',
+  'School Environment',
+  'Community Engagement',
+  'Resource Management',
+  'Other',
+];
+
 const STATUSES: IssueStatus[] = ['Pending', 'In Progress', 'Resolved'];
 
 interface Props {
   schools: School[];
+  defaultType?: SubmissionType;
 }
 
-export default function IssueForm({ schools }: Props) {
+export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
   const { appUser } = useAuth();
   const router = useRouter();
 
+  const [submission_type, setSubmissionType] = useState<SubmissionType>(defaultType);
   const [school_id, setSchoolId] = useState('');
   const [class_section, setClassSection] = useState('');
   const [category, setCategory] = useState<IssueCategory>('Infrastructure');
@@ -45,12 +57,20 @@ export default function IssueForm({ schools }: Props) {
   const galleryRef = useRef<HTMLInputElement>(null);
 
   const selectedSchool = schools.find((s) => s.id === school_id);
+  const isStrength = submission_type === 'strength';
+  const CATEGORIES = isStrength ? STRENGTH_CATEGORIES : ISSUE_CATEGORIES;
+
+  function handleTypeChange(t: SubmissionType) {
+    setSubmissionType(t);
+    setCategory(t === 'strength' ? 'Academic Excellence' : 'Infrastructure');
+    setCustomCategory('');
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!appUser) return;
     if (!school_id) { setError('Please select a school.'); return; }
-    if (!issue_title.trim()) { setError('Issue title is required.'); return; }
+    if (!issue_title.trim()) { setError('Submission title is required.'); return; }
     if (status === 'Resolved' && !resolution_description.trim()) {
       setError('Resolution description is required when status is Resolved.');
       return;
@@ -75,6 +95,7 @@ export default function IssueForm({ schools }: Props) {
         priority,
         status,
         photo_url,
+        submission_type,
         created_by: appUser.name,
         created_by_id: appUser.id,
       });
@@ -85,9 +106,10 @@ export default function IssueForm({ schools }: Props) {
         await updateIssueStatus(issueId, 'In Progress');
       }
 
-      // Notify all users about the new issue
-      const notifTitle = 'New Issue Reported';
-      const notifBody = `${appUser.name} reported: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`;
+      const notifTitle = isStrength ? 'Strength / Achievement Recorded' : 'New Issue Reported';
+      const notifBody = isStrength
+        ? `${appUser.name} recorded: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`
+        : `${appUser.name} reported: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`;
       await createNotification({
         type: 'issue',
         title: notifTitle,
@@ -97,19 +119,18 @@ export default function IssueForm({ schools }: Props) {
       });
       sendPush({ title: notifTitle, body: notifBody, target_all: true });
 
-      // Auto-log supervision visit
       autoLogVisit({
         supervisor_id: appUser.id,
         supervisor_name: appUser.name,
         school_id,
         school_name: selectedSchool?.school_name ?? '',
-        activity: `Reported issue: ${issue_title}`,
+        activity: isStrength ? `Recorded strength: ${issue_title}` : `Reported issue: ${issue_title}`,
       }).catch(() => {});
 
       router.push(`/issues/${issueId}`);
     } catch (err) {
       console.error(err);
-      setError('Failed to submit issue. Please try again.');
+      setError('Failed to submit. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -123,7 +144,38 @@ export default function IssueForm({ schools }: Props) {
         </div>
       )}
 
-      {/* School */}
+      {/* Submission Type Toggle */}
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Submission Type *</label>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => handleTypeChange('issue')}
+            className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors ${
+              !isStrength
+                ? 'border-red-800 bg-red-800 text-white shadow-sm'
+                : 'border-gray-200 bg-white text-gray-700 hover:border-red-300'
+            }`}
+          >
+            <span className="text-xl">⚠️</span>
+            <span>Issue / Problem</span>
+            <span className={`text-xs font-normal ${!isStrength ? 'text-red-200' : 'text-gray-400'}`}>Something to fix</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTypeChange('strength')}
+            className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors ${
+              isStrength
+                ? 'border-green-700 bg-green-700 text-white shadow-sm'
+                : 'border-gray-200 bg-white text-gray-700 hover:border-green-400'
+            }`}
+          >
+            <span className="text-xl">⭐</span>
+            <span>Strength / Achievement</span>
+            <span className={`text-xs font-normal ${isStrength ? 'text-green-200' : 'text-gray-400'}`}>Something to celebrate</span>
+          </button>
+        </div>
+      </div>
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1">School *</label>
         <select
@@ -179,12 +231,14 @@ export default function IssueForm({ schools }: Props) {
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Issue Title *</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          {isStrength ? 'Strength / Achievement Title *' : 'Submission Title *'}
+        </label>
         <input
           type="text"
           value={issue_title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Brief title of the issue"
+          placeholder={isStrength ? 'e.g. Outstanding academic performance in P.7' : 'Brief title describing the issue'}
           className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           required
         />
@@ -197,7 +251,7 @@ export default function IssueForm({ schools }: Props) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
-          placeholder="Describe the issue in detail…"
+          placeholder={isStrength ? 'Describe the strength or achievement in detail…' : 'Describe the issue in detail…'}
           className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
           required
         />
@@ -228,13 +282,13 @@ export default function IssueForm({ schools }: Props) {
       {status === 'Resolved' && (
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Resolution Description *
+            {isStrength ? 'Action / Follow-up Taken *' : 'Resolution Description *'}
           </label>
           <textarea
             value={resolution_description}
             onChange={(e) => setResolutionDesc(e.target.value)}
             rows={3}
-            placeholder="How was this issue resolved?"
+            placeholder={isStrength ? 'What action or recognition was given?' : 'How was this issue resolved?'}
             className="w-full rounded-xl border border-green-400 px-4 py-3 text-base focus:border-green-600 focus:outline-none"
             required
           />
@@ -293,9 +347,9 @@ export default function IssueForm({ schools }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-xl bg-red-800 py-4 text-base font-bold text-white shadow-sm transition-colors hover:bg-red-900 disabled:opacity-60"
+        className={`w-full rounded-xl py-4 text-base font-bold text-white shadow-sm transition-colors disabled:opacity-60 ${isStrength ? 'bg-green-700 hover:bg-green-800' : 'bg-red-800 hover:bg-red-900'}`}
       >
-        {submitting ? 'Submitting…' : 'Submit Issue'}
+        {submitting ? 'Submitting…' : isStrength ? 'Record Strength' : 'Report Issue'}
       </button>
     </form>
   );

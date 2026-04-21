@@ -33,6 +33,7 @@ export default function ReportPage() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | Issue['status']>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'issue' | 'strength'>('all');
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
@@ -94,8 +95,14 @@ export default function ReportPage() {
       list = list.filter((i) => i.status === statusFilter);
     }
 
+    if (typeFilter === 'issue') {
+      list = list.filter((i) => !i.submission_type || i.submission_type === 'issue');
+    } else if (typeFilter === 'strength') {
+      list = list.filter((i) => i.submission_type === 'strength');
+    }
+
     return list;
-  }, [allIssues, filterMode, selectedTerm, selectedYear, dateFrom, dateTo, statusFilter, terms]);
+  }, [allIssues, filterMode, selectedTerm, selectedYear, dateFrom, dateTo, statusFilter, typeFilter, terms]);
 
   const pending = issues.filter((i) => i.status === 'Pending').length;
   const inProgress = issues.filter((i) => i.status === 'In Progress').length;
@@ -142,10 +149,11 @@ export default function ReportPage() {
     text += `─────────────────\n\n`;
 
     Object.entries(bySchool).forEach(([school, schoolIssues]) => {
-      text += `🏫 *${school}* (${schoolIssues.length} issues)\n`;
+      text += `🏫 *${school}* (${schoolIssues.length} submissions)\n`;
       schoolIssues.forEach((i) => {
+        const typeIcon = i.submission_type === 'strength' ? '⭐' : '⚠️';
         const statusIcon = i.status === 'Resolved' ? '✅' : i.status === 'In Progress' ? '🔄' : '🔴';
-        text += `${statusIcon} ${i.issue_title}`;
+        text += `${typeIcon}${statusIcon} ${i.issue_title}`;
         if (i.description) text += `\n   _${i.description.slice(0, 150)}${i.description.length > 150 ? '...' : ''}_`;
         const res = resolutions[i.id];
         if (res) text += `\n   ✔️ Action: ${res.resolution_description.slice(0, 120)}`;
@@ -268,11 +276,23 @@ export default function ReportPage() {
                 <option value="Resolved">Resolved</option>
               </select>
             </div>
+
+            {/* Type filter */}
+            <div className="min-w-[140px]">
+              <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
+              <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
+                <option value="all">All Types</option>
+                <option value="issue">Issues / Problems</option>
+                <option value="strength">Strengths / Achievements</option>
+              </select>
+            </div>
           </div>
 
           <p className="text-xs text-gray-500">
-            Showing <strong>{issues.length}</strong> of {allIssues.length} issues
+            Showing <strong>{issues.length}</strong> of {allIssues.length} submissions
             {statusFilter !== 'all' && <> · Status: <strong>{statusFilter}</strong></>}
+            {typeFilter !== 'all' && <> · Type: <strong>{typeFilter === 'issue' ? 'Issues' : 'Strengths'}</strong></>}
           </p>
         </div>
 
@@ -284,7 +304,7 @@ export default function ReportPage() {
           </div>
           <p className="text-xs font-semibold uppercase tracking-widest text-red-800">Schools Supervision System</p>
           <h1 className="mt-1 text-2xl font-extrabold uppercase tracking-wide text-red-950">SAK / CPS Schools</h1>
-          <h2 className="mt-0.5 text-base font-bold text-amber-700">Issues &amp; Supervision Report</h2>
+          <h2 className="mt-0.5 text-base font-bold text-amber-700">Supervision Report — Issues &amp; Strengths</h2>
           <p className="mt-1 text-sm font-medium text-gray-600">Period: {filterLabel}</p>
           <div className="mt-2 flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-gray-500">
             <span>Date Generated: <strong>{today}</strong></span>
@@ -306,9 +326,10 @@ export default function ReportPage() {
                 <tr className="bg-gradient-to-r from-red-900 to-red-800 text-white">
                   <th className="border border-red-700 px-1.5 py-2 text-center font-semibold">#</th>
                   <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Date</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Type</th>
                   <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">School</th>
                   <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Class</th>
-                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Issue</th>
+                  <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Title</th>
                   <th className="border border-red-700 px-2 py-2 text-left font-semibold">Details</th>
                   <th className="border border-red-700 px-1.5 py-2 text-left font-semibold">Category</th>
                   <th className="border border-red-700 px-1.5 py-2 text-center font-semibold">Status</th>
@@ -319,10 +340,18 @@ export default function ReportPage() {
               <tbody>
                 {issues.map((issue, idx) => {
                   const res = resolutions[issue.id];
+                  const isStrength = issue.submission_type === 'strength';
                   return (
                     <tr key={issue.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-red-50/40'}>
                       <td className="border border-gray-300 px-1.5 py-1.5 text-center text-gray-400">{idx + 1}</td>
                       <td className="border border-gray-300 px-1.5 py-1.5 text-gray-700">{fmtDate(issue.created_at)}</td>
+                      <td className="border border-gray-300 px-1.5 py-1.5 text-center">
+                        <span className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                          isStrength ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {isStrength ? '⭐ Strength' : '⚠️ Issue'}
+                        </span>
+                      </td>
                       <td className="border border-gray-300 px-1.5 py-1.5 font-medium text-gray-900">{issue.school_name}</td>
                       <td className="border border-gray-300 px-1.5 py-1.5 text-gray-600">{issue.class_section || '—'}</td>
                       <td className="border border-gray-300 px-1.5 py-1.5 font-semibold text-gray-900">{issue.issue_title}</td>
@@ -347,7 +376,7 @@ export default function ReportPage() {
               </tbody>
               <tfoot>
                 <tr className="bg-red-50 font-semibold text-red-900">
-                  <td colSpan={10} className="border border-gray-300 px-3 py-2 text-xs">
+                  <td colSpan={11} className="border border-gray-300 px-3 py-2 text-xs">
                     Total: {issues.length} &nbsp;·&nbsp; Pending: {pending} &nbsp;·&nbsp; In Progress: {inProgress} &nbsp;·&nbsp; Resolved: {resolved}
                   </td>
                 </tr>

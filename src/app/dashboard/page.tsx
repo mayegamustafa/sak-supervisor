@@ -18,7 +18,6 @@ export default function DashboardPage() {
   const [terms, setTerms] = useState<TermConfig[]>([]);
   const [selectedTermId, setSelectedTermId] = useState<string>('');
   const [fetching, setFetching] = useState(true);
-  const [expandedSchool, setExpandedSchool] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !appUser) {
@@ -67,7 +66,6 @@ export default function DashboardPage() {
     </div>
   );
 
-  // Filter by selected term
   const selectedTerm = terms.find((t) => t.id === selectedTermId);
   const filteredIssues = selectedTerm
     ? issues.filter((i) => {
@@ -79,21 +77,16 @@ export default function DashboardPage() {
     ? visits.filter((v) => v.visit_date >= selectedTerm.start_date && v.visit_date <= selectedTerm.end_date)
     : visits;
 
-  const myIssues = filteredIssues.filter((i) => i.created_by === appUser.name);
-  const pendingIssues = myIssues.filter((i) => i.status === 'Pending');
-  const resolvedIssues = myIssues.filter((i) => i.status === 'Resolved');
-  const recent = myIssues.slice(0, 5);
-
-  // Issues per school (all users)
-  const issuesPerSchool: Record<string, Issue[]> = {};
-  filteredIssues.forEach((i) => {
-    if (!issuesPerSchool[i.school_name]) issuesPerSchool[i.school_name] = [];
-    issuesPerSchool[i.school_name].push(i);
-  });
+  const issuesOnly = filteredIssues.filter((i) => !i.submission_type || i.submission_type === 'issue');
+  const strengthsOnly = filteredIssues.filter((i) => i.submission_type === 'strength');
+  const recentAll = [...filteredIssues].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  ).slice(0, 8);
 
   return (
     <div ref={containerRef} className="space-y-6">
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
+
       {/* Greeting */}
       <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 p-5 text-white shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full -translate-y-8 translate-x-8" />
@@ -120,62 +113,58 @@ export default function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <StatCard label="Supervisions" value={filteredVisits.length} color="bg-indigo-50 text-indigo-700" />
-        <StatCard label="Pending" value={pendingIssues.length} color="bg-red-50 text-red-700" />
-        <StatCard label="Resolved" value={resolvedIssues.length} color="bg-green-50 text-green-700" />
+        <StatCard label="Issues" value={issuesOnly.length} color="bg-red-50 text-red-700" />
+        <StatCard label="Strengths" value={strengthsOnly.length} color="bg-green-50 text-green-700" />
       </div>
 
-      {/* Issues per school — clickable */}
-      <section>
-        <h2 className="mb-3 text-base font-bold text-gray-900">Issues per School</h2>
-        {fetching ? (
-          <p className="text-sm text-gray-500">Loading…</p>
-        ) : Object.keys(issuesPerSchool).length === 0 ? (
-          <p className="text-sm text-gray-400">No issues for this period.</p>
-        ) : (
-          <div className="space-y-2">
-            {Object.entries(issuesPerSchool)
-              .sort((a, b) => b[1].length - a[1].length)
-              .map(([school, schoolIssues]) => (
-                <div key={school}>
-                  <button
-                    onClick={() => setExpandedSchool(expandedSchool === school ? null : school)}
-                    className="flex w-full items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="text-sm font-medium text-gray-800">{school}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-900">
-                        {schoolIssues.length}
-                      </span>
-                      <svg className={`h-4 w-4 text-gray-400 transition-transform ${expandedSchool === school ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </button>
-                  {expandedSchool === school && (
-                    <div className="mt-2 ml-2 space-y-2">
-                      {schoolIssues.map((issue) => (
-                        <IssueCard key={issue.id} issue={issue} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-          </div>
-        )}
-      </section>
-
-      {/* Quick Actions */}
-      <div className="flex gap-2">
+      {/* Navigation Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Issues Card */}
         <button
-          onClick={() => router.push('/report')}
-          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800 shadow-sm hover:bg-red-100 transition-colors"
+          onClick={() => router.push('/issues')}
+          className="card-press flex flex-col items-start gap-3 rounded-2xl border-2 border-red-100 bg-gradient-to-br from-red-50 to-red-100/50 p-4 shadow-sm hover:border-red-300 transition-colors text-left"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-          Print My Report
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-800 shadow-sm">
+            <span className="text-lg">⚠️</span>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-gray-900">Issues</p>
+            <p className="text-xs text-gray-500 mt-0.5">Problems to address</p>
+          </div>
+          <div className="flex w-full items-center justify-between">
+            <span className="rounded-full bg-red-800 px-2.5 py-0.5 text-xs font-bold text-white">
+              {issuesOnly.length}
+            </span>
+            <svg className="h-4 w-4 text-red-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </button>
+
+        {/* Strengths Card */}
+        <button
+          onClick={() => router.push('/strengths')}
+          className="card-press flex flex-col items-start gap-3 rounded-2xl border-2 border-green-100 bg-gradient-to-br from-green-50 to-emerald-100/50 p-4 shadow-sm hover:border-green-300 transition-colors text-left"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-700 shadow-sm">
+            <span className="text-lg">⭐</span>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-gray-900">Strengths</p>
+            <p className="text-xs text-gray-500 mt-0.5">Achievements to celebrate</p>
+          </div>
+          <div className="flex w-full items-center justify-between">
+            <span className="rounded-full bg-green-700 px-2.5 py-0.5 text-xs font-bold text-white">
+              {strengthsOnly.length}
+            </span>
+            <svg className="h-4 w-4 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
         </button>
       </div>
 
-      {/* Supervision Tools */}
+      {/* Routine Supervision Tools */}
       <button
         onClick={() => router.push('/supervision')}
         className="w-full card-press flex items-center gap-4 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-white p-4 shadow-sm hover:from-amber-100 transition-colors"
@@ -194,10 +183,10 @@ export default function DashboardPage() {
         </svg>
       </button>
 
-      {/* Recent Issues */}
+      {/* Recent Submissions — mixed feed */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-base font-bold text-gray-900">Recent Issues</h3>
+          <h3 className="text-base font-bold text-gray-900">Recent Submissions</h3>
           <button
             onClick={() => router.push('/issues/new')}
             className="rounded-full bg-red-800 px-3 py-1 text-xs font-semibold text-white"
@@ -208,13 +197,13 @@ export default function DashboardPage() {
 
         {fetching ? (
           <p className="text-sm text-gray-500">Loading…</p>
-        ) : recent.length === 0 ? (
+        ) : recentAll.length === 0 ? (
           <p className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-400">
-            No issues logged yet. Tap &quot;+ Add&quot; to report one.
+            No submissions logged yet. Tap &quot;+ Add&quot; to record one.
           </p>
         ) : (
           <div className="space-y-3">
-            {recent.map((issue) => (
+            {recentAll.map((issue) => (
               <IssueCard key={issue.id} issue={issue} />
             ))}
           </div>

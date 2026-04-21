@@ -8,9 +8,15 @@ const priorityColor: Record<Issue['priority'], string> = {
   Critical: 'bg-red-100 text-red-800',
 };
 
-const statusColor: Record<Issue['status'], string> = {
+const issueStatusColor: Record<Issue['status'], string> = {
   Pending: 'bg-red-50 text-red-700 border-red-200',
   'In Progress': 'bg-yellow-50 text-yellow-800 border-yellow-200',
+  Resolved: 'bg-green-50 text-green-700 border-green-200',
+};
+
+const strengthStatusColor: Record<Issue['status'], string> = {
+  Pending: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  'In Progress': 'bg-teal-50 text-teal-700 border-teal-200',
   Resolved: 'bg-green-50 text-green-700 border-green-200',
 };
 
@@ -19,13 +25,21 @@ interface Props {
 }
 
 export default function IssueCard({ issue }: Props) {
+  const isStrength = issue.submission_type === 'strength';
+  const statusColor = isStrength ? strengthStatusColor[issue.status] : issueStatusColor[issue.status];
+
   return (
     <Link href={`/issues/${issue.id}`}>
-      <div className={`card-press rounded-xl border p-4 shadow-sm ${statusColor[issue.status]}`}>
+      <div className={`card-press rounded-xl border p-4 shadow-sm ${statusColor}`}>
         <div className="mb-2 flex items-start justify-between gap-2">
-          <h3 className="font-semibold leading-snug text-gray-900 line-clamp-2">
-            {issue.issue_title}
-          </h3>
+          <div className="flex items-start gap-2 min-w-0">
+            {isStrength && (
+              <span className="mt-0.5 shrink-0 text-base">⭐</span>
+            )}
+            <h3 className="font-semibold leading-snug text-gray-900 line-clamp-2">
+              {issue.issue_title}
+            </h3>
+          </div>
           <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 truncate max-w-[100px]">
             {issue.created_by}
           </span>
@@ -34,6 +48,15 @@ export default function IssueCard({ issue }: Props) {
         <p className="mb-3 text-sm text-gray-600 line-clamp-2">{issue.description}</p>
 
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+          {isStrength ? (
+            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800 border border-green-200">
+              ⭐ Strength
+            </span>
+          ) : (
+            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 border border-red-200">
+              ⚠️ Issue
+            </span>
+          )}
           <span className="rounded-full bg-white/60 px-2 py-0.5 border border-current">
             {issue.status}
           </span>

@@ -1,5 +1,6 @@
 export type IssuePriority = 'Low' | 'Medium' | 'High' | 'Critical';
 export type IssueStatus = 'Pending' | 'In Progress' | 'Resolved';
+export type SubmissionType = 'issue' | 'strength';
 export type IssueCategory =
   | 'Infrastructure'
   | 'Teaching'
@@ -21,6 +22,7 @@ export interface Issue {
   priority: IssuePriority;
   status: IssueStatus;
   photo_url?: string;
+  submission_type?: SubmissionType;
   created_by: string;
   created_by_id: string;
   created_at: string;

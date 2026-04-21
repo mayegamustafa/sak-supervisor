@@ -29,7 +29,7 @@ export default function NewIssuePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-bold text-gray-900">Report an Issue</h1>
+      <h1 className="mb-6 text-lg font-bold text-gray-900">Add Submission</h1>
       <IssueForm schools={schools} />
     </div>
   );
