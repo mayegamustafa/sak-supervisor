@@ -307,6 +307,10 @@ export async function getAllVisits(): Promise<VisitLog[]> {
   });
 }
 
+export async function deleteVisitLog(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'visit_logs', id));
+}
+
 // ─── User Management (Admin) ─────────────────────────────────────────────────
 
 export async function getAllUsers(): Promise<AppUser[]> {

@@ -12,7 +12,7 @@ export default function BottomNavigation() {
   const morePath = appUser?.role === 'admin' ? '/admin/settings' : '/profile';
 
   const tabs = [
-    { href: '/dashboard', label: 'Dashboard', Icon: HomeIcon },
+    { href: '/dashboard', label: 'Home', Icon: HomeIcon },
     { href: '/schools', label: 'Schools', Icon: BuildingIcon },
     { href: '/issues/new', label: 'Add', Icon: PlusCircleIcon },
     { href: '/notices', label: 'Notices', Icon: BellIcon },

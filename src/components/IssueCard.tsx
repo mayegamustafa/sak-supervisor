@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { Issue, Comment } from '@/types';
 import { ExclamationTriangleIcon, StarIcon, HeartIcon, ChatBubbleIcon } from '@/components/Icons';
 import { useAuth } from '@/context/AuthContext';
@@ -24,7 +24,6 @@ interface Props {
 }
 
 export default function IssueCard({ issue }: Props) {
-  const router = useRouter();
   const { appUser } = useAuth();
   const isStrength = issue.submission_type === 'strength';
   const statusColor = isStrength ? strengthStatusColor[issue.status] : issueStatusColor[issue.status];
@@ -80,12 +79,10 @@ export default function IssueCard({ issue }: Props) {
   }, [appUser, commentText, submitting, issue.id]);
 
   return (
-    <div
-      className={`rounded-xl border shadow-sm overflow-hidden ${statusColor} cursor-pointer active:opacity-80 transition-opacity`}
-      onClick={() => router.push(`/issues/${issue.id}`)}
-    >
-      {/* ── Card body ──────────────────────────────────────────────────────── */}
-      <div className="p-4">
+    <div className={`rounded-xl border shadow-sm overflow-hidden ${statusColor}`}>
+
+      {/* ── Clickable content area (navigates to detail) ─────────────────── */}
+      <Link href={`/issues/${issue.id}`} className="block p-4 active:opacity-80 transition-opacity">
         <div className="mb-2 flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 min-w-0">
             {isStrength && <StarIcon className="mt-0.5 shrink-0 h-4 w-4 text-green-600" />}
@@ -113,30 +110,25 @@ export default function IssueCard({ issue }: Props) {
           <span className="truncate max-w-[120px]">{issue.school_name}</span>
           <span className="ml-auto text-gray-400">{new Date(issue.created_at).toLocaleDateString()}</span>
         </div>
-      </div>
+      </Link>
 
-      {/* ── Photo ──────────────────────────────────────────────────────────── */}
+      {/* ── Photo (taps to detail) ──────────────────────────────────────────── */}
       {issue.photo_url && (
-        <div
-          className="border-t border-black/5"
-          onClick={(e) => { e.stopPropagation(); router.push(`/issues/${issue.id}`); }}
-        >
+        <Link href={`/issues/${issue.id}`} className="block border-t border-black/5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={issue.photo_url}
             alt="Observation photo"
             className="w-full max-h-72 object-cover"
           />
-        </div>
+        </Link>
       )}
 
       {/* ── Reaction bar ───────────────────────────────────────────────────── */}
-      <div
-        className="flex items-center gap-5 px-4 py-2.5 border-t border-black/5 bg-black/[0.03]"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex items-center gap-5 px-4 py-2.5 border-t border-black/5 bg-black/[0.03]">
         {/* Like */}
         <button
+          type="button"
           onClick={handleLike}
           disabled={likeBusy || !appUser}
           className={`flex items-center gap-1.5 text-sm font-medium transition-colors select-none ${
@@ -149,6 +141,7 @@ export default function IssueCard({ issue }: Props) {
 
         {/* Comments toggle */}
         <button
+          type="button"
           onClick={handleToggleComments}
           className={`flex items-center gap-1.5 text-sm font-medium transition-colors select-none ${
             showComments ? 'text-blue-600' : 'text-gray-500 hover:text-blue-500'
@@ -158,15 +151,14 @@ export default function IssueCard({ issue }: Props) {
           {localCommentCount > 0 && <span>{localCommentCount}</span>}
         </button>
 
-        <span className="ml-auto text-xs text-gray-400 select-none">Tap to view details →</span>
+        <Link href={`/issues/${issue.id}`} className="ml-auto text-xs text-gray-400 hover:text-gray-600">
+          View details →
+        </Link>
       </div>
 
       {/* ── Inline comments ────────────────────────────────────────────────── */}
       {showComments && (
-        <div
-          className="border-t border-black/5 bg-white/60 px-4 py-3 space-y-2.5"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="border-t border-black/5 bg-white/60 px-4 py-3 space-y-2.5">
           {comments === null ? (
             <p className="text-xs text-gray-400 animate-pulse">Loading comments…</p>
           ) : comments.length === 0 ? (
@@ -188,22 +180,18 @@ export default function IssueCard({ issue }: Props) {
                 </div>
               ))}
               {(issue.comment_count ?? 0) > 5 && (
-                <button
-                  onClick={() => router.push(`/issues/${issue.id}`)}
+                <Link
+                  href={`/issues/${issue.id}`}
                   className="text-xs text-blue-600 hover:underline"
                 >
                   View all {issue.comment_count} comments →
-                </button>
+                </Link>
               )}
             </div>
           )}
 
           {appUser && (
-            <form
-              onSubmit={handleAddComment}
-              className="flex gap-2 pt-1"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <form onSubmit={handleAddComment} className="flex gap-2 pt-1">
               <input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}

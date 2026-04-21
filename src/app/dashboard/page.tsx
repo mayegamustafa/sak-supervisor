@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getAllIssues, getSupervisorVisits, getAllTermConfigs, getActiveTerm } from '@/lib/firestore';
+import { getAllIssues, getSupervisorVisits, getAllTermConfigs, getActiveTerm, deleteVisitLog } from '@/lib/firestore';
 import { usePullRefresh } from '@/hooks/usePullRefresh';
 import PullIndicator from '@/components/PullIndicator';
 import IssueCard from '@/components/IssueCard';
@@ -233,15 +233,25 @@ export default function DashboardPage() {
           </p>
         ) : (
           <div className="space-y-2">
-            {visits.slice(0, 4).map((v) => (
-              <div key={v.id} className="flex items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm">
+            {visits.slice(0, 5).map((v) => (
+              <div key={v.id} className="flex items-center gap-2 rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-gray-900 truncate">{v.school_name}</p>
-                  <p className="text-xs text-gray-500">{v.term} · Week {v.week}</p>
+                  <p className="text-xs text-gray-500">{v.term} · Week {v.week} · {new Date(v.visit_date).toLocaleDateString()}</p>
                 </div>
-                <span className="ml-3 shrink-0 text-xs text-gray-400">
-                  {new Date(v.visit_date).toLocaleDateString()}
-                </span>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Remove this supervision log?')) return;
+                    await deleteVisitLog(v.id);
+                    setVisits((prev) => prev.filter((x) => x.id !== v.id));
+                  }}
+                  className="shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  title="Remove"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             ))}
           </div>
