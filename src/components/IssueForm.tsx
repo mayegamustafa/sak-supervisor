@@ -1,32 +1,42 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createIssue, resolveIssue, updateIssueStatus, createNotification, autoLogVisit } from '@/lib/firestore';
+import { createIssue, resolveIssue, updateIssueStatus, createNotification, autoLogVisit, getCustomCategories } from '@/lib/firestore';
 import { sendPush } from '@/lib/messaging';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
 import { ExclamationTriangleIcon, TrophyIcon } from '@/components/Icons';
 import type { School, IssueCategory, IssuePriority, IssueStatus, SubmissionType } from '@/types';
 
-const ISSUE_CATEGORIES: IssueCategory[] = [
+const BASE_ISSUE_CATEGORIES: IssueCategory[] = [
+  'Academic',
+  'Quality',
+  'Finance',
   'Infrastructure',
-  'Teaching',
-  'Discipline',
-  'Attendance',
-  'Learning Materials',
-  'Sanitation',
+  'TDP',
   'Other',
 ];
 
 const STRENGTH_CATEGORIES: IssueCategory[] = [
-  'Academic Excellence',
-  'Teacher Performance',
-  'Student Achievement',
-  'School Environment',
-  'Community Engagement',
-  'Resource Management',
+  'Academic',
+  'Quality',
+  'Infrastructure',
+  'TDP',
   'Other',
+];
+
+const AREA_SUGGESTIONS = [
+  // Class levels
+  'KG 1', 'KG 2',
+  'P.1', 'P.2', 'P.3', 'P.4', 'P.5', 'P.6', 'P.7',
+  'S.1', 'S.2', 'S.3', 'S.4', 'S.5', 'S.6',
+  // School areas
+  'Kitchen', 'Playground', 'Library', 'Computer Lab',
+  'Staff Room', 'Toilets', 'Head Teacher\'s Office', 'Assembly Hall',
+  'Dormitory', 'Canteen', 'Sports Field', 'Chapel', 'Mosque',
+  'Science Lab', 'Art Room', 'Garden', 'Compound', 'Gate',
+  'Store', 'Workshop', 'Nursery Class',
 ];
 
 const STATUSES: IssueStatus[] = ['Pending', 'In Progress', 'Resolved'];
@@ -43,8 +53,9 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
   const [submission_type, setSubmissionType] = useState<SubmissionType>(defaultType);
   const [school_id, setSchoolId] = useState('');
   const [class_section, setClassSection] = useState('');
-  const [category, setCategory] = useState<IssueCategory>('Infrastructure');
+  const [category, setCategory] = useState<IssueCategory>('Academic');
   const [customCategory, setCustomCategory] = useState('');
+  const [customCats, setCustomCats] = useState<string[]>([]);
   const [issue_title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<IssuePriority>('Medium');
@@ -57,13 +68,22 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    getCustomCategories().then(setCustomCats).catch(() => {});
+  }, []);
+
   const selectedSchool = schools.find((s) => s.id === school_id);
   const isStrength = submission_type === 'strength';
-  const CATEGORIES = isStrength ? STRENGTH_CATEGORIES : ISSUE_CATEGORIES;
+  const baseCategories = isStrength ? STRENGTH_CATEGORIES : BASE_ISSUE_CATEGORIES;
+  const CATEGORIES = [
+    ...baseCategories.filter((c) => c !== 'Other'),
+    ...customCats.filter((c) => !baseCategories.includes(c as IssueCategory)),
+    'Other',
+  ] as IssueCategory[];
 
   function handleTypeChange(t: SubmissionType) {
     setSubmissionType(t);
-    setCategory(t === 'strength' ? 'Academic Excellence' : 'Infrastructure');
+    setCategory('Academic');
     setCustomCategory('');
   }
 
@@ -197,16 +217,21 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         </select>
       </div>
 
-      {/* Class / Section */}
+      {/* Class / Section / Area */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Class / Section</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">Class / Area</label>
         <input
           type="text"
+          list="area-suggestions"
           value={class_section}
           onChange={(e) => setClassSection(e.target.value)}
-          placeholder="e.g. KG 1, P.2 Y, P.7 Y"
+          placeholder="e.g. P.5, Kitchen, Playground, Library…"
           className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
+          autoComplete="off"
         />
+        <datalist id="area-suggestions">
+          {AREA_SUGGESTIONS.map((a) => <option key={a} value={a} />)}
+        </datalist>
       </div>
 
       {/* Category */}

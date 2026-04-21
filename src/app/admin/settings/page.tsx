@@ -21,6 +21,7 @@ import {
   AppleIcon,
   AndroidIcon,
   DevicePhoneIcon,
+  TagIcon,
 } from '@/components/Icons';
 
 export default function AdminSettingsPage() {
@@ -104,6 +105,7 @@ export default function AdminSettingsPage() {
           <SettingsLink icon={<BuildingIcon className="h-5 w-5" />} label="Admin Dashboard" desc="Stats, issues & visits overview" onClick={() => router.push('/admin')} />
           <SettingsLink icon={<UsersIcon className="h-5 w-5" />} label="Manage Users" desc="Add, disable, change roles" onClick={() => router.push('/admin/users')} />
           <SettingsLink icon={<CalendarIcon className="h-5 w-5" />} label="Term Settings" desc="Set term dates & weeks" onClick={() => router.push('/admin/terms')} />
+          <SettingsLink icon={<TagIcon className="h-5 w-5" />} label="Observation Categories" desc="Add custom observation categories" onClick={() => router.push('/admin/categories')} />
           <SettingsLink icon={<DocumentTextIcon className="h-5 w-5" />} label="Print Report" desc="Generate issues report" onClick={() => router.push('/report')} />
           <SettingsLink icon={<MegaphoneIcon className="h-5 w-5" />} label="Send Notice" desc="Broadcast to all users" onClick={() => router.push('/notices/new')} />
         </div>

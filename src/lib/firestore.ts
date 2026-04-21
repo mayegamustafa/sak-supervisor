@@ -600,3 +600,16 @@ export async function deleteNotice(id: string): Promise<void> {
   await deleteDoc(doc(db, 'notices', id));
 }
 
+// ─── Custom Observation Categories ───────────────────────────────────────────
+
+const CATEGORIES_DOC = doc(db, 'settings', 'observation_categories');
+
+export async function getCustomCategories(): Promise<string[]> {
+  const snap = await getDoc(CATEGORIES_DOC);
+  if (!snap.exists()) return [];
+  return (snap.data().custom as string[]) ?? [];
+}
+
+export async function saveCustomCategories(categories: string[]): Promise<void> {
+  await setDoc(CATEGORIES_DOC, { custom: categories }, { merge: true });
+}
