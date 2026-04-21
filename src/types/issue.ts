@@ -23,8 +23,19 @@ export interface Issue {
   status: IssueStatus;
   photo_url?: string;
   submission_type?: SubmissionType;
+  likes?: string[];
+  comment_count?: number;
   created_by: string;
   created_by_id: string;
+  created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  issue_id: string;
+  text: string;
+  user_id: string;
+  user_name: string;
   created_at: string;
 }
 

@@ -15,9 +15,11 @@ import {
   limit,
   onSnapshot,
   arrayUnion,
+  arrayRemove,
+  increment,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Issue, FollowUp, Resolution, School, VisitLog, TermConfig, ChatMessage, ChatRoom, AppUser, Notice } from '@/types';
+import type { Issue, FollowUp, Resolution, School, VisitLog, TermConfig, ChatMessage, ChatRoom, AppUser, Notice, Comment } from '@/types';
 
 // ─── Admin setup ─────────────────────────────────────────────────────────────
 
@@ -612,4 +614,59 @@ export async function getCustomCategories(): Promise<string[]> {
 
 export async function saveCustomCategories(categories: string[]): Promise<void> {
   await setDoc(CATEGORIES_DOC, { custom: categories }, { merge: true });
+}
+
+// ─── Reactions (Likes + Comments) ────────────────────────────────────────────
+
+export async function toggleLike(issueId: string, userId: string, currentlyLiked: boolean): Promise<void> {
+  const ref = doc(db, 'issues', issueId);
+  await updateDoc(ref, {
+    likes: currentlyLiked ? arrayRemove(userId) : arrayUnion(userId),
+  });
+}
+
+export async function getComments(issueId: string): Promise<Comment[]> {
+  if (!issueId) return [];
+  const q = query(
+    collection(db, 'issue_comments'),
+    where('issue_id', '==', issueId),
+    orderBy('created_at', 'asc')
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((s) => {
+    const d = s.data();
+    return {
+      id: s.id,
+      issue_id: d.issue_id ?? '',
+      text: d.text ?? '',
+      user_id: d.user_id ?? '',
+      user_name: d.user_name ?? '',
+      created_at: toDate(d.created_at),
+    } as Comment;
+  });
+}
+
+export async function addComment(
+  issueId: string,
+  text: string,
+  userId: string,
+  userName: string
+): Promise<Comment> {
+  const ref = await addDoc(collection(db, 'issue_comments'), {
+    issue_id: issueId,
+    text,
+    user_id: userId,
+    user_name: userName,
+    created_at: serverTimestamp(),
+  });
+  // Increment denormalized count on the issue
+  await updateDoc(doc(db, 'issues', issueId), { comment_count: increment(1) });
+  return {
+    id: ref.id,
+    issue_id: issueId,
+    text,
+    user_id: userId,
+    user_name: userName,
+    created_at: new Date().toISOString(),
+  };
 }
