@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Issue } from '@/types';
+import { ExclamationTriangleIcon, StarIcon } from '@/components/Icons';
 
 const priorityColor: Record<Issue['priority'], string> = {
   Low: 'bg-gray-100 text-gray-700',
@@ -34,7 +35,7 @@ export default function IssueCard({ issue }: Props) {
         <div className="mb-2 flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 min-w-0">
             {isStrength && (
-              <span className="mt-0.5 shrink-0 text-base">⭐</span>
+              <StarIcon className="mt-0.5 shrink-0 h-4 w-4 text-green-600" />
             )}
             <h3 className="font-semibold leading-snug text-gray-900 line-clamp-2">
               {issue.issue_title}
@@ -49,12 +50,12 @@ export default function IssueCard({ issue }: Props) {
 
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
           {isStrength ? (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800 border border-green-200">
-              ⭐ Strength
+            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800 border border-green-200">
+              <StarIcon className="h-3 w-3" /> Strength
             </span>
           ) : (
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 border border-red-200">
-              ⚠️ Issue
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 border border-red-200">
+              <ExclamationTriangleIcon className="h-3 w-3" /> Issue
             </span>
           )}
           <span className="rounded-full bg-white/60 px-2 py-0.5 border border-current">

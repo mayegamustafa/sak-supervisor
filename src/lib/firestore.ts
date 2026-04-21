@@ -467,6 +467,7 @@ export async function createNotification(data: {
   target_user_id?: string;
   target_all?: boolean;
   created_by: string;
+  related_id?: string;
 }): Promise<void> {
   await addDoc(collection(db, 'notifications'), {
     ...data,
@@ -498,7 +499,7 @@ export async function getUnreadNotificationCount(userId: string): Promise<number
 }
 
 export async function getUserNotifications(userId: string): Promise<Array<{
-  id: string; type: string; title: string; body: string; read: boolean; created_at: string;
+  id: string; type: string; title: string; body: string; read: boolean; created_at: string; related_id?: string;
 }>> {
   // Personal notifications (no orderBy — sort in JS to avoid composite index)
   const q1 = query(
@@ -511,7 +512,7 @@ export async function getUserNotifications(userId: string): Promise<Array<{
     where('target_all', '==', true)
   );
   const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-  const map = new Map<string, { id: string; type: string; title: string; body: string; read: boolean; created_at: string }>();
+  const map = new Map<string, { id: string; type: string; title: string; body: string; read: boolean; created_at: string; related_id?: string }>();
   // Personal notifications — use `read` field
   s1.docs.forEach((d) => {
     const data = d.data();
@@ -522,6 +523,7 @@ export async function getUserNotifications(userId: string): Promise<Array<{
       body: data.body ?? '',
       read: data.read ?? false,
       created_at: toDate(data.created_at),
+      related_id: data.related_id ?? undefined,
     });
   });
   // Broadcast notifications — per-user read via `read_by` array
@@ -536,6 +538,7 @@ export async function getUserNotifications(userId: string): Promise<Array<{
         body: data.body ?? '',
         read: readBy.includes(userId),
         created_at: toDate(data.created_at),
+        related_id: data.related_id ?? undefined,
       });
     }
   });

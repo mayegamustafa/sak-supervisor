@@ -7,6 +7,7 @@ import { getAllIssues, getSupervisorVisits, getAllTermConfigs, getActiveTerm } f
 import { usePullRefresh } from '@/hooks/usePullRefresh';
 import PullIndicator from '@/components/PullIndicator';
 import IssueCard from '@/components/IssueCard';
+import { ExclamationTriangleIcon, TrophyIcon } from '@/components/Icons';
 import type { Issue, VisitLog, TermConfig } from '@/types';
 
 export default function DashboardPage() {
@@ -88,11 +89,10 @@ export default function DashboardPage() {
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
 
       {/* Greeting */}
-      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 p-5 text-white shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full -translate-y-8 translate-x-8" />
+      <div className="-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-red-800 p-5 text-white shadow">
         <p className="text-sm text-white/70">Welcome back,</p>
         <h2 className="text-xl font-bold">{appUser.name}</h2>
-        <p className="mt-0.5 text-xs text-amber-300/80 font-medium uppercase tracking-wider">{appUser.role}</p>
+        <p className="mt-0.5 text-xs text-amber-300/90 font-medium uppercase tracking-wider">{appUser.role}</p>
       </div>
 
       {/* Term filter */}
@@ -122,10 +122,10 @@ export default function DashboardPage() {
         {/* Issues Card */}
         <button
           onClick={() => router.push('/issues')}
-          className="card-press flex flex-col items-start gap-3 rounded-2xl border-2 border-red-100 bg-gradient-to-br from-red-50 to-red-100/50 p-4 shadow-sm hover:border-red-300 transition-colors text-left"
+          className="card-press flex flex-col items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-red-300 transition-colors text-left"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-800 shadow-sm">
-            <span className="text-lg">⚠️</span>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-800">
+            <ExclamationTriangleIcon className="h-5 w-5 text-white" />
           </div>
           <div>
             <p className="text-sm font-bold text-gray-900">Issues</p>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
             <span className="rounded-full bg-red-800 px-2.5 py-0.5 text-xs font-bold text-white">
               {issuesOnly.length}
             </span>
-            <svg className="h-4 w-4 text-red-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </div>
@@ -144,10 +144,10 @@ export default function DashboardPage() {
         {/* Strengths Card */}
         <button
           onClick={() => router.push('/strengths')}
-          className="card-press flex flex-col items-start gap-3 rounded-2xl border-2 border-green-100 bg-gradient-to-br from-green-50 to-emerald-100/50 p-4 shadow-sm hover:border-green-300 transition-colors text-left"
+          className="card-press flex flex-col items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-green-300 transition-colors text-left"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-700 shadow-sm">
-            <span className="text-lg">⭐</span>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-700">
+            <TrophyIcon className="h-5 w-5 text-white" />
           </div>
           <div>
             <p className="text-sm font-bold text-gray-900">Strengths</p>
@@ -157,7 +157,7 @@ export default function DashboardPage() {
             <span className="rounded-full bg-green-700 px-2.5 py-0.5 text-xs font-bold text-white">
               {strengthsOnly.length}
             </span>
-            <svg className="h-4 w-4 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </div>
@@ -167,7 +167,7 @@ export default function DashboardPage() {
       {/* Routine Supervision Tools */}
       <button
         onClick={() => router.push('/supervision')}
-        className="w-full card-press flex items-center gap-4 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-white p-4 shadow-sm hover:from-amber-100 transition-colors"
+        className="w-full card-press flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-amber-300 transition-colors"
       >
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-800 shadow">
           <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -175,7 +175,10 @@ export default function DashboardPage() {
           </svg>
         </div>
         <div className="text-left">
-          <p className="text-sm font-bold text-gray-900">Routine Supervision Tools</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-gray-900">Routine Supervision Tools</p>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-300 uppercase tracking-wide">Coming Soon</span>
+          </div>
           <p className="text-xs text-gray-500">Structured assessment forms by department</p>
         </div>
         <svg className="ml-auto h-5 w-5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

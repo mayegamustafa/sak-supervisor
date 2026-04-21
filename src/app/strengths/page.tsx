@@ -63,7 +63,7 @@ export default function StrengthsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">⭐ Strengths & Achievements</h1>
+          <h1 className="text-lg font-bold text-gray-900">Strengths & Achievements</h1>
           <p className="text-xs text-gray-500 mt-0.5">Positive findings across all schools</p>
         </div>
         <div className="flex gap-2">

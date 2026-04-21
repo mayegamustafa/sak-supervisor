@@ -142,21 +142,21 @@ export default function ReportPage() {
       bySchool[i.school_name].push(i);
     });
 
-    let text = `📋 *SAK / CPS Schools Supervision Report*\n`;
-    text += `📅 ${filterLabel}\n`;
-    text += `👤 Prepared by: ${appUser.name}\n`;
-    text += `📊 Total: ${issues.length} | Pending: ${pending} | In Progress: ${inProgress} | Resolved: ${resolved}\n`;
+    let text = `*SAK / CPS Schools Supervision Report*\n`;
+    text += `Date: ${filterLabel}\n`;
+    text += `Prepared by: ${appUser.name}\n`;
+    text += `Total: ${issues.length} | Pending: ${pending} | In Progress: ${inProgress} | Resolved: ${resolved}\n`;
     text += `─────────────────\n\n`;
 
     Object.entries(bySchool).forEach(([school, schoolIssues]) => {
-      text += `🏫 *${school}* (${schoolIssues.length} submissions)\n`;
+      text += `*${school}* (${schoolIssues.length} submissions)\n`;
       schoolIssues.forEach((i) => {
-        const typeIcon = i.submission_type === 'strength' ? '⭐' : '⚠️';
-        const statusIcon = i.status === 'Resolved' ? '✅' : i.status === 'In Progress' ? '🔄' : '🔴';
-        text += `${typeIcon}${statusIcon} ${i.issue_title}`;
+        const typeLabel = i.submission_type === 'strength' ? '[Strength]' : '[Issue]';
+        const statusLabel = i.status === 'Resolved' ? '[Resolved]' : i.status === 'In Progress' ? '[In Progress]' : '[Pending]';
+        text += `${typeLabel}${statusLabel} ${i.issue_title}`;
         if (i.description) text += `\n   _${i.description.slice(0, 150)}${i.description.length > 150 ? '...' : ''}_`;
         const res = resolutions[i.id];
-        if (res) text += `\n   ✔️ Action: ${res.resolution_description.slice(0, 120)}`;
+        if (res) text += `\n   Action: ${res.resolution_description.slice(0, 120)}`;
         text += '\n';
       });
       text += '\n';
@@ -349,7 +349,7 @@ export default function ReportPage() {
                         <span className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                           isStrength ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
-                          {isStrength ? '⭐ Strength' : '⚠️ Issue'}
+                          {isStrength ? 'Strength' : 'Issue'}
                         </span>
                       </td>
                       <td className="border border-gray-300 px-1.5 py-1.5 font-medium text-gray-900">{issue.school_name}</td>

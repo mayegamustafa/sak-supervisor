@@ -6,6 +6,7 @@ import { createIssue, resolveIssue, updateIssueStatus, createNotification, autoL
 import { sendPush } from '@/lib/messaging';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
+import { ExclamationTriangleIcon, TrophyIcon } from '@/components/Icons';
 import type { School, IssueCategory, IssuePriority, IssueStatus, SubmissionType } from '@/types';
 
 const ISSUE_CATEGORIES: IssueCategory[] = [
@@ -93,16 +94,16 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         issue_title,
         description,
         priority,
-        status,
+        status: isStrength ? 'Resolved' : status,
         photo_url,
         submission_type,
         created_by: appUser.name,
         created_by_id: appUser.id,
       });
 
-      if (status === 'Resolved') {
+      if (!isStrength && status === 'Resolved') {
         await resolveIssue(issueId, resolution_description, appUser.name);
-      } else if (status === 'In Progress') {
+      } else if (!isStrength && status === 'In Progress') {
         await updateIssueStatus(issueId, 'In Progress');
       }
 
@@ -116,6 +117,7 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         body: notifBody,
         target_all: true,
         created_by: appUser.id,
+        related_id: issueId,
       });
       sendPush({ title: notifTitle, body: notifBody, target_all: true });
 
@@ -144,35 +146,39 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         </div>
       )}
 
-      {/* Submission Type Toggle */}
+      {/* Observation Type Toggle */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Submission Type *</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Observation Type *</label>
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => handleTypeChange('issue')}
-            className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors ${
+            className={`flex items-center gap-2 rounded-lg border-2 px-3 py-3 text-sm font-semibold transition-colors ${
               !isStrength
                 ? 'border-red-800 bg-red-800 text-white shadow-sm'
                 : 'border-gray-200 bg-white text-gray-700 hover:border-red-300'
             }`}
           >
-            <span className="text-xl">⚠️</span>
-            <span>Issue / Problem</span>
-            <span className={`text-xs font-normal ${!isStrength ? 'text-red-200' : 'text-gray-400'}`}>Something to fix</span>
+            <ExclamationTriangleIcon className={`h-5 w-5 shrink-0 ${!isStrength ? 'text-white' : 'text-red-700'}`} />
+            <div className="text-left">
+              <div>Issue / Problem</div>
+              <div className={`text-xs font-normal ${!isStrength ? 'text-red-200' : 'text-gray-400'}`}>Something to fix</div>
+            </div>
           </button>
           <button
             type="button"
             onClick={() => handleTypeChange('strength')}
-            className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors ${
+            className={`flex items-center gap-2 rounded-lg border-2 px-3 py-3 text-sm font-semibold transition-colors ${
               isStrength
                 ? 'border-green-700 bg-green-700 text-white shadow-sm'
                 : 'border-gray-200 bg-white text-gray-700 hover:border-green-400'
             }`}
           >
-            <span className="text-xl">⭐</span>
-            <span>Strength / Achievement</span>
-            <span className={`text-xs font-normal ${isStrength ? 'text-green-200' : 'text-gray-400'}`}>Something to celebrate</span>
+            <TrophyIcon className={`h-5 w-5 shrink-0 ${isStrength ? 'text-white' : 'text-green-700'}`} />
+            <div className="text-left">
+              <div>Strength</div>
+              <div className={`text-xs font-normal ${isStrength ? 'text-green-200' : 'text-gray-400'}`}>Something to celebrate</div>
+            </div>
           </button>
         </div>
       </div>
@@ -232,7 +238,7 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
       {/* Title */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1">
-          {isStrength ? 'Strength / Achievement Title *' : 'Submission Title *'}
+          Observation Title *
         </label>
         <input
           type="text"
@@ -257,7 +263,8 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         />
       </div>
 
-      {/* Status */}
+      {/* Status — only for issues, not strengths */}
+      {!isStrength && (
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1">Status *</label>
         <div className="grid grid-cols-3 gap-2">
@@ -277,18 +284,19 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
           ))}
         </div>
       </div>
+      )}
 
-      {/* Resolution Description (shown only if Resolved) */}
-      {status === 'Resolved' && (
+      {/* Resolution Description (shown only if Resolved, issues only) */}
+      {!isStrength && status === 'Resolved' && (
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
-            {isStrength ? 'Action / Follow-up Taken *' : 'Resolution Description *'}
-          </label>
+              Resolution Description *
+            </label>
           <textarea
             value={resolution_description}
             onChange={(e) => setResolutionDesc(e.target.value)}
             rows={3}
-            placeholder={isStrength ? 'What action or recognition was given?' : 'How was this issue resolved?'}
+            placeholder="How was this issue resolved?"
             className="w-full rounded-xl border border-green-400 px-4 py-3 text-base focus:border-green-600 focus:outline-none"
             required
           />
@@ -349,7 +357,7 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         disabled={submitting}
         className={`w-full rounded-xl py-4 text-base font-bold text-white shadow-sm transition-colors disabled:opacity-60 ${isStrength ? 'bg-green-700 hover:bg-green-800' : 'bg-red-800 hover:bg-red-900'}`}
       >
-        {submitting ? 'Submitting…' : isStrength ? 'Record Strength' : 'Report Issue'}
+        {submitting ? 'Submitting…' : 'Submit Observation'}
       </button>
     </form>
   );

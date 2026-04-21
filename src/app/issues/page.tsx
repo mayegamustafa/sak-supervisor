@@ -62,7 +62,7 @@ export default function IssuesPage() {
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">⚠️ Issues</h1>
+          <h1 className="text-lg font-bold text-gray-900">Issues</h1>
           <p className="text-xs text-gray-500 mt-0.5">Problems identified across schools</p>
         </div>
         <div className="flex gap-2">
