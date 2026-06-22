@@ -15,7 +15,7 @@ export default function BottomNavigation() {
     { href: '/dashboard', label: 'Home', Icon: HomeIcon },
     { href: '/schools', label: 'Schools', Icon: BuildingIcon },
     { href: '/issues/new', label: 'Add', Icon: PlusCircleIcon },
-    { href: '/departments', label: 'Depts', Icon: TagIcon },
+    { href: '/departments', label: 'DPT', Icon: TagIcon },
     { href: morePath, label: 'More', Icon: Bars3Icon },
   ];
 

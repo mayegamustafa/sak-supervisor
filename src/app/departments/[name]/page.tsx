@@ -30,10 +30,10 @@ export default function DepartmentDetailPage() {
 
   useEffect(() => {
     if (!department || !appUser) return;
-    getCategoryIssues(department).then((i) => {
-      setIssues(i);
-      setFetching(false);
-    });
+    getCategoryIssues(department)
+      .then((i) => setIssues(i))
+      .catch((e) => { console.error(e); setIssues([]); })
+      .finally(() => setFetching(false));
   }, [department, appUser]);
 
   if (loading || fetching || !appUser) return (

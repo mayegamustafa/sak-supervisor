@@ -51,16 +51,24 @@ export default function DepartmentsPage() {
   }, [loading, appUser, router]);
 
   const load = useCallback(async () => {
-    const [issues, custom] = await Promise.all([getAllIssues(), getCustomCategories()]);
+    const [issues, custom] = await Promise.all([
+      getAllIssues(),
+      getCustomCategories().catch(() => [] as string[]),
+    ]);
     setDepartments(buildDepartments(issues, custom));
   }, []);
 
   useEffect(() => {
     if (!appUser) return;
-    Promise.all([getAllIssues(), getCustomCategories()]).then(([issues, custom]) => {
-      setDepartments(buildDepartments(issues, custom));
-      setFetching(false);
-    });
+    Promise.all([getAllIssues(), getCustomCategories().catch(() => [] as string[])])
+      .then(([issues, custom]) => {
+        setDepartments(buildDepartments(issues, custom));
+      })
+      .catch((e) => {
+        console.error(e);
+        setDepartments(buildDepartments([], []));
+      })
+      .finally(() => setFetching(false));
   }, [appUser]);
 
   const { refreshing, pullDistance, containerRef } = usePullRefresh({ onRefresh: load });
