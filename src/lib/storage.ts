@@ -86,3 +86,13 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 export async function uploadPhoto(file: File, _pathPrefix: string): Promise<string> {
   return fileToJpegDataUrl(file);
 }
+
+/**
+ * Normalise an observation's photos into a single array.
+ * Supports the legacy single `photo_url` field as well as the new
+ * `photo_urls` array, so old records keep rendering.
+ */
+export function getIssuePhotos(issue: { photo_url?: string; photo_urls?: string[] }): string[] {
+  if (issue.photo_urls?.length) return issue.photo_urls;
+  return issue.photo_url ? [issue.photo_url] : [];
+}

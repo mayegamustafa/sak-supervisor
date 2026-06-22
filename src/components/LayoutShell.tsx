@@ -25,7 +25,10 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   return (
     <>
       {showNav && <Navbar />}
-      <main className={showNav ? 'mx-auto max-w-2xl px-4 sm:px-6 pt-22 pb-20' : ''}>
+      <main
+        className={showNav ? 'mx-auto max-w-2xl px-4 sm:px-6 pb-20' : ''}
+        style={showNav ? { paddingTop: 'calc(5.5rem + var(--safe-top))' } : undefined}
+      >
         {children}
       </main>
       {showNav && <BottomNavigation />}

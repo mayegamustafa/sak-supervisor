@@ -22,6 +22,7 @@ export interface Issue {
   priority: IssuePriority;
   status: IssueStatus;
   photo_url?: string;
+  photo_urls?: string[];
   submission_type?: SubmissionType;
   likes?: string[];
   comment_count?: number;
@@ -43,6 +44,7 @@ export interface Resolution {
   id: string;
   issue_id: string;
   resolution_description: string;
+  photo_urls?: string[];
   resolved_by: string;
   resolved_at: string;
 }

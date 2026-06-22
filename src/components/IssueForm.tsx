@@ -41,6 +41,8 @@ const AREA_SUGGESTIONS = [
 
 const STATUSES: IssueStatus[] = ['Pending', 'In Progress', 'Resolved'];
 
+const MAX_PHOTOS = 4;
+
 interface Props {
   schools: School[];
   defaultType?: SubmissionType;
@@ -61,8 +63,8 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
   const [priority, setPriority] = useState<IssuePriority>('Medium');
   const [status, setStatus] = useState<IssueStatus>('Pending');
   const [resolution_description, setResolutionDesc] = useState('');
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -87,6 +89,24 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
     setCustomCategory('');
   }
 
+  function addPhotos(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const remaining = MAX_PHOTOS - photos.length;
+    if (remaining <= 0) return;
+    const incoming = Array.from(files).slice(0, remaining);
+    setPhotos((prev) => [...prev, ...incoming]);
+    setPhotoPreviews((prev) => [...prev, ...incoming.map((f) => URL.createObjectURL(f))]);
+  }
+
+  function removePhoto(index: number) {
+    setPhotoPreviews((prev) => {
+      const url = prev[index];
+      if (url) URL.revokeObjectURL(url);
+      return prev.filter((_, i) => i !== index);
+    });
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!appUser) return;
@@ -101,10 +121,9 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
     setError('');
 
     try {
-      let photo_url = '';
-      if (photo) {
-        photo_url = await uploadPhoto(photo, `issues/${school_id}`);
-      }
+      const photo_urls = await Promise.all(
+        photos.map((f) => uploadPhoto(f, `issues/${school_id}`))
+      );
 
       const issueId = await createIssue({
         school_id,
@@ -115,7 +134,7 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         description,
         priority,
         status: isStrength ? 'Resolved' : status,
-        photo_url,
+        photo_urls,
         submission_type,
         created_by: appUser.name,
         created_by_id: appUser.id,
@@ -331,9 +350,9 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
       {/* Photo */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Photo Evidence (optional)
+          Photo Evidence (optional, up to {MAX_PHOTOS})
         </label>
-        <div className="flex gap-2">
+        <div className={`flex gap-2 ${photos.length >= MAX_PHOTOS ? 'opacity-50 pointer-events-none' : ''}`}>
           <button
             type="button"
             onClick={() => cameraRef.current?.click()}
@@ -357,22 +376,24 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
           </button>
         </div>
         <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={(e) => {
-          const f = e.target.files?.[0] ?? null;
-          setPhoto(f);
-          setPhotoPreview(f ? URL.createObjectURL(f) : null);
+          addPhotos(e.target.files);
+          e.target.value = '';
         }} className="hidden" />
-        <input ref={galleryRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(e) => {
-          const f = e.target.files?.[0] ?? null;
-          setPhoto(f);
-          setPhotoPreview(f ? URL.createObjectURL(f) : null);
+        <input ref={galleryRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple onChange={(e) => {
+          addPhotos(e.target.files);
+          e.target.value = '';
         }} className="hidden" />
-        {photoPreview && (
-          <div className="mt-2 relative">
-            <img src={photoPreview} alt="Preview" className="h-32 w-full rounded-xl object-cover border border-gray-200" />
-            <button type="button" onClick={() => { setPhoto(null); setPhotoPreview(null); }}
-              className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white text-xs">
-              ✕
-            </button>
+        {photoPreviews.length > 0 && (
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {photoPreviews.map((src, i) => (
+              <div key={i} className="relative">
+                <img src={src} alt={`Preview ${i + 1}`} className="h-28 w-full rounded-xl object-cover border border-gray-200" />
+                <button type="button" onClick={() => removePhoto(i)}
+                  className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white text-xs">
+                  ✕
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

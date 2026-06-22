@@ -6,6 +6,7 @@ import type { Issue, Comment } from '@/types';
 import { ExclamationTriangleIcon, StarIcon, HeartIcon, ChatBubbleIcon } from '@/components/Icons';
 import { useAuth } from '@/context/AuthContext';
 import { toggleLike, getComments, addComment } from '@/lib/firestore';
+import { getIssuePhotos } from '@/lib/storage';
 
 const issueStatusColor: Record<Issue['status'], string> = {
   Pending: 'bg-red-50 text-red-700 border-red-200',
@@ -25,6 +26,7 @@ interface Props {
 
 export default function IssueCard({ issue }: Props) {
   const { appUser } = useAuth();
+  const photos = getIssuePhotos(issue);
   const isStrength = issue.submission_type === 'strength';
   const statusColor = isStrength ? strengthStatusColor[issue.status] : issueStatusColor[issue.status];
 
@@ -112,15 +114,28 @@ export default function IssueCard({ issue }: Props) {
         </div>
       </Link>
 
-      {/* ── Photo (taps to detail) ──────────────────────────────────────────── */}
-      {issue.photo_url && (
+      {/* ── Photos (tap to detail) ──────────────────────────────────────────── */}
+      {photos.length === 1 && (
         <Link href={`/issues/${issue.id}`} className="block border-t border-black/5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={issue.photo_url}
+            src={photos[0]}
             alt="Observation photo"
             className="w-full max-h-72 object-cover"
           />
+        </Link>
+      )}
+      {photos.length > 1 && (
+        <Link href={`/issues/${issue.id}`} className="grid grid-cols-2 gap-0.5 border-t border-black/5">
+          {photos.map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={i}
+              src={src}
+              alt={`Observation photo ${i + 1}`}
+              className="h-40 w-full object-cover"
+            />
+          ))}
         </Link>
       )}
 

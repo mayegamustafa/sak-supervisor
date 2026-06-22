@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { HomeIcon, BuildingIcon, PlusCircleIcon, BellIcon, Bars3Icon } from './Icons';
+import { HomeIcon, BuildingIcon, PlusCircleIcon, TagIcon, Bars3Icon } from './Icons';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
@@ -15,7 +15,7 @@ export default function BottomNavigation() {
     { href: '/dashboard', label: 'Home', Icon: HomeIcon },
     { href: '/schools', label: 'Schools', Icon: BuildingIcon },
     { href: '/issues/new', label: 'Add', Icon: PlusCircleIcon },
-    { href: '/notices', label: 'Notices', Icon: BellIcon },
+    { href: '/departments', label: 'Depts', Icon: TagIcon },
     { href: morePath, label: 'More', Icon: Bars3Icon },
   ];
 

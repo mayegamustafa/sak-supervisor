@@ -71,6 +71,21 @@ export async function getSchoolIssues(schoolId: string): Promise<Issue[]> {
     .sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
 }
 
+export async function getCategoryIssues(category: string): Promise<Issue[]> {
+  if (!category) return [];
+  const q = query(
+    collection(db, 'issues'),
+    where('category', '==', category)
+  );
+  const snaps = await getDocs(q);
+  return snaps.docs
+    .map((s) => {
+      const d = s.data();
+      return { ...d, id: s.id, created_at: toDate(d.created_at) } as Issue;
+    })
+    .sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+}
+
 export async function getAllIssues(): Promise<Issue[]> {
   const q = query(collection(db, 'issues'), orderBy('created_at', 'desc'));
   const snaps = await getDocs(q);
@@ -89,7 +104,7 @@ export async function updateIssueStatus(
 
 export async function updateIssue(
   issueId: string,
-  data: Partial<Pick<Issue, 'issue_title' | 'description' | 'category' | 'priority' | 'class_section' | 'photo_url'>>
+  data: Partial<Pick<Issue, 'issue_title' | 'description' | 'category' | 'priority' | 'class_section' | 'photo_url' | 'photo_urls'>>
 ): Promise<void> {
   await updateDoc(doc(db, 'issues', issueId), data);
 }
@@ -120,11 +135,13 @@ export async function deleteVisitLogsByIssue(schoolId: string, createdById: stri
 export async function resolveIssue(
   issueId: string,
   resolution_description: string,
-  resolved_by: string
+  resolved_by: string,
+  photo_urls: string[] = []
 ): Promise<void> {
   await addDoc(collection(db, 'resolutions'), {
     issue_id: issueId,
     resolution_description,
+    photo_urls,
     resolved_by,
     resolved_at: serverTimestamp(),
   });

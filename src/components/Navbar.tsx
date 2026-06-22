@@ -22,7 +22,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="navbar-gradient fixed top-0 left-0 right-0 z-40 flex h-16 items-center justify-between px-4 shadow-lg print:hidden" style={{ paddingTop: 'var(--safe-top)' }}>
+      <header className="navbar-gradient fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 shadow-lg print:hidden" style={{ paddingTop: 'var(--safe-top)', height: 'calc(4rem + var(--safe-top))' }}>
         <Link href="/dashboard" className="flex items-center gap-2.5 text-white">
           <div className="flex -space-x-2">
             <Image src="/badges/sak.jpg" alt="SAK" width={36} height={36} className="h-9 w-9 rounded-full object-cover ring-2 ring-white/30 shadow-md" />
@@ -64,8 +64,6 @@ export default function Navbar() {
           </Link>
         </div>
       </header>
-      {/* Curved bottom edge */}
-      <div className="navbar-curve fixed top-16 left-0 right-0 z-39 h-4 print:hidden" style={{ marginTop: 'var(--safe-top)' }} />
     </>
   );
 }

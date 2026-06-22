@@ -1,5 +1,6 @@
 import type { Issue, FollowUp, Resolution } from '@/types';
 import { DocumentTextIcon, ChatBubbleIcon, CheckCircleIcon, ClockIcon } from './Icons';
+import ImageViewer from './ImageViewer';
 
 interface Props {
   issue: Issue;
@@ -82,7 +83,19 @@ export default function FollowUpTimeline({ issue, followups, resolution }: Props
           subtitle={`By ${resolution.resolved_by}`}
           date={resolution.resolved_at}
         >
-          {resolution.resolution_description}
+          <p>{resolution.resolution_description}</p>
+          {resolution.photo_urls && resolution.photo_urls.length > 0 && (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {resolution.photo_urls.map((src, i) => (
+                <ImageViewer
+                  key={i}
+                  src={src}
+                  alt={`Resolution photo ${i + 1}`}
+                  className="h-28 w-full rounded-lg object-cover"
+                />
+              ))}
+            </div>
+          )}
         </TimelineItem>
       )}
 
