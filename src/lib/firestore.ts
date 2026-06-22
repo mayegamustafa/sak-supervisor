@@ -17,6 +17,7 @@ import {
   arrayUnion,
   arrayRemove,
   increment,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Issue, FollowUp, Resolution, School, VisitLog, TermConfig, ChatMessage, ChatRoom, AppUser, Notice, Comment } from '@/types';
@@ -635,6 +636,21 @@ export async function getCustomCategories(): Promise<string[]> {
 
 export async function saveCustomCategories(categories: string[]): Promise<void> {
   await setDoc(CATEGORIES_DOC, { custom: categories }, { merge: true });
+}
+
+/**
+ * Bulk-reassign the category of the given issues (used when an admin renames or
+ * removes a department). Commits in batches of 450 to stay under Firestore's
+ * 500-write batch limit.
+ */
+export async function bulkSetIssueCategory(issueIds: string[], category: string): Promise<void> {
+  for (let i = 0; i < issueIds.length; i += 450) {
+    const batch = writeBatch(db);
+    issueIds.slice(i, i + 450).forEach((id) => {
+      batch.update(doc(db, 'issues', id), { category });
+    });
+    await batch.commit();
+  }
 }
 
 // ─── Reactions (Likes + Comments) ────────────────────────────────────────────

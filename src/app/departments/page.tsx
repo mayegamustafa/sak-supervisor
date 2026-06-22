@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAllIssues, getCustomCategories, saveCustomCategories } from '@/lib/firestore';
+import { getAllIssues, getCustomCategories, saveCustomCategories, bulkSetIssueCategory } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
 import { usePullRefresh } from '@/hooks/usePullRefresh';
 import PullIndicator from '@/components/PullIndicator';
@@ -11,6 +11,8 @@ import { normalizeCategory } from '@/lib/categories';
 import type { Issue } from '@/types';
 
 const BASE_CATEGORIES = ['Academic', 'Quality', 'Finance', 'Infrastructure', 'TDP'];
+// Departments that can't be renamed or removed by an admin.
+const PROTECTED = new Set([...BASE_CATEGORIES, 'Other'].map((c) => c.toLowerCase()));
 
 interface Department {
   name: string;
@@ -53,6 +55,12 @@ export default function DepartmentsPage() {
   const [newDept, setNewDept] = useState('');
   const [saving, setSaving] = useState(false);
   const [addError, setAddError] = useState('');
+
+  // Edit-department (admin only)
+  const [editingDept, setEditingDept] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editError, setEditError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   const isAdmin = appUser?.role === 'admin';
 
@@ -105,6 +113,62 @@ export default function DepartmentsPage() {
       setAddError('Failed to add. Please try again.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  function startEdit(name: string) {
+    setEditingDept(name);
+    setEditName(name);
+    setEditError('');
+  }
+
+  async function handleRename(oldName: string) {
+    const target = normalizeCategory(editName);
+    if (!target) return;
+    if (target.toLowerCase() === oldName.toLowerCase()) { setEditingDept(null); return; }
+    if (departments.some((d) => d.name.toLowerCase() === target.toLowerCase())) {
+      setEditError('A department with that name already exists.');
+      return;
+    }
+    setBusy(true);
+    setEditError('');
+    try {
+      const all = await getAllIssues();
+      const ids = all.filter((i) => normalizeCategory(i.category) === oldName).map((i) => i.id);
+      if (ids.length) await bulkSetIssueCategory(ids, target);
+      let updatedCustom = customCats.filter((c) => normalizeCategory(c) !== oldName);
+      if (!PROTECTED.has(target.toLowerCase())) updatedCustom = [...updatedCustom, target];
+      await saveCustomCategories(updatedCustom);
+      await load();
+      setEditingDept(null);
+    } catch (err) {
+      console.error(err);
+      setEditError('Failed to rename. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemove(name: string, total: number) {
+    const msg = total > 0
+      ? `Remove "${name}"? Its ${total} report${total === 1 ? '' : 's'} will be moved to "Other".`
+      : `Remove the "${name}" department?`;
+    if (!confirm(msg)) return;
+    setBusy(true);
+    try {
+      if (total > 0) {
+        const all = await getAllIssues();
+        const ids = all.filter((i) => normalizeCategory(i.category) === name).map((i) => i.id);
+        if (ids.length) await bulkSetIssueCategory(ids, 'Other');
+      }
+      const updatedCustom = customCats.filter((c) => normalizeCategory(c) !== name);
+      await saveCustomCategories(updatedCustom);
+      await load();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to remove. Please try again.');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -181,35 +245,94 @@ export default function DepartmentsPage() {
         <p className="py-8 text-center text-sm text-gray-400">No departments found.</p>
       ) : (
         <div className="space-y-3">
-          {filtered.map((dept) => (
-            <div
-              key={dept.name}
-              onClick={() => router.push(`/departments/${encodeURIComponent(dept.name)}`)}
-              className="card-press cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-800">
-                    <TagIcon className="h-5 w-5" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{dept.name}</p>
-                    <p className="text-xs text-gray-500">{dept.total} report{dept.total === 1 ? '' : 's'}</p>
+          {filtered.map((dept) => {
+            const editable = isAdmin && !PROTECTED.has(dept.name.toLowerCase());
+
+            if (editingDept === dept.name) {
+              return (
+                <div key={dept.name} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={editName}
+                      autoFocus
+                      onChange={(e) => { setEditName(e.target.value); setEditError(''); }}
+                      onKeyDown={(e) => e.key === 'Enter' && handleRename(dept.name)}
+                      maxLength={40}
+                      className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
+                    />
+                    <button
+                      onClick={() => handleRename(dept.name)}
+                      disabled={busy || !editName.trim()}
+                      className="rounded-xl bg-red-800 px-5 py-3 text-sm font-bold text-white hover:bg-red-900 disabled:opacity-50"
+                    >
+                      {busy ? '…' : 'Save'}
+                    </button>
+                    <button
+                      onClick={() => setEditingDept(null)}
+                      className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700"
+                    >
+                      Cancel
+                    </button>
                   </div>
+                  {editError && <p className="text-xs text-orange-700">{editError}</p>}
+                  {dept.total > 0 && (
+                    <p className="text-xs text-gray-400">Renaming moves its {dept.total} report{dept.total === 1 ? '' : 's'} to the new name.</p>
+                  )}
                 </div>
-                <svg className="h-5 w-5 shrink-0 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                </svg>
+              );
+            }
+
+            return (
+              <div
+                key={dept.name}
+                className="card-press rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              >
+                <div
+                  onClick={() => router.push(`/departments/${encodeURIComponent(dept.name)}`)}
+                  className="flex cursor-pointer items-center justify-between gap-2"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-800">
+                      <TagIcon className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-gray-900 truncate">{dept.name}</p>
+                      <p className="text-xs text-gray-500">{dept.total} report{dept.total === 1 ? '' : 's'}</p>
+                    </div>
+                  </div>
+                  <svg className="h-5 w-5 shrink-0 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                  </svg>
+                </div>
+                {dept.total > 0 && (
+                  <div className="mt-3 flex gap-2 text-[11px] font-medium">
+                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-red-700">{dept.pending} Pending</span>
+                    <span className="rounded-full bg-yellow-50 px-2 py-0.5 text-yellow-800">{dept.inProgress} In Progress</span>
+                    <span className="rounded-full bg-green-50 px-2 py-0.5 text-green-700">{dept.resolved} Resolved</span>
+                  </div>
+                )}
+                {editable && (
+                  <div className="mt-3 flex gap-2 border-t border-gray-100 pt-3">
+                    <button
+                      onClick={() => startEdit(dept.name)}
+                      disabled={busy}
+                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleRemove(dept.name, dept.total)}
+                      disabled={busy}
+                      className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
-              {dept.total > 0 && (
-                <div className="mt-3 flex gap-2 text-[11px] font-medium">
-                  <span className="rounded-full bg-red-50 px-2 py-0.5 text-red-700">{dept.pending} Pending</span>
-                  <span className="rounded-full bg-yellow-50 px-2 py-0.5 text-yellow-800">{dept.inProgress} In Progress</span>
-                  <span className="rounded-full bg-green-50 px-2 py-0.5 text-green-700">{dept.resolved} Resolved</span>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

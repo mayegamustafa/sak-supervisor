@@ -7,6 +7,7 @@ import { sendPush } from '@/lib/messaging';
 import { uploadPhoto } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
 import { ExclamationTriangleIcon, TrophyIcon } from '@/components/Icons';
+import { ALIAS_DEPARTMENTS } from '@/lib/categories';
 import type { School, IssueCategory, IssuePriority, IssueStatus, SubmissionType } from '@/types';
 
 const BASE_ISSUE_CATEGORIES: IssueCategory[] = [
@@ -77,9 +78,13 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
   const selectedSchool = schools.find((s) => s.id === school_id);
   const isStrength = submission_type === 'strength';
   const baseCategories = isStrength ? STRENGTH_CATEGORIES : BASE_ISSUE_CATEGORIES;
+  const aliasDepts = ALIAS_DEPARTMENTS.filter(
+    (c) => !baseCategories.includes(c as IssueCategory) && !customCats.includes(c)
+  );
   const CATEGORIES = [
     ...baseCategories.filter((c) => c !== 'Other'),
     ...customCats.filter((c) => !baseCategories.includes(c as IssueCategory)),
+    ...aliasDepts,
     'Other',
   ] as IssueCategory[];
 

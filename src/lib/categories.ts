@@ -22,3 +22,10 @@ export function normalizeCategory(raw?: string | null): string {
   const trimmed = raw.trim();
   return CATEGORY_ALIASES[trimmed.toLowerCase()] ?? trimmed;
 }
+
+/**
+ * Canonical departments that exist only as alias targets (e.g. Theology, where
+ * legacy "prayers" posts are grouped). These should appear as selectable
+ * categories even though they were never added as custom categories.
+ */
+export const ALIAS_DEPARTMENTS: string[] = Array.from(new Set(Object.values(CATEGORY_ALIASES)));
