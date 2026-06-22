@@ -17,6 +17,7 @@ import {
 } from '@/lib/firestore';
 import { sendPush } from '@/lib/messaging';
 import { uploadPhoto, getIssuePhotos } from '@/lib/storage';
+import { normalizeCategory } from '@/lib/categories';
 import { useAuth } from '@/context/AuthContext';
 import FollowUpTimeline from '@/components/FollowUpTimeline';
 import ImageViewer from '@/components/ImageViewer';
@@ -272,7 +273,7 @@ export default function IssueDetailPage() {
       {!editing ? (
         <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
           <div className="mb-3 flex items-start justify-between gap-2">
-            <h1 className="text-lg font-bold text-gray-900 leading-snug">{issue.issue_title}</h1>
+            <h1 className="min-w-0 break-words text-lg font-bold text-gray-900 leading-snug">{issue.issue_title}</h1>
             <span className="shrink-0 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 truncate max-w-[120px]">
               {issue.created_by}
             </span>
@@ -288,14 +289,14 @@ export default function IssueDetailPage() {
             }`}>
               {issue.status}
             </span>
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.category}</span>
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{normalizeCategory(issue.category)}</span>
             <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.school_name}</span>
             {issue.class_section && (
               <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{issue.class_section}</span>
             )}
           </div>
 
-          <p className="mt-3 text-sm text-gray-700">{issue.description}</p>
+          <p className="mt-3 break-words text-sm text-gray-700">{issue.description}</p>
 
           {getIssuePhotos(issue).length === 1 && (
             <ImageViewer

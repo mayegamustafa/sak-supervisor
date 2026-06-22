@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getCategoryIssues } from '@/lib/firestore';
+import { getAllIssues } from '@/lib/firestore';
+import { normalizeCategory } from '@/lib/categories';
 import { useAuth } from '@/context/AuthContext';
 import IssueCard from '@/components/IssueCard';
 import type { Issue, IssueStatus } from '@/types';
@@ -30,8 +31,8 @@ export default function DepartmentDetailPage() {
 
   useEffect(() => {
     if (!department || !appUser) return;
-    getCategoryIssues(department)
-      .then((i) => setIssues(i))
+    getAllIssues()
+      .then((all) => setIssues(all.filter((i) => normalizeCategory(i.category) === department)))
       .catch((e) => { console.error(e); setIssues([]); })
       .finally(() => setFetching(false));
   }, [department, appUser]);

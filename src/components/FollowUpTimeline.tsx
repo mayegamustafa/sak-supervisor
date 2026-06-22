@@ -33,7 +33,7 @@ function TimelineItem({
         </span>
         <div className="w-0.5 flex-1 bg-gray-200" />
       </div>
-      <div className="mb-6 flex-1 pb-1">
+      <div className="mb-6 min-w-0 flex-1 pb-1">
         <div className="flex flex-wrap items-baseline justify-between gap-1">
           <span className="text-sm font-semibold text-gray-900">{title}</span>
           {date && (
@@ -43,7 +43,7 @@ function TimelineItem({
           )}
         </div>
         {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
-        {children && <div className="mt-1 text-sm text-gray-700">{children}</div>}
+        {children && <div className="mt-1 break-words text-sm text-gray-700">{children}</div>}
       </div>
     </div>
   );

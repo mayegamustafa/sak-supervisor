@@ -7,6 +7,7 @@ import { ExclamationTriangleIcon, StarIcon, HeartIcon, ChatBubbleIcon } from '@/
 import { useAuth } from '@/context/AuthContext';
 import { toggleLike, getComments, addComment } from '@/lib/firestore';
 import { getIssuePhotos } from '@/lib/storage';
+import { normalizeCategory } from '@/lib/categories';
 
 const issueStatusColor: Record<Issue['status'], string> = {
   Pending: 'bg-red-50 text-red-700 border-red-200',
@@ -88,14 +89,14 @@ export default function IssueCard({ issue }: Props) {
         <div className="mb-2 flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 min-w-0">
             {isStrength && <StarIcon className="mt-0.5 shrink-0 h-4 w-4 text-green-600" />}
-            <h3 className="font-semibold leading-snug text-gray-900 line-clamp-2">{issue.issue_title}</h3>
+            <h3 className="min-w-0 break-words font-semibold leading-snug text-gray-900 line-clamp-2">{issue.issue_title}</h3>
           </div>
           <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 truncate max-w-[100px]">
             {issue.created_by}
           </span>
         </div>
 
-        <p className="mb-3 text-sm text-gray-600 line-clamp-2">{issue.description}</p>
+        <p className="mb-3 break-words text-sm text-gray-600 line-clamp-2">{issue.description}</p>
 
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
           {isStrength ? (
@@ -108,7 +109,7 @@ export default function IssueCard({ issue }: Props) {
             </span>
           )}
           <span className="rounded-full bg-white/60 px-2 py-0.5 border border-current">{issue.status}</span>
-          <span className="rounded-full bg-white/40 px-2 py-0.5">{issue.category}</span>
+          <span className="rounded-full bg-white/40 px-2 py-0.5">{normalizeCategory(issue.category)}</span>
           <span className="truncate max-w-[120px]">{issue.school_name}</span>
           <span className="ml-auto text-gray-400">{new Date(issue.created_at).toLocaleDateString()}</span>
         </div>
@@ -185,7 +186,7 @@ export default function IssueCard({ issue }: Props) {
                   <span className="shrink-0 h-6 w-6 rounded-full bg-red-100 text-red-800 flex items-center justify-center text-[10px] font-bold uppercase">
                     {c.user_name.charAt(0)}
                   </span>
-                  <div>
+                  <div className="min-w-0 break-words">
                     <span className="font-semibold text-gray-800 mr-1.5">{c.user_name}</span>
                     <span className="text-gray-700">{c.text}</span>
                     <span className="block text-[11px] text-gray-400 mt-0.5">

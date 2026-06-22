@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { usePullRefresh } from '@/hooks/usePullRefresh';
 import PullIndicator from '@/components/PullIndicator';
 import { TagIcon } from '@/components/Icons';
+import { normalizeCategory } from '@/lib/categories';
 import type { Issue } from '@/types';
 
 const BASE_CATEGORIES = ['Academic', 'Quality', 'Finance', 'Infrastructure', 'TDP'];
@@ -22,12 +23,12 @@ interface Department {
 function buildDepartments(issues: Issue[], custom: string[]): Department[] {
   const names = new Set<string>([
     ...BASE_CATEGORIES,
-    ...custom,
-    ...issues.map((i) => i.category).filter(Boolean) as string[],
+    ...custom.map((c) => normalizeCategory(c)),
+    ...issues.map((i) => normalizeCategory(i.category)).filter(Boolean),
   ]);
   return Array.from(names)
     .map((name) => {
-      const inDept = issues.filter((i) => i.category === name);
+      const inDept = issues.filter((i) => normalizeCategory(i.category) === name);
       return {
         name,
         total: inDept.length,
