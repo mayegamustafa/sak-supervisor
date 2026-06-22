@@ -121,9 +121,17 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
     setError('');
 
     try {
-      const photo_urls = await Promise.all(
-        photos.map((f) => uploadPhoto(f, `issues/${school_id}`))
-      );
+      // Upload photos best-effort: a single failed/undecodable photo (common on
+      // mobile, e.g. HEIC) must not abort the whole submission.
+      let photo_urls: string[] = [];
+      if (photos.length > 0) {
+        const results = await Promise.allSettled(
+          photos.map((f) => uploadPhoto(f, `issues/${school_id}`))
+        );
+        photo_urls = results
+          .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
+          .map((r) => r.value);
+      }
 
       const issueId = await createIssue({
         school_id,
@@ -146,19 +154,21 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
         await updateIssueStatus(issueId, 'In Progress');
       }
 
+      // Notifications / push / visit logging are best-effort — they must never
+      // fail the submission (the observation is already saved at this point).
       const notifTitle = isStrength ? 'Strength / Achievement Recorded' : 'New Issue Reported';
       const notifBody = isStrength
         ? `${appUser.name} recorded: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`
         : `${appUser.name} reported: ${issue_title} at ${selectedSchool?.school_name ?? 'a school'}`;
-      await createNotification({
+      createNotification({
         type: 'issue',
         title: notifTitle,
         body: notifBody,
         target_all: true,
         created_by: appUser.id,
         related_id: issueId,
-      });
-      sendPush({ title: notifTitle, body: notifBody, target_all: true });
+      }).catch(() => {});
+      try { sendPush({ title: notifTitle, body: notifBody, target_all: true }); } catch { /* ignore */ }
 
       autoLogVisit({
         supervisor_id: appUser.id,
@@ -171,7 +181,8 @@ export default function IssueForm({ schools, defaultType = 'issue' }: Props) {
       router.push(`/issues/${issueId}`);
     } catch (err) {
       console.error(err);
-      setError('Failed to submit. Please try again.');
+      const msg = err instanceof Error && err.message ? ` (${err.message})` : '';
+      setError(`Failed to submit. Please try again.${msg}`);
     } finally {
       setSubmitting(false);
     }

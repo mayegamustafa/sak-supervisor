@@ -214,28 +214,41 @@ export default function IssueDetailPage() {
     e.preventDefault();
     if (!resolutionDesc.trim() || !appUser || !id || !issue) return;
     setResolving(true);
-    const photo_urls = await Promise.all(
-      resolvePhotos.map((f) => uploadPhoto(f, `resolutions/${issue.school_id}`))
-    );
-    await resolveIssue(id, resolutionDesc.trim(), appUser.name, photo_urls);
-    const [i, r] = await Promise.all([getIssue(id), getResolution(id)]);
-    setIssue(i);
-    setResolution(r);
-    // Notify about the resolution
-    const notifTitle = 'Issue Resolved';
-    const notifBody = `${appUser.name} resolved: ${issue.issue_title}`;
-    createNotification({ type: 'issue', title: notifTitle, body: notifBody, target_all: true, created_by: appUser.id });
-    sendPush({ title: notifTitle, body: notifBody, target_all: true });
-    // Auto-log supervision visit
-    autoLogVisit({
-      supervisor_id: appUser.id,
-      supervisor_name: appUser.name,
-      school_id: issue.school_id,
-      school_name: issue.school_name,
-      activity: `Resolved issue: ${issue.issue_title}`,
-    }).catch(() => {});
-    setShowResolveForm(false);
-    setResolving(false);
+    try {
+      // Best-effort photo uploads — a failed photo must not block resolving.
+      let photo_urls: string[] = [];
+      if (resolvePhotos.length > 0) {
+        const results = await Promise.allSettled(
+          resolvePhotos.map((f) => uploadPhoto(f, `resolutions/${issue.school_id}`))
+        );
+        photo_urls = results
+          .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
+          .map((r) => r.value);
+      }
+      await resolveIssue(id, resolutionDesc.trim(), appUser.name, photo_urls);
+      const [i, r] = await Promise.all([getIssue(id), getResolution(id)]);
+      setIssue(i);
+      setResolution(r);
+      // Notify about the resolution (best-effort)
+      const notifTitle = 'Issue Resolved';
+      const notifBody = `${appUser.name} resolved: ${issue.issue_title}`;
+      createNotification({ type: 'issue', title: notifTitle, body: notifBody, target_all: true, created_by: appUser.id }).catch(() => {});
+      try { sendPush({ title: notifTitle, body: notifBody, target_all: true }); } catch { /* ignore */ }
+      // Auto-log supervision visit
+      autoLogVisit({
+        supervisor_id: appUser.id,
+        supervisor_name: appUser.name,
+        school_id: issue.school_id,
+        school_name: issue.school_name,
+        activity: `Resolved issue: ${issue.issue_title}`,
+      }).catch(() => {});
+      setShowResolveForm(false);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to resolve. Please try again.');
+    } finally {
+      setResolving(false);
+    }
   }
 
   if (loading || fetching || !appUser) return (

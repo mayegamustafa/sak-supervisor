@@ -46,10 +46,11 @@ async function fileToJpegDataUrl(file: File, maxWidth = 600, quality = 0.5): Pro
 
   const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
 
-  // Safety check: if still too large (>800KB), re-compress at lower quality
-  if (jpegDataUrl.length > 800_000) {
+  // Safety check: keep each photo small enough that up to 4 of them comfortably
+  // fit inside a single Firestore document (1 MB limit). Re-compress if needed.
+  if (jpegDataUrl.length > 230_000) {
     const smallerCanvas = document.createElement('canvas');
-    const scale = Math.min(1, 400 / imgWidth);
+    const scale = Math.min(1, 420 / imgWidth);
     smallerCanvas.width = Math.round(imgWidth * scale);
     smallerCanvas.height = Math.round(imgHeight * scale);
     const ctx2 = smallerCanvas.getContext('2d')!;
