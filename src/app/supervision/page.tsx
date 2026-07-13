@@ -71,14 +71,14 @@ export default function SupervisionPage() {
       <PullIndicator pullDistance={pullDistance} refreshing={refreshing} />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-lg font-bold text-gray-900">Supervision Tools</h1>
-          <p className="text-sm text-gray-500">Routine supervision assessment tools</p>
+          <p className="text-sm text-gray-500 truncate">Routine supervision assessment tools</p>
         </div>
         <Link
           href="/supervision/tools/new"
-          className="rounded-full bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm active:bg-gray-900"
+          className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-gray-800 px-4 py-2 text-center text-sm font-semibold leading-none text-white shadow-sm active:bg-gray-900"
         >
           + New Tool
         </Link>

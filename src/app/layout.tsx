@@ -25,6 +25,9 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: "#8B0000",
+  // Resize the page (not just the visual viewport) when the on-screen keyboard
+  // opens, so focused inputs are scrolled into view instead of being covered.
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

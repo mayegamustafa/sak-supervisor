@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllIssues, getAllResolutions, getAllTermConfigs } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
@@ -34,6 +34,7 @@ export default function ReportPage() {
   const [dateTo, setDateTo] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | Issue['status']>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'issue' | 'strength'>('all');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
@@ -133,48 +134,40 @@ export default function ReportPage() {
 
   const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 
-  /* ── WhatsApp share ── */
-  const shareToWhatsApp = useCallback(() => {
-    // Group issues by school
-    const bySchool: Record<string, Issue[]> = {};
-    issues.forEach((i) => {
-      if (!bySchool[i.school_name]) bySchool[i.school_name] = [];
-      bySchool[i.school_name].push(i);
-    });
-
-    let text = `*SAK / CPS Schools Supervision Report*\n`;
-    text += `Date: ${filterLabel}\n`;
-    text += `Prepared by: ${appUser.name}\n`;
-    text += `Total: ${issues.length} | Pending: ${pending} | In Progress: ${inProgress} | Resolved: ${resolved}\n`;
-    text += `─────────────────\n\n`;
-
-    Object.entries(bySchool).forEach(([school, schoolIssues]) => {
-      text += `*${school}* (${schoolIssues.length} submissions)\n`;
-      schoolIssues.forEach((i) => {
-        const typeLabel = i.submission_type === 'strength' ? '[Strength]' : '[Issue]';
-        const statusLabel = i.status === 'Resolved' ? '[Resolved]' : i.status === 'In Progress' ? '[In Progress]' : '[Pending]';
-        text += `${typeLabel}${statusLabel} ${i.issue_title}`;
-        if (i.description) text += `\n   _${i.description.slice(0, 150)}${i.description.length > 150 ? '...' : ''}_`;
-        const res = resolutions[i.id];
-        if (res) text += `\n   Action: ${res.resolution_description.slice(0, 120)}`;
-        text += '\n';
+  /* ── PDF export / share ── */
+  async function handlePdf(mode: 'save' | 'share') {
+    if (!appUser || exporting) return;
+    setExporting(true);
+    try {
+      const { buildIssuesReportPdf, savePdf, sharePdf } = await import('@/lib/pdf');
+      const doc = await buildIssuesReportPdf({
+        issues,
+        resolutions,
+        filterLabel,
+        preparedBy: appUser.name,
+        counts: { pending, inProgress, resolved },
       });
-      text += '\n';
-    });
-
-    text += `─────────────────\n`;
-    text += `_SAK Schools Supervision System · ${today}_`;
-
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-  }, [issues, resolutions, filterLabel, appUser, pending, inProgress, resolved, today]);
+      const filename = `SAK-Supervision-Report-${new Date().toISOString().slice(0, 10)}.pdf`;
+      if (mode === 'share') {
+        await sharePdf(doc, filename);
+      } else {
+        const msg = await savePdf(doc, filename);
+        if (msg) alert(msg);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <>
       <style>{`
         @media print {
-          @page { margin: 10mm; }
-          html, body { margin: 0; padding: 0; font-size: 9pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          @page { size: A4 landscape; margin: 10mm; }
+          html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; font-size: 9pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
           .print-container { padding: 0 !important; }
           table { page-break-inside: auto; border-collapse: collapse; width: 100%; }
@@ -194,12 +187,19 @@ export default function ReportPage() {
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             Back
           </button>
-          <div className="flex gap-2">
-            <button onClick={shareToWhatsApp} className="flex items-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white shadow-lg hover:bg-[#1da851] transition-all">
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              Share
+          <div className="flex flex-wrap justify-end gap-2">
+            <button onClick={() => handlePdf('share')} disabled={exporting}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white shadow-lg hover:bg-[#1da851] transition-all disabled:opacity-60">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" /></svg>
+              Share PDF
             </button>
-            <button onClick={() => window.print()} className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-800 to-red-900 px-5 py-2.5 text-sm font-bold text-white shadow-lg hover:from-red-900 hover:to-red-950 transition-all">
+            <button onClick={() => handlePdf('save')} disabled={exporting}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-red-800 to-red-900 px-5 py-2.5 text-sm font-bold text-white shadow-lg hover:from-red-900 hover:to-red-950 transition-all disabled:opacity-60">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+              {exporting ? 'Preparing…' : 'Save PDF'}
+            </button>
+            <button onClick={() => window.print()}
+              className="hidden sm:inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
               Print
             </button>

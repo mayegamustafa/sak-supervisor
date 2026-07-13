@@ -175,10 +175,7 @@ export default function DashboardPage() {
           </svg>
         </div>
         <div className="text-left">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-bold text-gray-900">Routine Supervision Tools</p>
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-300 uppercase tracking-wide">Coming Soon</span>
-          </div>
+          <p className="text-sm font-bold text-gray-900">Routine Supervision Tools</p>
           <p className="text-xs text-gray-500">Structured assessment forms by department</p>
         </div>
         <svg className="ml-auto h-5 w-5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

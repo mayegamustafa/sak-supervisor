@@ -20,6 +20,7 @@ export default function SessionReportPage() {
 
   const [session, setSession] = useState<SupervisionSession | null>(null);
   const [fetching, setFetching] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!loading && !appUser) router.replace('/login');
@@ -47,6 +48,28 @@ export default function SessionReportPage() {
 
   if (!session) return null;
 
+  async function handlePdf(mode: 'save' | 'share') {
+    if (!session || exporting) return;
+    setExporting(true);
+    try {
+      const { buildSessionReportPdf, savePdf, sharePdf } = await import('@/lib/pdf');
+      const doc = await buildSessionReportPdf(session);
+      const school = session.school_name.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-');
+      const filename = `Assessment-${school}-${session.session_date.slice(0, 10)}.pdf`;
+      if (mode === 'share') {
+        await sharePdf(doc, filename);
+      } else {
+        const msg = await savePdf(doc, filename);
+        if (msg) alert(msg);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="pb-6">
       {/* Action Bar (hidden in print) */}
@@ -58,10 +81,19 @@ export default function SessionReportPage() {
         </button>
         <h1 className="flex-1 text-lg font-bold text-gray-900 truncate">Assessment Report</h1>
         <button
-          onClick={() => window.print()}
-          className="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm active:bg-gray-900"
+          onClick={() => handlePdf('share')}
+          disabled={exporting}
+          title="Share PDF (WhatsApp, email…)"
+          className="inline-flex items-center justify-center rounded-lg bg-[#25D366] p-2.5 text-white shadow-sm active:bg-[#1da851] disabled:opacity-60"
         >
-          Print
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" /></svg>
+        </button>
+        <button
+          onClick={() => handlePdf('save')}
+          disabled={exporting}
+          className="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm active:bg-gray-900 disabled:opacity-60"
+        >
+          {exporting ? 'Preparing…' : 'Save PDF'}
         </button>
       </div>
 
