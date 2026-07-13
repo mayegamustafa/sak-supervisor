@@ -14,6 +14,11 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # Monotonically increasing so each APK can install over the previous one
+      # (in-place update, no uninstall). Shown in the run logs and artifact name.
+      ANDROID_VERSION_CODE: ${{ github.run_number }}
+      ANDROID_VERSION_NAME: 1.0.${{ github.run_number }}
 
     steps:
       - name: Checkout repository
@@ -77,9 +82,12 @@ jobs:
           ./gradlew assembleDebug --no-daemon
           mv app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/SAK-Supervision.apk"
 
+      - name: Print version info
+        run: 'echo "Built SAK-Supervision.apk — versionName $ANDROID_VERSION_NAME, versionCode $ANDROID_VERSION_CODE (use this build number in public/app-version.json when publishing)"'
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SAK-Supervision-Android
+          name: SAK-Supervision-Android-v${{ env.ANDROID_VERSION_NAME }}
           path: ${{ runner.temp }}/SAK-Supervision.apk
           retention-days: 30

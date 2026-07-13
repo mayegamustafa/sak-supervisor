@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import LayoutShell from "@/components/LayoutShell";
 import SplashHide from "@/components/SplashHide";
 import BackButtonHandler from "@/components/BackButtonHandler";
+import UpdatePrompt from "@/components/UpdatePrompt";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -45,6 +46,7 @@ export default function RootLayout({
           <LayoutShell>{children}</LayoutShell>
           <SplashHide />
           <BackButtonHandler />
+          <UpdatePrompt />
         </AuthProvider>
       </body>
     </html>
