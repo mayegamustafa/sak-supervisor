@@ -10,10 +10,16 @@ on:
       - 'capacitor.config.json'
       - 'package.json'
 
+concurrency:
+  group: build-android
+  cancel-in-progress: false
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
     env:
       # Monotonically increasing so each APK can install over the previous one
       # (in-place update, no uninstall). Shown in the run logs and artifact name.
@@ -83,7 +89,7 @@ jobs:
           mv app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/SAK-Supervision.apk"
 
       - name: Print version info
-        run: 'echo "Built SAK-Supervision.apk — versionName $ANDROID_VERSION_NAME, versionCode $ANDROID_VERSION_CODE (use this build number in public/app-version.json when publishing)"'
+        run: 'echo "Built SAK-Supervision.apk — versionName $ANDROID_VERSION_NAME, versionCode $ANDROID_VERSION_CODE"'
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -91,3 +97,20 @@ jobs:
           name: SAK-Supervision-Android-v${{ env.ANDROID_VERSION_NAME }}
           path: ${{ runner.temp }}/SAK-Supervision.apk
           retention-days: 30
+
+      # Manual runs (Actions → Build Android App → Run workflow) publish the
+      # signed APK to the website and bump app-version.json, which switches on
+      # the in-app update banner for every installed app. Only public/** is
+      # touched, which does not retrigger this workflow.
+      - name: Publish APK to website (release)
+        if: github.event_name == 'workflow_dispatch' && steps.keystore.outputs.signed == 'true' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B main origin/main
+          cp "$RUNNER_TEMP/SAK-Supervision.apk" public/sak-supervision.apk
+          printf '{\n  "build": %s,\n  "version": "%s",\n  "url": "/sak-supervision.apk"\n}\n' "$ANDROID_VERSION_CODE" "$ANDROID_VERSION_NAME" > public/app-version.json
+          git add public/sak-supervision.apk public/app-version.json
+          git commit -m "release: publish signed APK v$ANDROID_VERSION_NAME (auto)"
+          git push origin main || (git pull --rebase origin main && git push origin main)

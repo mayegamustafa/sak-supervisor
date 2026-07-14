@@ -21,7 +21,9 @@ export default function UpdatePrompt() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+
+    async function check() {
       try {
         const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
@@ -38,9 +40,19 @@ export default function UpdatePrompt() {
         const res = await fetch('/app-version.json', { cache: 'no-store' });
         if (!res.ok) return;
         const v: VersionInfo = await res.json();
-        if (typeof v.build === 'number' && v.build > current) setLatest(v);
+        if (!cancelled && typeof v.build === 'number' && v.build > current) setLatest(v);
       } catch { /* web / offline — no banner */ }
-    })();
+    }
+
+    check();
+    // Re-check whenever the app returns to the foreground, so long-running
+    // app sessions still learn about new versions without a full restart.
+    const onVisible = () => { if (document.visibilityState === 'visible') check(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   if (!latest || dismissed) return null;
