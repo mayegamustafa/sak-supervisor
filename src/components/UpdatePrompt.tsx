@@ -9,6 +9,16 @@ interface VersionInfo {
 }
 
 /**
+ * The APK served from an origin OUTSIDE the app's own domain: the Capacitor
+ * webview hands external links to the system browser (Chrome), whose download
+ * manager handles the APK properly. Same-origin links would stay inside the
+ * webview, which cannot download files. raw/main always serves the latest
+ * APK published by the release workflow.
+ */
+const EXTERNAL_APK_URL =
+  'https://github.com/mayegamustafa/sak-supervisor/raw/main/public/sak-supervision.apk';
+
+/**
  * Shows an "Update available" banner inside the native app when the APK
  * published on the website (public/app-version.json) is newer than the
  * installed one. Users install the update OVER the current app — no
@@ -37,7 +47,7 @@ export default function UpdatePrompt() {
           current = parseInt(info.build, 10) || 1;
         } catch { /* old APK without the App plugin */ }
 
-        const res = await fetch('/app-version.json', { cache: 'no-store' });
+        const res = await fetch(`/app-version.json?t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) return;
         const v: VersionInfo = await res.json();
         if (!cancelled && typeof v.build === 'number' && v.build > current) setLatest(v);
@@ -57,29 +67,18 @@ export default function UpdatePrompt() {
 
   if (!latest || dismissed) return null;
 
-  async function handleGetUpdate() {
+  function handleGetUpdate() {
     if (!latest) return;
-    const url = new URL(latest.url, window.location.origin).toString();
-    // Preferred: native share sheet → open in Chrome → download → install over.
-    try {
-      const { Share } = await import('@capacitor/share');
-      await Share.share({
-        title: 'SAK Supervision Update',
-        text: `Open this link in your browser to download SAK Supervision v${latest.version}, then open the file to update (no need to uninstall):`,
-        url,
-      });
-      return;
-    } catch { /* Share plugin missing on old APKs */ }
-    try {
-      await navigator.share({ title: 'SAK Supervision Update', url });
-      return;
-    } catch { /* Web Share unavailable / cancelled */ }
-    try {
-      await navigator.clipboard.writeText(url);
-      alert(`Update link copied!\n\nPaste it in Chrome to download v${latest.version}, then open the downloaded file to update. Your data is kept — no need to uninstall.`);
-    } catch {
-      alert(`To update, open this link in Chrome:\n${url}\n\nThen open the downloaded file to install the update.`);
-    }
+    // External origin → the webview hands this to the system browser, which
+    // downloads the APK; opening the finished download installs the update
+    // over the current app (same signing key, higher version).
+    window.location.href = EXTERNAL_APK_URL;
+    setTimeout(() => {
+      alert(
+        `Downloading update v${latest.version} in your browser…\n\n` +
+        `When the download finishes, open the file to install. It updates the app in place — your data is kept, no need to uninstall.`
+      );
+    }, 800);
   }
 
   return (
