@@ -64,7 +64,7 @@ export default function SessionReportPage() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to generate PDF. Please try again.');
+      alert(err instanceof Error && err.message ? err.message : 'Failed to generate PDF. Please try again.');
     } finally {
       setExporting(false);
     }
@@ -140,8 +140,8 @@ export default function SessionReportPage() {
 
         {/* Areas Table */}
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden print:border-2 print:border-gray-400 print:shadow-none">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <table className="w-full min-w-[600px] text-sm print:min-w-0">
               <thead>
                 <tr className="bg-gray-700 text-white print:bg-gray-800">
                   <th className="px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide">#</th>

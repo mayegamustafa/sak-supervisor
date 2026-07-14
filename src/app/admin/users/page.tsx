@@ -6,6 +6,8 @@ import { getAllUsers, updateUserProfile, deleteUser } from '@/lib/firestore';
 import { useAuth } from '@/context/AuthContext';
 import type { AppUser, UserRole } from '@/types';
 
+const DEPARTMENTS = ['Finance', 'Academic', 'Quality Assurance', 'Theology', 'TDP'];
+
 export default function ManageUsersPage() {
   const { appUser, loading } = useAuth();
   const router = useRouter();
@@ -16,6 +18,10 @@ export default function ManageUsersPage() {
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
+
+  // Department assignment
+  const [showDepts, setShowDepts] = useState<string | null>(null);
+  const [deptDraft, setDeptDraft] = useState<string[]>([]);
 
   // Add user form
   const [newName, setNewName] = useState('');
@@ -125,6 +131,28 @@ export default function ManageUsersPage() {
   async function changeRole(uid: string, role: UserRole) {
     await updateUserProfile(uid, { role });
     loadUsers();
+  }
+
+  function startDepts(u: AppUser) {
+    setShowDepts(showDepts === u.id ? null : u.id);
+    setDeptDraft(u.departments ?? []);
+    setError('');
+    setSuccess('');
+  }
+
+  async function handleSaveDepts(uid: string) {
+    setSubmitting(true);
+    setError('');
+    try {
+      await updateUserProfile(uid, { departments: deptDraft });
+      setSuccess(deptDraft.length ? 'Departments updated!' : 'User can now see all departments.');
+      setShowDepts(null);
+      loadUsers();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update departments');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function startEdit(u: AppUser) {
@@ -278,6 +306,14 @@ export default function ManageUsersPage() {
                       {u.active ? 'Active' : 'Disabled'}
                     </span>
                   </div>
+                  {u.role !== 'admin' && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Departments:{' '}
+                      <span className="font-medium text-gray-700">
+                        {u.departments?.length ? u.departments.join(', ') : 'All (unrestricted)'}
+                      </span>
+                    </p>
+                  )}
                   {u.last_seen && (
                     <p className="text-xs text-gray-400 mt-1">
                       Last seen: {new Date(u.last_seen).toLocaleString()}
@@ -313,6 +349,14 @@ export default function ManageUsersPage() {
                   >
                     Edit
                   </button>
+                  {u.role !== 'admin' && (
+                    <button
+                      onClick={() => startDepts(u)}
+                      className="rounded-lg bg-cyan-100 px-3 py-1.5 text-xs font-medium text-cyan-800"
+                    >
+                      Departments
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDeleteUser(u)}
                     disabled={submitting}
@@ -351,6 +395,54 @@ export default function ManageUsersPage() {
                     </button>
                     <button
                       onClick={() => setEditingUser(null)}
+                      className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Department Assignment */}
+              {showDepts === u.id && (
+                <div className="mt-3 space-y-2 rounded-lg border border-cyan-200 bg-cyan-50 p-3">
+                  <p className="text-xs font-semibold text-cyan-900">
+                    Departments {u.name} can see in Supervision Tools
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {DEPARTMENTS.map((d) => {
+                      const on = deptDraft.includes(d);
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() =>
+                            setDeptDraft((prev) => on ? prev.filter((x) => x !== d) : [...prev, d])
+                          }
+                          className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                            on
+                              ? 'border-cyan-600 bg-cyan-600 text-white'
+                              : 'border-gray-300 bg-white text-gray-700'
+                          }`}
+                        >
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-cyan-800">
+                    None selected = user sees tools from all departments.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSaveDepts(u.id)}
+                      disabled={submitting}
+                      className="rounded-lg bg-cyan-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                    >
+                      {submitting ? 'Saving…' : 'Save'}
+                    </button>
+                    <button
+                      onClick={() => setShowDepts(null)}
                       className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700"
                     >
                       Cancel

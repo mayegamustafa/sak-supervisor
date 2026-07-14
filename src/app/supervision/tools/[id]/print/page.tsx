@@ -58,7 +58,7 @@ export default function PrintToolPage() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to generate PDF. Please try again.');
+      alert(err instanceof Error && err.message ? err.message : 'Failed to generate PDF. Please try again.');
     } finally {
       setExporting(false);
     }
@@ -125,7 +125,8 @@ export default function PrintToolPage() {
 
         {/* Areas Table */}
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden print:border-2 print:border-gray-400 print:shadow-none">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <table className="w-full min-w-[600px] text-sm print:min-w-0">
             <thead>
               <tr className="bg-red-900 text-white print:bg-gray-800">
                 <th className="px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide w-8">#</th>
@@ -185,6 +186,7 @@ export default function PrintToolPage() {
               </tr>
             </tfoot>
           </table>
+          </div>
         </div>
 
         {/* Comments Section (blank lines) */}

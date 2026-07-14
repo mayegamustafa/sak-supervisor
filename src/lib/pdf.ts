@@ -331,24 +331,41 @@ async function writeNativeFile(doc: jsPDF, filename: string, directory: 'CACHE' 
   return result.uri;
 }
 
+/**
+ * Thrown when the installed app is too old to save/share files natively
+ * (it predates the Filesystem/Share plugins). Pages show err.message.
+ */
+export const UPDATE_REQUIRED_MESSAGE =
+  'Your installed app version cannot save PDFs yet. Please update the app — tap "Get update" on the update banner (the update installs over the current app; nothing is lost).';
+
+/** Try the Web Share API with the PDF file; true if shared (or user cancelled). */
+async function tryWebShare(doc: jsPDF, filename: string): Promise<boolean> {
+  try {
+    const blob = doc.output('blob');
+    const file = new File([blob], filename, { type: 'application/pdf' });
+    if (!navigator.canShare?.({ files: [file] })) return false;
+    await navigator.share({ files: [file], title: filename });
+    return true;
+  } catch (err) {
+    return (err as DOMException)?.name === 'AbortError'; // cancelled = handled
+  }
+}
+
 /** Open the share sheet with the PDF (WhatsApp, email, Drive, Save to Files…). */
 export async function sharePdf(doc: jsPDF, filename: string): Promise<void> {
   if (await isNativeApp()) {
-    const uri = await writeNativeFile(doc, filename, 'CACHE');
-    const { Share } = await import('@capacitor/share');
-    await Share.share({ title: filename, files: [uri] });
-    return;
-  }
-  const blob = doc.output('blob');
-  const file = new File([blob], filename, { type: 'application/pdf' });
-  if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: filename });
+      const uri = await writeNativeFile(doc, filename, 'CACHE');
+      const { Share } = await import('@capacitor/share');
+      await Share.share({ title: filename, files: [uri] });
       return;
-    } catch (err) {
-      if ((err as DOMException)?.name === 'AbortError') return; // user cancelled
+    } catch {
+      // Old APK without the native plugins — try the web path, else ask to update.
+      if (await tryWebShare(doc, filename)) return;
+      throw new Error(UPDATE_REQUIRED_MESSAGE);
     }
   }
+  if (await tryWebShare(doc, filename)) return;
   doc.save(filename); // fallback: download
 }
 
@@ -359,7 +376,8 @@ export async function savePdf(doc: jsPDF, filename: string): Promise<string> {
       await writeNativeFile(doc, filename, 'DOCUMENTS');
       return `Saved to your Documents folder as ${filename}`;
     } catch {
-      // Some Android versions restrict Documents — let the user pick a target.
+      // Documents may be restricted (Android 11+) or the app may be too old —
+      // sharePdf handles both (share sheet, web share, or update message).
       await sharePdf(doc, filename);
       return '';
     }

@@ -341,7 +341,7 @@ export async function getAllUsers(): Promise<AppUser[]> {
 
 export async function updateUserProfile(
   uid: string,
-  data: Partial<Pick<AppUser, 'name' | 'email' | 'role' | 'active' | 'photo_url' | 'biometric_enabled' | 'biometric_required'>>
+  data: Partial<Pick<AppUser, 'name' | 'email' | 'role' | 'active' | 'photo_url' | 'departments' | 'biometric_enabled' | 'biometric_required'>>
 ): Promise<void> {
   await updateDoc(doc(db, 'users', uid), data);
 }

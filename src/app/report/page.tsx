@@ -156,7 +156,7 @@ export default function ReportPage() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to generate PDF. Please try again.');
+      alert(err instanceof Error && err.message ? err.message : 'Failed to generate PDF. Please try again.');
     } finally {
       setExporting(false);
     }
@@ -321,7 +321,7 @@ export default function ReportPage() {
           <p className="py-10 text-center text-sm text-gray-400">No issues to display for the selected period.</p>
         ) : (
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <table className="w-full border-collapse text-[11px] leading-snug">
+            <table className="w-full min-w-[900px] border-collapse text-[11px] leading-snug print:min-w-0">
               <thead>
                 <tr className="bg-gradient-to-r from-red-900 to-red-800 text-white">
                   <th className="border border-red-700 px-1.5 py-2 text-center font-semibold">#</th>
