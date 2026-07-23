@@ -7,6 +7,8 @@ export interface AppUser {
   role: UserRole;
   active: boolean;
   photo_url?: string;
+  /** Saved signature image (transparent PNG data URL) attachable during assessments. */
+  signature_url?: string;
   /**
    * Supervision departments this user may view (assigned by admin).
    * Empty/absent = unrestricted (sees all departments' tools).

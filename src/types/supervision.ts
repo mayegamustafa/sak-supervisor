@@ -39,8 +39,12 @@ export interface SupervisionSession {
   key_strengths: string;
   key_improvements: string;
   supervisor_signature: string;
+  /** Supervisor's signature image (transparent PNG data URL), if attached. */
+  supervisor_signature_image?: string;
   headteacher_name: string;
   headteacher_signature: string;
+  /** Headteacher's scanned/drawn signature image (transparent PNG data URL), if attached. */
+  headteacher_signature_image?: string;
   session_date: string;
   created_at: string;
 }

@@ -208,31 +208,56 @@ export async function buildSessionReportPdf(session: SupervisionSession): Promis
   const w = pageWidth(doc);
   const h = doc.internal.pageSize.getHeight();
 
+  // Comments / remarks: each line is written sitting on a ruled underline.
+  const LINE_H = 5.4;
   const writeBlock = (heading: string, text: string) => {
     const lines = doc.splitTextToSize(text, w - MARGIN * 2);
-    const needed = 6 + lines.length * 4.2;
-    if (y + needed > h - 20) { doc.addPage(); y = MARGIN + 4; }
+    if (y + 6 + LINE_H > h - 20) { doc.addPage(); y = MARGIN + 4; }
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...BRAND);
-    doc.text(heading, MARGIN, y); y += 5;
+    doc.text(heading, MARGIN, y); y += 5.5;
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(40);
-    doc.text(lines, MARGIN, y); y += lines.length * 4.2 + 4;
+    for (const line of lines) {
+      if (y + LINE_H > h - 20) { doc.addPage(); y = MARGIN + 4; }
+      doc.text(line, MARGIN, y);
+      doc.setDrawColor(205); doc.setLineWidth(0.15);
+      doc.line(MARGIN, y + 1.6, w - MARGIN, y + 1.6);
+      y += LINE_H;
+    }
+    y += 3;
   };
 
   if (session.key_strengths) writeBlock('Key Strengths to Maintain', session.key_strengths);
   if (session.key_improvements) writeBlock('Key Areas for Improvement', session.key_improvements);
 
-  if (y + 26 > h - 20) { doc.addPage(); y = MARGIN + 4; }
+  // Signatures: scanned/saved images sit on the line; the name is printed below.
+  if (y + 30 > h - 20) { doc.addPage(); y = MARGIN + 4; }
   y += 6;
   const colW = (w - MARGIN * 2 - 10) / 2;
+  const lineY = y + 14;
+  const placeSig = (img: string | undefined, x: number) => {
+    if (!img) return;
+    try {
+      const props = doc.getImageProperties(img);
+      const maxW = colW - 2;
+      const maxH = 13;
+      const r = Math.min(maxW / props.width, maxH / props.height);
+      const iw = props.width * r;
+      const ih = props.height * r;
+      doc.addImage(img, 'PNG', x, lineY - 1 - ih, iw, ih);
+    } catch { /* skip unreadable image */ }
+  };
+  placeSig(session.supervisor_signature_image, MARGIN);
+  placeSig(session.headteacher_signature_image, MARGIN + colW + 10);
+
   doc.setDrawColor(120); doc.setLineWidth(0.3);
-  doc.line(MARGIN, y + 8, MARGIN + colW, y + 8);
-  doc.line(MARGIN + colW + 10, y + 8, w - MARGIN, y + 8);
+  doc.line(MARGIN, lineY, MARGIN + colW, lineY);
+  doc.line(MARGIN + colW + 10, lineY, w - MARGIN, lineY);
   doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(40);
-  doc.text(session.supervisor_signature || session.supervisor_name, MARGIN, y + 6);
-  doc.text(session.headteacher_signature || session.headteacher_name || '—', MARGIN + colW + 10, y + 6);
+  doc.text(session.supervisor_signature || session.supervisor_name, MARGIN, lineY + 5);
+  doc.text(session.headteacher_name || session.headteacher_signature || '—', MARGIN + colW + 10, lineY + 5);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(110);
-  doc.text('Supervisor', MARGIN, y + 12.5);
-  doc.text('Headteacher', MARGIN + colW + 10, y + 12.5);
+  doc.text('Supervisor', MARGIN, lineY + 10);
+  doc.text('Headteacher', MARGIN + colW + 10, lineY + 10);
 
   drawFooters(doc);
   return doc;

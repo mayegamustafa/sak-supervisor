@@ -9,6 +9,7 @@ import { uploadPhoto } from '@/lib/storage';
 import { UserCircleIcon, ArrowRightOnRectangleIcon, BuildingIcon, ShareIcon, DownloadIcon, ClipboardIcon, ChatBubbleIcon, BellIcon, AppleIcon, AndroidIcon, DevicePhoneIcon } from '@/components/Icons';
 import Image from 'next/image';
 import PhotoCropEditor from '@/components/PhotoCropEditor';
+import SignatureField from '@/components/SignatureField';
 import { isBiometricAvailable, hasStoredCredentials, deleteCredentials, verifyBiometric, saveCredentials } from '@/lib/biometric';
 
 export default function ProfilePage() {
@@ -73,6 +74,18 @@ export default function ProfilePage() {
       setAppUser((prev) => prev ? { ...prev, biometric_enabled: newVal } : prev);
     } catch { /* ignore */ }
     setTogglingBiometric(false);
+  }
+
+  async function handleSignatureChange(dataUrl: string) {
+    if (!appUser) return;
+    const prev = appUser.signature_url ?? '';
+    setAppUser((p) => (p ? { ...p, signature_url: dataUrl } : p));
+    try {
+      await updateUserProfile(appUser.id, { signature_url: dataUrl });
+    } catch {
+      setAppUser((p) => (p ? { ...p, signature_url: prev } : p));
+      alert('Failed to save signature. Please try again.');
+    }
   }
 
   async function handleLogout() {
@@ -235,6 +248,20 @@ export default function ProfilePage() {
         <InfoRow label="Email" value={appUser.email} />
         <InfoRow label="Role" value={appUser.role.charAt(0).toUpperCase() + appUser.role.slice(1)} />
         <InfoRow label="Status" value={appUser.active ? 'Active' : 'Inactive'} />
+      </div>
+
+      {/* My Signature */}
+      <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
+        <h3 className="text-sm font-bold text-gray-900">My Signature</h3>
+        <p className="text-xs text-gray-500 mt-0.5 mb-3">
+          Save your signature once, then attach it to any assessment with a single tap.
+        </p>
+        <SignatureField
+          label=""
+          value={appUser.signature_url ?? ''}
+          onChange={handleSignatureChange}
+          hint="Draw with your finger, scan it from paper, or upload an image."
+        />
       </div>
 
       {/* Biometric Login */}

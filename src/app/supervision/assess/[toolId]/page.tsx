@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getAllSchools, createNotification } from '@/lib/firestore';
 import { getSupervisionTool, createSupervisionSession } from '@/lib/firestore-supervision';
 import { sendPush } from '@/lib/messaging';
+import SignatureField from '@/components/SignatureField';
 import type { SupervisionTool, AreaScore, School } from '@/types';
 
 export default function AssessmentPage() {
@@ -24,8 +25,9 @@ export default function AssessmentPage() {
   const [keyStrengths, setKeyStrengths] = useState('');
   const [keyImprovements, setKeyImprovements] = useState('');
   const [supervisorSignature, setSupervisorSignature] = useState('');
+  const [supervisorSignatureImage, setSupervisorSignatureImage] = useState('');
   const [headteacherName, setHeadteacherName] = useState('');
-  const [headteacherSignature, setHeadteacherSignature] = useState('');
+  const [headteacherSignatureImage, setHeadteacherSignatureImage] = useState('');
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -56,6 +58,8 @@ export default function AssessmentPage() {
           }))
         );
         setSupervisorSignature(appUser.name);
+        // Auto-attach the supervisor's saved signature if they have one.
+        if (appUser.signature_url) setSupervisorSignatureImage(appUser.signature_url);
       })
       .finally(() => setFetching(false));
   }, [appUser, toolId, router]);
@@ -113,8 +117,10 @@ export default function AssessmentPage() {
         key_strengths: keyStrengths.trim(),
         key_improvements: keyImprovements.trim(),
         supervisor_signature: supervisorSignature.trim(),
+        supervisor_signature_image: supervisorSignatureImage,
         headteacher_name: headteacherName.trim(),
-        headteacher_signature: headteacherSignature.trim(),
+        headteacher_signature: '',
+        headteacher_signature_image: headteacherSignatureImage,
         session_date: sessionDate,
       });
 
@@ -327,7 +333,7 @@ export default function AssessmentPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Supervisor Name / Signature</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Supervisor Name</label>
               <input
                 type="text"
                 value={supervisorSignature}
@@ -347,14 +353,21 @@ export default function AssessmentPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Headteacher Signature</label>
-            <input
-              type="text"
-              value={headteacherSignature}
-              onChange={(e) => setHeadteacherSignature(e.target.value)}
-              placeholder="Headteacher signature / acknowledgement"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-amber-500 focus:outline-none"
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <SignatureField
+              label="Supervisor Signature"
+              value={supervisorSignatureImage}
+              onChange={setSupervisorSignatureImage}
+              savedSignature={appUser.signature_url}
+              hint={appUser.signature_url
+                ? 'Your saved signature is attached — tap to change.'
+                : 'Attach your signature, or save one in your profile for one-tap use.'}
+            />
+            <SignatureField
+              label="Headteacher Signature"
+              value={headteacherSignatureImage}
+              onChange={setHeadteacherSignatureImage}
+              hint="Scan it from the camera, upload an image, or have them sign on screen."
             />
           </div>
         </div>

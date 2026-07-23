@@ -208,13 +208,13 @@ export default function SessionReportPage() {
             {session.key_strengths && (
               <div>
                 <h3 className="text-sm font-semibold text-gray-800 mb-1">Key Strengths to Maintain</h3>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{session.key_strengths}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-line underline decoration-gray-300 underline-offset-4">{session.key_strengths}</p>
               </div>
             )}
             {session.key_improvements && (
               <div>
                 <h3 className="text-sm font-semibold text-gray-800 mb-1">Key Areas for Improvement</h3>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{session.key_improvements}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-line underline decoration-gray-300 underline-offset-4">{session.key_improvements}</p>
               </div>
             )}
           </div>
@@ -224,12 +224,24 @@ export default function SessionReportPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm print:border-2 print:border-gray-400 print:shadow-none">
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Signatures</h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="border-t-2 border-gray-300 pt-2">
-              <p className="text-sm font-semibold text-gray-900">{session.supervisor_signature || session.supervisor_name}</p>
+            <div>
+              <div className="flex h-14 items-end justify-center border-b-2 border-gray-300 pb-1">
+                {session.supervisor_signature_image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={session.supervisor_signature_image} alt="Supervisor signature" className="max-h-12 max-w-full object-contain" />
+                )}
+              </div>
+              <p className="mt-1.5 text-sm font-semibold text-gray-900">{session.supervisor_signature || session.supervisor_name}</p>
               <p className="text-xs text-gray-500">Supervisor</p>
             </div>
-            <div className="border-t-2 border-gray-300 pt-2">
-              <p className="text-sm font-semibold text-gray-900">{session.headteacher_signature || session.headteacher_name || '—'}</p>
+            <div>
+              <div className="flex h-14 items-end justify-center border-b-2 border-gray-300 pb-1">
+                {session.headteacher_signature_image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={session.headteacher_signature_image} alt="Headteacher signature" className="max-h-12 max-w-full object-contain" />
+                )}
+              </div>
+              <p className="mt-1.5 text-sm font-semibold text-gray-900">{session.headteacher_name || session.headteacher_signature || '—'}</p>
               <p className="text-xs text-gray-500">Headteacher</p>
             </div>
           </div>
